@@ -153,8 +153,20 @@ function Modal({ children, onClose, width = 560 }) {
   );
 }
 
-function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB }) {
-  const [form, setForm] = useState({ name: "", variety: "", about: "", water: "", sun: "", zone: ZONES[0], status: "Seed", dateStarted: new Date().toISOString().split("T")[0], dtm: "", quantity: "", notes: "" });
+function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill }) {
+  const [form, setForm] = useState({
+    name: prefill?.name || "",
+    variety: prefill?.variety || "",
+    about: prefill?.about || "",
+    water: prefill?.water || "",
+    sun: prefill?.sun || "",
+    zone: ZONES[0],
+    status: "Seed",
+    dateStarted: new Date().toISOString().split("T")[0],
+    dtm: prefill?.dtm || "",
+    quantity: "",
+    notes: ""
+  });
   const [suggestions, setSuggestions] = useState([]);
   const [showSugg, setShowSugg] = useState(false);
 
@@ -839,7 +851,7 @@ function SuccessionTab({ plants }) {
   );
 }
 
-function MyDBTab({ userDB, onSaveUserDB }) {
+function MyDBTab({ userDB, onSaveUserDB, onAddToGarden }) {
   const [editing, setEditing] = useState(null);
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("");
@@ -942,7 +954,9 @@ function MyDBTab({ userDB, onSaveUserDB }) {
                     {entry.about && <div style={{ fontSize: 13, color: "#666", marginTop: 6 }}>{entry.about}</div>}
                     {entry.addedAt && <div style={{ fontSize: 11, color: "#bbb", marginTop: 4 }}>Added {formatDate(entry.addedAt)}</div>}
                   </div>
-                  <div style={{ display: "flex", gap: 6, marginLeft: 12 }}>
+                  <div style={{ display: "flex", gap: 6, marginLeft: 12, flexShrink: 0 }}>
+                    <button onClick={() => onAddToGarden(entry)}
+                      style={{ background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" }}>+ Add</button>
                     <button onClick={() => setEditing(entry.name)} style={{ background: "none", border: "1px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 13 }}>✏️</button>
                     <button onClick={() => deleteEntry(entry.name)} style={{ background: "none", border: "1px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 13, color: "#c0392b" }}>🗑</button>
                   </div>
@@ -1219,6 +1233,7 @@ export default function App() {
   const [userDB, setUserDB] = useState([]);
   const [tab, setTab] = useState("garden");
   const [showAdd, setShowAdd] = useState(false);
+  const [prefillPlant, setPrefillPlant] = useState(null);
   const [showFrost, setShowFrost] = useState(false);
   const [search, setSearch] = useState("");
   const [filterZone, setFilterZone] = useState("");
@@ -1248,6 +1263,56 @@ export default function App() {
   function handleAdd(plant) { savePlants([...plants, plant]); }
   function handleUpdate(updated) { savePlants(plants.map(p => p.id === updated.id ? updated : p)); }
   function handleDelete(id) { savePlants(plants.filter(p => p.id !== id)); }
+  function handleAddToGarden(entry) { setPrefillPlant(entry); setShowAdd(true); setTab("garden"); }
+
+  const [showBackup, setShowBackup] = useState(false);
+  const [importError, setImportError] = useState("");
+  const [importSuccess, setImportSuccess] = useState(false);
+
+  function handleExport() {
+    const backup = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      plants,
+      frostDates,
+      userDB: userDB.filter(p => !p.seeded), // only export custom entries
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `plant-tracker-backup-${new Date().toISOString().split("T")[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function handleImport(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImportError("");
+    setImportSuccess(false);
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!data.plants || !Array.isArray(data.plants)) throw new Error("Invalid backup file.");
+        await savePlants(data.plants);
+        if (data.frostDates) await saveFrost(data.frostDates);
+        if (data.userDB && Array.isArray(data.userDB)) {
+          // Merge custom entries with seeded ones
+          const seeded = PLANT_DB.map(p => ({ ...p, addedAt: new Date().toISOString(), seeded: true }));
+          const merged = [...seeded, ...data.userDB.filter(p => !seeded.find(s => s.name === p.name))];
+          await saveUserDB(merged);
+        }
+        setImportSuccess(true);
+        setTimeout(() => { setShowBackup(false); setImportSuccess(false); }, 2000);
+      } catch (err) {
+        setImportError("Couldn't read that file. Make sure it's a Plant Tracker backup.");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  }
 
   const navBtn = (id, label, icon) => (
     <button onClick={() => setTab(id)} style={{ padding: "7px 12px", borderRadius: 10, border: "none", cursor: "pointer", fontSize: 13, fontWeight: tab === id ? 700 : 500, background: tab === id ? "#2d6a3f" : "transparent", color: tab === id ? "#fff" : "#555", display: "flex", alignItems: "center", gap: 5 }}>
@@ -1264,13 +1329,17 @@ export default function App() {
           <span style={{ fontSize: 22 }}>🌿</span>
           <span style={{ fontWeight: 800, fontSize: 18 }}>Plant Tracker</span>
         </div>
-        <nav style={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+        <nav style={{ display: "flex", gap: 2, flexWrap: "wrap", flex: 1 }}>
           {navBtn("garden", "Garden", "🌱")}
           {navBtn("harvest", "Harvest", "🧺")}
           {navBtn("calendar", "Calendar", "📅")}
           {navBtn("succession", "Succession", "🔄")}
           {navBtn("mydb", "My DB", "📖")}
         </nav>
+        <button onClick={() => setShowBackup(true)}
+          style={{ background: "none", border: "1px solid #ddd", borderRadius: 10, padding: "6px 12px", cursor: "pointer", fontSize: 13, color: "#666", display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
+          💾 Backup
+        </button>
       </div>
 
       {tab === "garden" && (
@@ -1281,10 +1350,44 @@ export default function App() {
       {tab === "calendar" && <CalendarTab plants={plants} />}
       {tab === "harvest" && <HarvestTab plants={plants} frostDates={frostDates} onUpdate={handleUpdate} />}
       {tab === "succession" && <SuccessionTab plants={plants} />}
-      {tab === "mydb" && <MyDBTab userDB={userDB} onSaveUserDB={saveUserDB} />}
+      {tab === "mydb" && <MyDBTab userDB={userDB} onSaveUserDB={saveUserDB} onAddToGarden={handleAddToGarden} />}
 
-      {showAdd && <AddPlantModal onAdd={handleAdd} onClose={() => setShowAdd(false)} userDB={userDB} onSaveUserDB={saveUserDB} />}
+      {showAdd && <AddPlantModal onAdd={handleAdd} onClose={() => { setShowAdd(false); setPrefillPlant(null); }} userDB={userDB} onSaveUserDB={saveUserDB} prefill={prefillPlant} />}
       {showFrost && <FrostModal frostDates={frostDates} onSave={saveFrost} onClose={() => setShowFrost(false)} />}
+
+      {showBackup && (
+        <Modal onClose={() => { setShowBackup(false); setImportError(""); setImportSuccess(false); }} width={440}>
+          <h2 style={{ margin: "0 0 6px", fontSize: 20, fontWeight: 700 }}>💾 Backup & Restore</h2>
+          <p style={{ color: "#888", fontSize: 13, marginBottom: 24, lineHeight: 1.5 }}>
+            Your data lives on this device. Export a backup file to iCloud, Google Drive, or email to keep it safe.
+          </p>
+
+          <div style={{ background: "#f5f9f5", border: "1px solid #c8e6c9", borderRadius: 12, padding: 16, marginBottom: 16 }}>
+            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>📤 Export backup</div>
+            <div style={{ fontSize: 13, color: "#666", marginBottom: 12 }}>
+              Downloads a JSON file with all your plants, care logs, frost dates, and custom database entries.
+              {plants.length > 0 && <span style={{ color: "#2d6a3f", fontWeight: 600 }}> {plants.length} plant{plants.length !== 1 ? "s" : ""} will be saved.</span>}
+            </div>
+            <button onClick={handleExport}
+              style={{ width: "100%", padding: "11px", background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>
+              Download Backup File
+            </button>
+          </div>
+
+          <div style={{ background: "#fafaf8", border: "1px solid #e8e8e8", borderRadius: 12, padding: 16 }}>
+            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>📥 Restore from backup</div>
+            <div style={{ fontSize: 13, color: "#888", marginBottom: 12 }}>
+              Select a previously exported backup file. This will replace your current data.
+            </div>
+            <label style={{ display: "block", width: "100%", padding: "11px", background: "#fff", border: "1.5px dashed #ccc", borderRadius: 10, cursor: "pointer", fontSize: 14, textAlign: "center", color: "#555", boxSizing: "border-box" }}>
+              Choose Backup File
+              <input type="file" accept=".json" onChange={handleImport} style={{ display: "none" }} />
+            </label>
+            {importError && <div style={{ marginTop: 8, fontSize: 13, color: "#c0392b", background: "#fdecea", padding: "8px 12px", borderRadius: 8 }}>⚠️ {importError}</div>}
+            {importSuccess && <div style={{ marginTop: 8, fontSize: 13, color: "#2d6a3f", background: "#eaf5ee", padding: "8px 12px", borderRadius: 8 }}>✓ Restore successful! Your data is back.</div>}
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
