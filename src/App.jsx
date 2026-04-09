@@ -106,6 +106,12 @@ function daysUntil(dateStr) {
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
 
+function daysSince(dateStr) {
+  if (!dateStr) return null;
+  const diff = new Date() - new Date(dateStr);
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
+}
+
 function formatDate(dateStr) {
   if (!dateStr) return null;
   const d = new Date(dateStr);
@@ -1722,6 +1728,7 @@ export default function App() {
   const [showBackup, setShowBackup] = useState(false);
   const [importError, setImportError] = useState("");
   const [importSuccess, setImportSuccess] = useState(false);
+  const [lastBackup, setLastBackup] = useState(() => localStorage.getItem("last_backup_at") || null);
 
   function handleExport() {
     const backup = { version: 1, exportedAt: new Date().toISOString(), plants, frostDates, seeds, userDB: userDB.filter(p => !p.seeded) };
@@ -1732,6 +1739,9 @@ export default function App() {
     a.download = `plant-tracker-backup-${new Date().toISOString().split("T")[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    const now = new Date().toISOString();
+    localStorage.setItem("last_backup_at", now);
+    setLastBackup(now);
   }
 
   function handleImport(e) {
@@ -1784,10 +1794,23 @@ export default function App() {
             <span style={{ fontWeight: 800, fontSize: 18, letterSpacing: -0.5 }}>Plant Tracker</span>
           </div>
           <button onClick={() => setShowBackup(true)}
-            style={{ background: "none", border: "1px solid #e0e0e0", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 12, color: "#888" }}>
-            💾
+            style={{ background: "none", border: `1px solid ${!lastBackup || daysSince(lastBackup) >= 3 ? "#f0a500" : "#e0e0e0"}`, borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 12, color: !lastBackup || daysSince(lastBackup) >= 3 ? "#f0a500" : "#888", display: "flex", alignItems: "center", gap: 4 }}>
+            💾 {lastBackup ? `${daysSince(lastBackup)}d ago` : "Backup"}
           </button>
         </div>
+
+        {/* Backup reminder banner */}
+        {(!lastBackup || daysSince(lastBackup) >= 3) && plants.length > 0 && (
+          <button onClick={() => setShowBackup(true)} style={{ width: "100%", background: "#fffbeb", border: "1px solid #fcd34d", borderRadius: 10, padding: "8px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, marginBottom: 8, textAlign: "left" }}>
+            <span style={{ fontSize: 16 }}>⚠️</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#92400e" }}>
+                {!lastBackup ? "No backup yet" : `Last backup ${daysSince(lastBackup)} days ago`}
+              </div>
+              <div style={{ fontSize: 11, color: "#b45309" }}>Tap to back up your {plants.length} plant{plants.length !== 1 ? "s" : ""} now</div>
+            </div>
+          </button>
+        )}
 
         {/* Frost date bar — always visible on Garden tab */}
         {tab === "garden" && (
@@ -1863,7 +1886,14 @@ export default function App() {
 
       {showAdd && addFlow === "scan" && (
         <Modal onClose={closeAdd} width={480}>
-          <SeedScanPicker onScanned={data => { setPrefillPlant(data); setAddFlow("manual"); }} onClose={closeAdd} />
+          <SeedScanPicker onScanned={data => {
+            // Auto-save to seed library
+            const seedEntry = { ...data, id: generateId(), addedAt: new Date().toISOString(), started: false, source: "Scanned" };
+            saveSeeds([...seeds, seedEntry]);
+            // Also pre-fill the Add Plant form
+            setPrefillPlant(data);
+            setAddFlow("manual");
+          }} onClose={closeAdd} />
         </Modal>
       )}
 
@@ -1880,7 +1910,8 @@ export default function App() {
           <p style={{ color: "#888", fontSize: 13, marginBottom: 20, lineHeight: 1.5 }}>Your data lives on this device. Export to iCloud or Google Drive to keep it safe.</p>
           <div style={{ background: "#f5f9f5", border: "1px solid #c8e6c9", borderRadius: 12, padding: 16, marginBottom: 12 }}>
             <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>📤 Export</div>
-            <div style={{ fontSize: 13, color: "#666", marginBottom: 12 }}>{plants.length} plant{plants.length !== 1 ? "s" : ""} · {seeds.length} seed packet{seeds.length !== 1 ? "s" : ""}</div>
+            <div style={{ fontSize: 13, color: "#666", marginBottom: 4 }}>{plants.length} plant{plants.length !== 1 ? "s" : ""} · {seeds.length} seed packet{seeds.length !== 1 ? "s" : ""}</div>
+            {lastBackup && <div style={{ fontSize: 12, color: "#888", marginBottom: 10 }}>Last backup: {daysSince(lastBackup) === 0 ? "today" : `${daysSince(lastBackup)} day${daysSince(lastBackup) !== 1 ? "s" : ""} ago`}</div>}
             <button onClick={handleExport} style={{ width: "100%", padding: 11, background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>Download Backup</button>
           </div>
           <div style={{ background: "#fafaf8", border: "1px solid #e8e8e8", borderRadius: 12, padding: 16 }}>
