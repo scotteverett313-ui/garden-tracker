@@ -996,6 +996,8 @@ function SeedLibraryTab({ seeds, onSaveSeeds, onAddToGarden }) {
   const [scanning, setScanning] = useState(false);
   const [scanError, setScanError] = useState("");
   const [scannedData, setScannedData] = useState(null);
+  const [debugText, setDebugText] = useState("");
+  const [editForm, setEditForm] = useState({});
   const [search, setSearch] = useState("");
   const [frontImg, setFrontImg] = useState(null);
   const [backImg, setBackImg] = useState(null);
@@ -1076,12 +1078,26 @@ Return ONLY the JSON, no other text.` });
 
       const data = await response.json();
       const text = data.content?.find(b => b.type === "text")?.text || "";
+      setDebugText(text); // show raw response for debugging
       const clean = text.replace(/```json|```/g, "").trim();
-      const parsed = JSON.parse(clean);
-      setScannedData({ ...parsed, id: generateId(), addedAt: new Date().toISOString(), started: false });
+      let parsed;
+      try {
+        parsed = JSON.parse(clean);
+      } catch (parseErr) {
+        // Try to extract JSON from the text if it's wrapped in other content
+        const jsonMatch = clean.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          parsed = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error(`Couldn't parse response. Raw text: ${text.slice(0, 200)}`);
+        }
+      }
+      const seedData = { ...parsed, id: generateId(), addedAt: new Date().toISOString(), started: false };
+      setScannedData(seedData);
+      setEditForm(seedData);
       setView("edit");
     } catch (err) {
-      setScanError(`Scan failed: ${err.message || "Unknown error"}. Check your API key or try a clearer photo.`);
+      setScanError(`Scan failed: ${err.message || "Unknown error"}`);
     } finally {
       setScanning(false);
     }
@@ -1153,11 +1169,18 @@ Return ONLY the JSON, no other text.` });
 
         {scanError && <div style={{ background: "#fdecea", color: "#c0392b", borderRadius: 10, padding: "10px 14px", fontSize: 13, marginBottom: 12 }}>⚠️ {scanError}</div>}
 
+        {debugText && !scanError && (
+          <div style={{ background: "#f5f5f0", borderRadius: 10, padding: "10px 14px", fontSize: 11, color: "#666", marginBottom: 12, wordBreak: "break-all", maxHeight: 120, overflowY: "auto" }}>
+            <div style={{ fontWeight: 700, marginBottom: 4, fontSize: 12 }}>Raw API response (debug):</div>
+            {debugText}
+          </div>
+        )}
+
         <button onClick={handleScan} disabled={scanning}
           style={{ width: "100%", padding: 14, background: scanning ? "#aaa" : "#2d6a3f", color: "#fff", border: "none", borderRadius: 12, cursor: scanning ? "not-allowed" : "pointer", fontSize: 15, fontWeight: 700, marginBottom: 10 }}>
           {scanning ? "📖 Reading packet..." : "✨ Scan & Extract Info"}
         </button>
-        <button onClick={() => { setScannedData({ id: generateId(), addedAt: new Date().toISOString() }); setView("edit"); }}
+        <button onClick={() => { const blank = { id: generateId(), addedAt: new Date().toISOString() }; setScannedData(blank); setEditForm(blank); setView("edit"); }}
           style={{ width: "100%", padding: 12, background: "#fff", color: "#555", border: "1.5px solid #ddd", borderRadius: 12, cursor: "pointer", fontSize: 14 }}>
           Enter manually instead
         </button>
@@ -1167,8 +1190,8 @@ Return ONLY the JSON, no other text.` });
 
   // ── Edit / Review view ──
   if (view === "edit") {
-    const seed = editingSeed || scannedData || { id: generateId(), addedAt: new Date().toISOString() };
-    const [form, setForm] = useState(seed);
+    const form = editForm;
+    const setForm = setEditForm;
 
     return (
       <div>
@@ -1279,7 +1302,7 @@ Return ONLY the JSON, no other text.` });
                     style={{ background: seed.started ? "#eaf5ee" : "#fff", color: seed.started ? "#2d6a3f" : "#555", border: "1px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 11, whiteSpace: "nowrap" }}>
                     {seed.started ? "✓ Started" : "Mark started"}
                   </button>
-                  <button onClick={() => { setEditingSeed(seed); setView("edit"); }}
+                  <button onClick={() => { setEditingSeed(seed); setEditForm(seed); setView("edit"); }}
                     style={{ background: "none", border: "1px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 13 }}>✏️</button>
                   <button onClick={() => handleDelete(seed.id)}
                     style={{ background: "none", border: "1px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 13, color: "#c0392b" }}>🗑</button>
