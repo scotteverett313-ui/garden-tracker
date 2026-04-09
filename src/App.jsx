@@ -603,7 +603,7 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete }) {
   );
 }
 
-function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, filterZone, setFilterZone, filterStatus, setFilterStatus, setShowAdd, setShowFrost }) {
+function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, filterZone, setFilterZone, filterStatus, setFilterStatus, onAddPlant, userDB, onSaveUserDB }) {
   const filtered = plants.filter(p => {
     const q = search.toLowerCase();
     const matchSearch = !q || p.name.toLowerCase().includes(q) || (p.variety || "").toLowerCase().includes(q) || (p.notes || "").toLowerCase().includes(q);
@@ -614,43 +614,52 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
 
   return (
     <div>
-      <div style={{ display: "flex", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
+      {/* Search + filters */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
         <input placeholder="Search plants..." value={search} onChange={e => setSearch(e.target.value)}
-          style={{ flex: 2, minWidth: 200, padding: "10px 14px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, fontFamily: "inherit" }} />
-        <select value={filterZone} onChange={e => setFilterZone(e.target.value)} style={{ ...sel, flex: 1, minWidth: 140 }}>
+          style={{ flex: 1, minWidth: 0, padding: "9px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, fontFamily: "inherit" }} />
+        <button onClick={onAddPlant}
+          style={{ background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 10, padding: "9px 16px", cursor: "pointer", fontSize: 14, fontWeight: 700, whiteSpace: "nowrap" }}>
+          + Add Plant
+        </button>
+      </div>
+      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ ...sel, flex: 1 }}>
+          <option value="">All Status</option>
+          {STATUSES.map(s => <option key={s.label} value={s.label}>{s.icon} {s.label}</option>)}
+        </select>
+        <select value={filterZone} onChange={e => setFilterZone(e.target.value)} style={{ ...sel, flex: 1 }}>
           <option value="">All Zones</option>
           {ZONES.map(z => <option key={z}>{z}</option>)}
         </select>
-        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ ...sel, flex: 1, minWidth: 140 }}>
-          <option value="">All Statuses</option>
-          {STATUSES.map(s => <option key={s.label} value={s.label}>{s.icon} {s.label}</option>)}
-        </select>
-        <button onClick={() => setShowFrost(true)} style={{ padding: "10px 16px", border: "1.5px solid #ddd", borderRadius: 10, background: "#fff", cursor: "pointer", fontSize: 14, display: "flex", alignItems: "center", gap: 6 }}>❄️ Frost Dates</button>
-        <button onClick={() => setShowAdd(true)} style={{ padding: "10px 20px", background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>+ Add Plant</button>
       </div>
       {(search || filterZone || filterStatus) && (
-        <div style={{ marginBottom: 16 }}>
-          <button onClick={() => { setSearch(""); setFilterZone(""); setFilterStatus(""); }} style={{ background: "#f0f0f0", border: "none", borderRadius: 8, padding: "5px 14px", cursor: "pointer", fontSize: 13 }}>× Clear filters</button>
-        </div>
+        <button onClick={() => { setSearch(""); setFilterZone(""); setFilterStatus(""); }}
+          style={{ background: "#f0f0f0", border: "none", borderRadius: 8, padding: "5px 14px", cursor: "pointer", fontSize: 13, marginBottom: 14 }}>× Clear filters</button>
       )}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 24 }}>
-        {ZONES.map(zone => {
-          const zonePlants = filtered.filter(p => p.zone === zone);
-          return (
-            <div key={zone}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-                <div style={{ width: 40, height: 40, borderRadius: 12, background: ZONE_COLORS[zone], display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>{ZONE_ICONS[zone]}</div>
-                <div><div style={{ fontWeight: 700, fontSize: 18 }}>{zone}</div><div style={{ color: "#888", fontSize: 13 }}>{zonePlants.length} plant{zonePlants.length !== 1 ? "s" : ""}</div></div>
+
+      {/* Zone sections */}
+      {ZONES.map(zone => {
+        const zonePlants = filtered.filter(p => p.zone === zone);
+        return (
+          <div key={zone} style={{ marginBottom: 24 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: ZONE_COLORS[zone], display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{ZONE_ICONS[zone]}</div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 16 }}>{zone}</div>
+                <div style={{ color: "#888", fontSize: 12 }}>{zonePlants.length} plant{zonePlants.length !== 1 ? "s" : ""}</div>
               </div>
-              {zonePlants.length === 0 ? (
-                <div style={{ border: "1.5px dashed #ddd", borderRadius: 12, padding: 32, textAlign: "center", color: "#bbb", fontSize: 14 }}>No plants here yet</div>
-              ) : (
-                zonePlants.map(p => <PlantCard key={p.id} plant={p} frostDates={frostDates} onUpdate={onUpdate} onDelete={onDelete} />)
-              )}
             </div>
-          );
-        })}
-      </div>
+            {zonePlants.length === 0 ? (
+              <button onClick={onAddPlant} style={{ width: "100%", border: "1.5px dashed #ccc", borderRadius: 12, padding: "18px", textAlign: "center", color: "#aaa", fontSize: 14, background: "none", cursor: "pointer" }}>
+                + Add Plant
+              </button>
+            ) : (
+              zonePlants.map(p => <PlantCard key={p.id} plant={p} frostDates={frostDates} onUpdate={onUpdate} onDelete={onDelete} />)
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -1567,6 +1576,99 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
   );
 }
 
+// ─── DB Search Picker ────────────────────────────────────────────────────────
+function DBSearchPicker({ userDB, onSelect }) {
+  const [q, setQ] = useState("");
+  const results = userDB.filter(p => !q || p.name.toLowerCase().includes(q.toLowerCase()));
+  return (
+    <div>
+      <input autoFocus placeholder="Search plants..." value={q} onChange={e => setQ(e.target.value)}
+        style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #2d6a3f", borderRadius: 10, fontSize: 15, boxSizing: "border-box", fontFamily: "inherit", marginBottom: 12 }} />
+      <div style={{ maxHeight: 340, overflowY: "auto" }}>
+        {results.length === 0 && <div style={{ textAlign: "center", color: "#bbb", padding: "24px 0", fontSize: 14 }}>No matches.</div>}
+        {results.map(p => (
+          <div key={p.name} onClick={() => onSelect(p)}
+            style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 14px", borderRadius: 10, cursor: "pointer", marginBottom: 4, background: "#fafaf8", border: "1px solid #eee" }}
+            onMouseEnter={e => e.currentTarget.style.background = "#f0f9f0"}
+            onMouseLeave={e => e.currentTarget.style.background = "#fafaf8"}>
+            <div>
+              <div style={{ fontWeight: 600, fontSize: 15 }}>{p.name}</div>
+              <div style={{ display: "flex", gap: 6, marginTop: 3, flexWrap: "wrap" }}>
+                {p.dtm && <span style={{ fontSize: 11, color: "#5a8a6a" }}>📅 {p.dtm} DTM</span>}
+                {p.sun && <span style={{ fontSize: 11, color: "#888" }}>☀️ {p.sun}</span>}
+                {p.water && <span style={{ fontSize: 11, color: "#888" }}>💧 {p.water}</span>}
+              </div>
+            </div>
+            <span style={{ fontSize: 18, color: "#2d6a3f" }}>→</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Seed Scan Picker (inline for Add Plant flow) ────────────────────────────
+function SeedScanPicker({ onScanned }) {
+  const [frontImg, setFrontImg] = useState(null);
+  const [backImg, setBackImg] = useState(null);
+  const [scanning, setScanning] = useState(false);
+  const [error, setError] = useState("");
+
+  async function fileToBase64(file) {
+    return new Promise((res, rej) => {
+      const reader = new FileReader();
+      reader.onload = () => res(reader.result.split(",")[1]);
+      reader.onerror = rej;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handleScan() {
+    if (!frontImg && !backImg) { setError("Add at least one photo."); return; }
+    setScanning(true); setError("");
+    try {
+      const content = [];
+      if (frontImg) { content.push({ type: "image", source: { type: "base64", media_type: frontImg.type, data: await fileToBase64(frontImg) } }); content.push({ type: "text", text: "Front of seed packet." }); }
+      if (backImg) { content.push({ type: "image", source: { type: "base64", media_type: backImg.type, data: await fileToBase64(backImg) } }); content.push({ type: "text", text: "Back of seed packet." }); }
+      content.push({ type: "text", text: `Extract seed packet info. Return ONLY JSON: {"name":"","variety":"","brand":"","dtm":null,"depth":"","spacing":"","sun":"","water":"","startIndoors":null,"germDays":"","about":"","notes":""}` });
+      const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
+      if (!apiKey) throw new Error("No API key configured.");
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1000, messages: [{ role: "user", content }] }),
+      });
+      if (!res.ok) throw new Error(`API error ${res.status}`);
+      const data = await res.json();
+      const text = data.content?.find(b => b.type === "text")?.text || "";
+      const clean = text.replace(/```json|```/g, "").trim();
+      const match = clean.match(/\{[\s\S]*\}/);
+      onScanned(JSON.parse(match ? match[0] : clean));
+    } catch (err) { setError(`Scan failed: ${err.message}`); }
+    finally { setScanning(false); }
+  }
+
+  return (
+    <div>
+      <h2 style={{ margin: "0 0 14px", fontSize: 20, fontWeight: 800 }}>📷 Scan Seed Packet</h2>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+        {[{ label: "Front", img: frontImg, set: setFrontImg }, { label: "Back", img: backImg, set: setBackImg }].map(side => (
+          <label key={side.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: `2px dashed ${side.img ? "#2d6a3f" : "#ccc"}`, borderRadius: 12, padding: 16, cursor: "pointer", background: side.img ? "#f0f9f0" : "#fafaf8", minHeight: 90, textAlign: "center", gap: 4 }}>
+            <div style={{ fontSize: 24 }}>{side.img ? "✓" : "📷"}</div>
+            <div style={{ fontSize: 12, color: side.img ? "#2d6a3f" : "#888", fontWeight: side.img ? 600 : 400 }}>{side.img ? side.img.name.slice(0, 16) : side.label}</div>
+            <input type="file" accept="image/*" capture="environment" onChange={e => side.set(e.target.files[0] || null)} style={{ display: "none" }} />
+          </label>
+        ))}
+      </div>
+      {error && <div style={{ background: "#fdecea", color: "#c0392b", borderRadius: 8, padding: "8px 12px", fontSize: 13, marginBottom: 10 }}>⚠️ {error}</div>}
+      <button onClick={handleScan} disabled={scanning}
+        style={{ width: "100%", padding: 13, background: scanning ? "#aaa" : "#2d6a3f", color: "#fff", border: "none", borderRadius: 12, cursor: scanning ? "not-allowed" : "pointer", fontSize: 15, fontWeight: 700 }}>
+        {scanning ? "📖 Reading packet..." : "✨ Scan & Extract"}
+      </button>
+    </div>
+  );
+}
+
 const lbl = { display: "block", fontSize: 13, fontWeight: 600, marginBottom: 6, color: "#444" };
 const sel = { width: "100%", padding: "10px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, background: "#fff", fontFamily: "inherit", cursor: "pointer", boxSizing: "border-box" };
 const menuItem = { padding: "9px 16px", cursor: "pointer", fontSize: 13, whiteSpace: "nowrap", onMouseEnter: () => {} };
@@ -1579,6 +1681,7 @@ export default function App() {
   const [userDB, setUserDB] = useState([]);
   const [tab, setTab] = useState("garden");
   const [showAdd, setShowAdd] = useState(false);
+  const [addFlow, setAddFlow] = useState(null); // null | "choose" | "db" | "scan" | "transplant" | "manual"
   const [prefillPlant, setPrefillPlant] = useState(null);
   const [showFrost, setShowFrost] = useState(false);
   const [search, setSearch] = useState("");
@@ -1594,7 +1697,6 @@ export default function App() {
       if (db) {
         setUserDB(db);
       } else {
-        // First time — seed with all 30 built-in plants
         const seeded = PLANT_DB.map(p => ({ ...p, addedAt: new Date().toISOString(), seeded: true }));
         setUserDB(seeded);
         saveData("user_plant_db", seeded);
@@ -1611,22 +1713,18 @@ export default function App() {
   function handleAdd(plant) { savePlants([...plants, plant]); }
   function handleUpdate(updated) { savePlants(plants.map(p => p.id === updated.id ? updated : p)); }
   function handleDelete(id) { savePlants(plants.filter(p => p.id !== id)); }
-  function handleAddToGarden(entry) { setPrefillPlant(entry); setShowAdd(true); setTab("garden"); }
-  function handleAddSeedToGarden(seed) { setPrefillPlant({ name: seed.name, variety: seed.variety, about: seed.about, water: seed.water, sun: seed.sun, dtm: seed.dtm }); setShowAdd(true); setTab("garden"); }
+  function handleAddToGarden(entry) { setPrefillPlant(entry); setAddFlow("manual"); setShowAdd(true); }
+  function handleAddSeedToGarden(seed) { setPrefillPlant({ name: seed.name, variety: seed.variety, about: seed.about, water: seed.water, sun: seed.sun, dtm: seed.dtm }); setAddFlow("manual"); setShowAdd(true); }
+
+  function openAddFlow() { setAddFlow("choose"); setShowAdd(true); setPrefillPlant(null); }
+  function closeAdd() { setShowAdd(false); setAddFlow(null); setPrefillPlant(null); }
 
   const [showBackup, setShowBackup] = useState(false);
   const [importError, setImportError] = useState("");
   const [importSuccess, setImportSuccess] = useState(false);
 
   function handleExport() {
-    const backup = {
-      version: 1,
-      exportedAt: new Date().toISOString(),
-      plants,
-      frostDates,
-      seeds,
-      userDB: userDB.filter(p => !p.seeded),
-    };
+    const backup = { version: 1, exportedAt: new Date().toISOString(), plants, frostDates, seeds, userDB: userDB.filter(p => !p.seeded) };
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -1639,8 +1737,7 @@ export default function App() {
   function handleImport(e) {
     const file = e.target.files[0];
     if (!file) return;
-    setImportError("");
-    setImportSuccess(false);
+    setImportError(""); setImportSuccess(false);
     const reader = new FileReader();
     reader.onload = async (ev) => {
       try {
@@ -1648,95 +1745,152 @@ export default function App() {
         if (!data.plants || !Array.isArray(data.plants)) throw new Error("Invalid backup file.");
         await savePlants(data.plants);
         if (data.frostDates) await saveFrost(data.frostDates);
+        if (data.seeds) await saveSeeds(data.seeds);
         if (data.userDB && Array.isArray(data.userDB)) {
-          // Merge custom entries with seeded ones
           const seeded = PLANT_DB.map(p => ({ ...p, addedAt: new Date().toISOString(), seeded: true }));
           const merged = [...seeded, ...data.userDB.filter(p => !seeded.find(s => s.name === p.name))];
           await saveUserDB(merged);
         }
         setImportSuccess(true);
         setTimeout(() => { setShowBackup(false); setImportSuccess(false); }, 2000);
-      } catch (err) {
-        setImportError("Couldn't read that file. Make sure it's a Plant Tracker backup.");
-      }
+      } catch (err) { setImportError("Couldn't read that file. Make sure it's a Plant Tracker backup."); }
     };
     reader.readAsText(file);
     e.target.value = "";
   }
 
-  const navBtn = (id, label, icon) => (
-    <button onClick={() => setTab(id)} style={{ padding: "7px 12px", borderRadius: 10, border: "none", cursor: "pointer", fontSize: 13, fontWeight: tab === id ? 700 : 500, background: tab === id ? "#2d6a3f" : "transparent", color: tab === id ? "#fff" : "#555", display: "flex", alignItems: "center", gap: 5 }}>
-      <span style={{ fontSize: 13 }}>{icon}</span> {label}
-    </button>
+  if (!loaded) return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh", gap: 12 }}>
+      <span style={{ fontSize: 40 }}>🌿</span>
+      <div style={{ color: "#888", fontSize: 15 }}>Loading your garden...</div>
+    </div>
   );
 
-  if (!loaded) return <div style={{ padding: 40, textAlign: "center", color: "#888" }}>Loading your garden...</div>;
+  const NAV_TABS = [
+    { id: "garden", label: "Garden", icon: "🌱" },
+    { id: "seeds", label: "Seeds", icon: "🌰" },
+    { id: "calendar", label: "Calendar", icon: "📅" },
+    { id: "harvest", label: "Harvest", icon: "🧺" },
+  ];
 
   return (
-    <div style={{ fontFamily: "'Georgia', serif", maxWidth: 1200, margin: "0 auto", padding: "0 12px 40px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 0", borderBottom: "1px solid #eee", marginBottom: 16, flexWrap: "wrap" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 22 }}>🌿</span>
-          <span style={{ fontWeight: 800, fontSize: 18 }}>Plant Tracker</span>
+    <div style={{ fontFamily: "system-ui, -apple-system, sans-serif", maxWidth: 600, margin: "0 auto", background: "#f8f8f6", minHeight: "100vh", paddingBottom: 80 }}>
+
+      {/* ── Header ── */}
+      <div style={{ background: "#fff", borderBottom: "1px solid #eee", padding: "14px 16px 10px", position: "sticky", top: 0, zIndex: 50 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 22 }}>🌿</span>
+            <span style={{ fontWeight: 800, fontSize: 18, letterSpacing: -0.5 }}>Plant Tracker</span>
+          </div>
+          <button onClick={() => setShowBackup(true)}
+            style={{ background: "none", border: "1px solid #e0e0e0", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 12, color: "#888" }}>
+            💾
+          </button>
         </div>
-        <nav style={{ display: "flex", gap: 2, flexWrap: "wrap", flex: 1 }}>
-          {navBtn("garden", "Garden", "🌱")}
-          {navBtn("seeds", "Seeds", "🌰")}
-          {navBtn("harvest", "Harvest", "🧺")}
-          {navBtn("calendar", "Calendar", "📅")}
-          {navBtn("succession", "Succession", "🔄")}
-          {navBtn("mydb", "My DB", "📖")}
-        </nav>
-        <button onClick={() => setShowBackup(true)}
-          style={{ background: "none", border: "1px solid #ddd", borderRadius: 10, padding: "6px 12px", cursor: "pointer", fontSize: 13, color: "#666", display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
-          💾 Backup
-        </button>
+
+        {/* Frost date bar — always visible on Garden tab */}
+        {tab === "garden" && (
+          <button onClick={() => setShowFrost(true)} style={{ width: "100%", background: "#f0f8f2", border: "1px solid #c8e6c9", borderRadius: 10, padding: "8px 12px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ textAlign: "left" }}>
+              <div style={{ fontSize: 10, color: "#888", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>Last Spring Frost</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#2d6a3f" }}>{frostDates.lastSpring ? formatDate(frostDates.lastSpring) : "Tap to set"}</div>
+            </div>
+            <div style={{ width: 1, height: 32, background: "#c8e6c9" }} />
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 10, color: "#888", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>First Fall Frost</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#2d6a3f" }}>{frostDates.firstFall ? formatDate(frostDates.firstFall) : "Tap to set"}</div>
+            </div>
+          </button>
+        )}
       </div>
 
-      {tab === "garden" && (
-        <GardenTab plants={plants} frostDates={frostDates} onUpdate={handleUpdate} onDelete={handleDelete}
-          search={search} setSearch={setSearch} filterZone={filterZone} setFilterZone={setFilterZone}
-          filterStatus={filterStatus} setFilterStatus={setFilterStatus} setShowAdd={setShowAdd} setShowFrost={setShowFrost} />
-      )}
-      {tab === "seeds" && <SeedLibraryTab seeds={seeds} onSaveSeeds={saveSeeds} onAddToGarden={handleAddSeedToGarden} />}
-      {tab === "calendar" && <CalendarTab plants={plants} />}
-      {tab === "harvest" && <HarvestTab plants={plants} frostDates={frostDates} onUpdate={handleUpdate} />}
-      {tab === "succession" && <SuccessionTab plants={plants} />}
-      {tab === "mydb" && <MyDBTab userDB={userDB} onSaveUserDB={saveUserDB} onAddToGarden={handleAddToGarden} />}
+      {/* ── Page content ── */}
+      <div style={{ padding: "16px 14px" }}>
+        {tab === "garden" && (
+          <GardenTab plants={plants} frostDates={frostDates} onUpdate={handleUpdate} onDelete={handleDelete}
+            search={search} setSearch={setSearch} filterZone={filterZone} setFilterZone={setFilterZone}
+            filterStatus={filterStatus} setFilterStatus={setFilterStatus}
+            onAddPlant={openAddFlow} userDB={userDB} onSaveUserDB={saveUserDB} />
+        )}
+        {tab === "seeds" && <SeedLibraryTab seeds={seeds} onSaveSeeds={saveSeeds} onAddToGarden={handleAddSeedToGarden} />}
+        {tab === "calendar" && <CalendarTab plants={plants} />}
+        {tab === "harvest" && <HarvestTab plants={plants} frostDates={frostDates} onUpdate={handleUpdate} />}
+      </div>
 
-      {showAdd && <AddPlantModal onAdd={handleAdd} onClose={() => { setShowAdd(false); setPrefillPlant(null); }} userDB={userDB} onSaveUserDB={saveUserDB} prefill={prefillPlant} />}
+      {/* ── Bottom nav ── */}
+      <nav style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 600, background: "#fff", borderTop: "1px solid #eee", display: "flex", zIndex: 100, paddingBottom: "env(safe-area-inset-bottom)" }}>
+        {NAV_TABS.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)} style={{ flex: 1, border: "none", background: "none", cursor: "pointer", padding: "10px 4px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+            <span style={{ fontSize: 20 }}>{t.icon}</span>
+            <span style={{ fontSize: 10, fontWeight: tab === t.id ? 700 : 500, color: tab === t.id ? "#2d6a3f" : "#aaa", letterSpacing: 0.2 }}>{t.label}</span>
+            {tab === t.id && <div style={{ width: 20, height: 2, background: "#2d6a3f", borderRadius: 2 }} />}
+          </button>
+        ))}
+      </nav>
+
+      {/* ── Add Plant flow ── */}
+      {showAdd && addFlow === "choose" && (
+        <Modal onClose={closeAdd} width={480}>
+          <h2 style={{ margin: "0 0 6px", fontSize: 20, fontWeight: 800 }}>Add a Plant</h2>
+          <p style={{ color: "#888", fontSize: 14, marginBottom: 20 }}>How would you like to add it?</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {[
+              { flow: "db", icon: "📖", title: "Search my database", desc: "Pick from 30+ plants, auto-fills everything" },
+              { flow: "scan", icon: "📷", title: "Scan seed packet", desc: "Point camera at a packet, Claude reads it" },
+              { flow: "transplant", icon: "🛒", title: "Bought as transplant", desc: "Already growing — quick add" },
+              { flow: "manual", icon: "✏️", title: "Enter manually", desc: "Blank form, full control" },
+            ].map(opt => (
+              <button key={opt.flow} onClick={() => setAddFlow(opt.flow)}
+                style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", background: "#fafaf8", border: "1.5px solid #e8e8e8", borderRadius: 12, cursor: "pointer", textAlign: "left" }}>
+                <span style={{ fontSize: 26, flexShrink: 0 }}>{opt.icon}</span>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 15 }}>{opt.title}</div>
+                  <div style={{ fontSize: 13, color: "#888", marginTop: 2 }}>{opt.desc}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </Modal>
+      )}
+
+      {showAdd && addFlow === "db" && (
+        <Modal onClose={closeAdd} width={480}>
+          <h2 style={{ margin: "0 0 14px", fontSize: 20, fontWeight: 800 }}>Search Database</h2>
+          <DBSearchPicker userDB={userDB} onSelect={entry => { setPrefillPlant(entry); setAddFlow("manual"); }} onClose={closeAdd} />
+        </Modal>
+      )}
+
+      {showAdd && addFlow === "scan" && (
+        <Modal onClose={closeAdd} width={480}>
+          <SeedScanPicker onScanned={data => { setPrefillPlant(data); setAddFlow("manual"); }} onClose={closeAdd} />
+        </Modal>
+      )}
+
+      {showAdd && (addFlow === "manual" || addFlow === "transplant") && (
+        <AddPlantModal onAdd={handleAdd} onClose={closeAdd} userDB={userDB} onSaveUserDB={saveUserDB}
+          prefill={prefillPlant} isTransplant={addFlow === "transplant"} />
+      )}
+
       {showFrost && <FrostModal frostDates={frostDates} onSave={saveFrost} onClose={() => setShowFrost(false)} />}
 
       {showBackup && (
         <Modal onClose={() => { setShowBackup(false); setImportError(""); setImportSuccess(false); }} width={440}>
           <h2 style={{ margin: "0 0 6px", fontSize: 20, fontWeight: 700 }}>💾 Backup & Restore</h2>
-          <p style={{ color: "#888", fontSize: 13, marginBottom: 24, lineHeight: 1.5 }}>
-            Your data lives on this device. Export a backup file to iCloud, Google Drive, or email to keep it safe.
-          </p>
-
-          <div style={{ background: "#f5f9f5", border: "1px solid #c8e6c9", borderRadius: 12, padding: 16, marginBottom: 16 }}>
-            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>📤 Export backup</div>
-            <div style={{ fontSize: 13, color: "#666", marginBottom: 12 }}>
-              Downloads a JSON file with all your plants, care logs, frost dates, and custom database entries.
-              {plants.length > 0 && <span style={{ color: "#2d6a3f", fontWeight: 600 }}> {plants.length} plant{plants.length !== 1 ? "s" : ""} will be saved.</span>}
-            </div>
-            <button onClick={handleExport}
-              style={{ width: "100%", padding: "11px", background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>
-              Download Backup File
-            </button>
+          <p style={{ color: "#888", fontSize: 13, marginBottom: 20, lineHeight: 1.5 }}>Your data lives on this device. Export to iCloud or Google Drive to keep it safe.</p>
+          <div style={{ background: "#f5f9f5", border: "1px solid #c8e6c9", borderRadius: 12, padding: 16, marginBottom: 12 }}>
+            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>📤 Export</div>
+            <div style={{ fontSize: 13, color: "#666", marginBottom: 12 }}>{plants.length} plant{plants.length !== 1 ? "s" : ""} · {seeds.length} seed packet{seeds.length !== 1 ? "s" : ""}</div>
+            <button onClick={handleExport} style={{ width: "100%", padding: 11, background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>Download Backup</button>
           </div>
-
           <div style={{ background: "#fafaf8", border: "1px solid #e8e8e8", borderRadius: 12, padding: 16 }}>
-            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>📥 Restore from backup</div>
-            <div style={{ fontSize: 13, color: "#888", marginBottom: 12 }}>
-              Select a previously exported backup file. This will replace your current data.
-            </div>
-            <label style={{ display: "block", width: "100%", padding: "11px", background: "#fff", border: "1.5px dashed #ccc", borderRadius: 10, cursor: "pointer", fontSize: 14, textAlign: "center", color: "#555", boxSizing: "border-box" }}>
+            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8 }}>📥 Restore</div>
+            <label style={{ display: "block", width: "100%", padding: 11, background: "#fff", border: "1.5px dashed #ccc", borderRadius: 10, cursor: "pointer", fontSize: 14, textAlign: "center", color: "#555", boxSizing: "border-box" }}>
               Choose Backup File
               <input type="file" accept=".json" onChange={handleImport} style={{ display: "none" }} />
             </label>
             {importError && <div style={{ marginTop: 8, fontSize: 13, color: "#c0392b", background: "#fdecea", padding: "8px 12px", borderRadius: 8 }}>⚠️ {importError}</div>}
-            {importSuccess && <div style={{ marginTop: 8, fontSize: 13, color: "#2d6a3f", background: "#eaf5ee", padding: "8px 12px", borderRadius: 8 }}>✓ Restore successful! Your data is back.</div>}
+            {importSuccess && <div style={{ marginTop: 8, fontSize: 13, color: "#2d6a3f", background: "#eaf5ee", padding: "8px 12px", borderRadius: 8 }}>✓ Restored!</div>}
           </div>
         </Modal>
       )}
