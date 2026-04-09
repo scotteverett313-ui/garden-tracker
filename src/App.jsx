@@ -125,7 +125,38 @@ function calcHarvestDate(dateStarted, dtm) {
   return d.toISOString().split("T")[0];
 }
 
-// ─── Storage helpers ─────────────────────────────────────────────────────────
+// ─── Toast system ─────────────────────────────────────────────────────────────
+function Toast({ toasts }) {
+  return (
+    <div style={{ position: "fixed", bottom: 90, left: "50%", transform: "translateX(-50%)", width: "calc(100% - 32px)", maxWidth: 560, zIndex: 999, display: "flex", flexDirection: "column", gap: 8, pointerEvents: "none" }}>
+      {toasts.map(t => (
+        <div key={t.id} style={{
+          background: t.type === "error" ? "#c0392b" : t.type === "warning" ? "#e67e22" : "#2d6a3f",
+          color: "#fff", borderRadius: 12, padding: "12px 16px", fontSize: 14, fontWeight: 600,
+          display: "flex", alignItems: "center", gap: 10,
+          boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+          animation: "slideUp 0.25s ease",
+        }}>
+          <span style={{ fontSize: 18 }}>{t.type === "error" ? "⚠️" : t.type === "warning" ? "⚡" : t.icon || "✓"}</span>
+          <span>{t.message}</span>
+        </div>
+      ))}
+      <style>{`@keyframes slideUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }`}</style>
+    </div>
+  );
+}
+
+function useToast() {
+  const [toasts, setToasts] = useState([]);
+  function toast(message, { type = "success", icon, duration = 2500 } = {}) {
+    const id = Date.now();
+    setToasts(t => [...t, { id, message, type, icon }]);
+    setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), duration);
+  }
+  return { toasts, toast };
+}
+
+
 async function loadData(key) {
   try {
     const val = localStorage.getItem(key);
@@ -362,7 +393,7 @@ function FrostModal({ frostDates, onSave, onClose }) {
   );
 }
 
-function CareLogModal({ plant, onSave, onClose }) {
+function CareLogModal({ plant, onSave, onClose, toast }) {
   const [careType, setCareType] = useState("Watering");
   const [careDate, setCareDate] = useState(new Date().toISOString().split("T")[0]);
   const [careNote, setCareNote] = useState("");
@@ -375,6 +406,8 @@ function CareLogModal({ plant, onSave, onClose }) {
     const updated = { ...plant, careLog: [...(plant.careLog || []), entry] };
     onSave(updated);
     setCareNote("");
+    const icons = { Watering: "💧", Fertilizing: "🌿", Pruning: "✂️", "Pest Treatment": "🐛", Observation: "👁" };
+    toast && toast(`${careType} logged for ${plant.name}`, { icon: icons[careType] || "✓" });
   }
 
   function deleteEntry(id) {
@@ -439,11 +472,12 @@ function CareLogModal({ plant, onSave, onClose }) {
   );
 }
 
-function PlantCard({ plant, frostDates, onUpdate, onDelete }) {
+function PlantCard({ plant, frostDates, onUpdate, onDelete, toast }) {
   const [showCompanions, setShowCompanions] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [showCare, setShowCare] = useState(false);
+  const [showStatusPicker, setShowStatusPicker] = useState(false);
   const [newGood, setNewGood] = useState("");
   const [newBad, setNewBad] = useState("");
   const menuRef = useRef();
@@ -457,11 +491,22 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete }) {
   const statusObj = STATUSES.find(s => s.label === plant.status) || STATUSES[0];
   const harvestDate = calcHarvestDate(plant.dateStarted, plant.dtm);
   const daysLeft = harvestDate ? daysUntil(harvestDate) : null;
-  
   const hasFrostWarning = harvestDate && frostDates.firstFall && new Date(harvestDate) > new Date(frostDates.firstFall);
-  
   const nextZoneIdx = ZONES.indexOf(plant.zone) + 1;
   const nextZone = nextZoneIdx < ZONES.length ? ZONES[nextZoneIdx] : null;
+
+  function updateStatus(status) {
+    onUpdate({ ...plant, status });
+    setShowStatusPicker(false);
+    const s = STATUSES.find(x => x.label === status);
+    toast && toast(`${plant.name} → ${status}`, { icon: s?.icon });
+  }
+
+  function moveToZone(zone) {
+    onUpdate({ ...plant, zone });
+    setShowMenu(false);
+    toast && toast(`Moved to ${zone.split(" ")[0]}`, { icon: ZONE_ICONS[zone] });
+  }
 
   function addCompanion(type) {
     const val = type === "good" ? newGood.trim() : newBad.trim();
@@ -469,6 +514,7 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete }) {
     const updated = { ...plant, companions: { ...plant.companions, [type]: [...(plant.companions?.[type] || []), val] } };
     onUpdate(updated);
     type === "good" ? setNewGood("") : setNewBad("");
+    toast && toast(`${val} added`, { icon: "🌿" });
   }
 
   function removeCompanion(type, item) {
@@ -489,12 +535,11 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete }) {
               {plant.variety && <div style={{ color: "#888", fontSize: 13 }}>{plant.variety}</div>}
             </div>
           </div>
-          {/* Action buttons - compact icon-only on mobile */}
           <div style={{ display: "flex", gap: 4, alignItems: "center", flexShrink: 0 }}>
             <button onClick={() => setShowCare(true)} title="Care log"
               style={{ background: "none", border: "1px solid #ddd", borderRadius: 8, width: 32, height: 32, cursor: "pointer", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>💧</button>
             {nextZone && (
-              <button onClick={() => onUpdate({ ...plant, zone: nextZone })} title={`Move to ${nextZone}`}
+              <button onClick={() => moveToZone(nextZone)} title={`Move to ${nextZone}`}
                 style={{ background: "#f0f8f2", border: "1px solid #b8ddc8", borderRadius: 8, height: 32, padding: "0 8px", cursor: "pointer", fontSize: 12, fontWeight: 600, color: "#2d6a3f", whiteSpace: "nowrap" }}>
                 ⟫ {nextZone.split(" ")[0]}
               </button>
@@ -506,21 +551,15 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete }) {
                 <div style={{ position: "absolute", right: 0, top: "110%", background: "#fff", border: "1px solid #e0e0e0", borderRadius: 10, boxShadow: "0 4px 16px rgba(0,0,0,0.14)", zIndex: 200, minWidth: 160 }}>
                   <div style={{ padding: "6px 12px 4px", fontSize: 11, color: "#aaa", fontWeight: 600, letterSpacing: 0.5 }}>MOVE TO</div>
                   {ZONES.map(z => z !== plant.zone && (
-                    <div key={z} onClick={() => { onUpdate({ ...plant, zone: z }); setShowMenu(false); }} style={{ padding: "8px 14px", cursor: "pointer", fontSize: 13 }}
+                    <div key={z} onClick={() => moveToZone(z)} style={{ padding: "8px 14px", cursor: "pointer", fontSize: 13 }}
                       onMouseEnter={e => e.currentTarget.style.background = "#f5f9f5"}
                       onMouseLeave={e => e.currentTarget.style.background = "#fff"}>{z}</div>
-                  ))}
-                  <div style={{ borderTop: "1px solid #eee", margin: "4px 0", padding: "6px 12px 4px", fontSize: 11, color: "#aaa", fontWeight: 600, letterSpacing: 0.5 }}>STATUS</div>
-                  {STATUSES.map(s => s.label !== plant.status && (
-                    <div key={s.label} onClick={() => { onUpdate({ ...plant, status: s.label }); setShowMenu(false); }} style={{ padding: "8px 14px", cursor: "pointer", fontSize: 13 }}
-                      onMouseEnter={e => e.currentTarget.style.background = "#f5f9f5"}
-                      onMouseLeave={e => e.currentTarget.style.background = "#fff"}>{s.icon} {s.label}</div>
                   ))}
                   <div style={{ borderTop: "1px solid #eee", margin: "4px 0" }} />
                   <div onClick={() => { setShowEdit(true); setShowMenu(false); }} style={{ padding: "8px 14px", cursor: "pointer", fontSize: 13 }}
                     onMouseEnter={e => e.currentTarget.style.background = "#f5f9f5"}
                     onMouseLeave={e => e.currentTarget.style.background = "#fff"}>✏️ Edit Plant</div>
-                  <div onClick={() => { onDelete(plant.id); setShowMenu(false); }} style={{ padding: "8px 14px", cursor: "pointer", fontSize: 13, color: "#c0392b" }}
+                  <div onClick={() => { onDelete(plant.id); setShowMenu(false); toast && toast("Plant removed", { type: "warning", icon: "🗑" }); }} style={{ padding: "8px 14px", cursor: "pointer", fontSize: 13, color: "#c0392b" }}
                     onMouseEnter={e => e.currentTarget.style.background = "#fff5f5"}
                     onMouseLeave={e => e.currentTarget.style.background = "#fff"}>🗑 Delete</div>
                 </div>
@@ -529,23 +568,38 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete }) {
           </div>
         </div>
 
-        {/* Status + meta row */}
+        {/* Quick status picker */}
+        <div style={{ marginTop: 10 }}>
+          <button onClick={() => setShowStatusPicker(v => !v)}
+            style={{ display: "inline-flex", alignItems: "center", gap: 6, background: STATUS_COLORS[plant.status] || "#eee", border: "none", borderRadius: 20, padding: "4px 10px", cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#3a5a3a" }}>
+            {statusObj.icon} {plant.status} <span style={{ fontSize: 10, opacity: 0.6 }}>▾</span>
+          </button>
+          {showStatusPicker && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8, padding: 10, background: "#fafaf8", borderRadius: 10, border: "1px solid #eee" }}>
+              {STATUSES.map(s => (
+                <button key={s.label} onClick={() => updateStatus(s.label)}
+                  style={{ background: s.label === plant.status ? STATUS_COLORS[s.label] : "#fff", border: `1px solid ${s.label === plant.status ? "#bbb" : "#e0e0e0"}`, borderRadius: 20, padding: "5px 10px", cursor: "pointer", fontSize: 12, fontWeight: s.label === plant.status ? 700 : 400 }}>
+                  {s.icon} {s.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Meta row */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8, alignItems: "center" }}>
-          <Badge label={plant.status} color={STATUS_COLORS[plant.status]} />
           {plant.dateStarted && <span style={{ color: "#999", fontSize: 12 }}>Started {formatDate(plant.dateStarted)}</span>}
           {plant.quantity && <span style={{ color: "#999", fontSize: 12 }}>· Qty: {plant.quantity}</span>}
           {plant.water && <span style={{ fontSize: 11, color: "#5a8a6a", background: "#eaf5ee", padding: "2px 7px", borderRadius: 10 }}>💧 {plant.water}</span>}
           {plant.sun && <span style={{ fontSize: 11, color: "#8a7a2a", background: "#faf5e0", padding: "2px 7px", borderRadius: 10 }}>☀️ {plant.sun}</span>}
         </div>
 
-        {/* Frost warning */}
         {hasFrostWarning && (
           <div style={{ marginTop: 7, background: "#e8f0ff", borderRadius: 8, padding: "5px 10px", fontSize: 12, color: "#3a5aaa" }}>
             ❄️ Harvest may conflict with fall frost ({formatDate(frostDates.firstFall)})
           </div>
         )}
 
-        {/* Harvest countdown */}
         {daysLeft !== null && (
           <div style={{ marginTop: 5, fontSize: 12, color: daysLeft <= 14 ? "#c0392b" : "#5a8a5a" }}>
             {daysLeft > 0 ? `🗓 Harvest in ${daysLeft} days — ${formatDate(harvestDate)}` : "🎉 Ready to harvest!"}
@@ -554,16 +608,13 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete }) {
 
         {plant.notes && <div style={{ marginTop: 6, fontSize: 12, color: "#777", lineHeight: 1.4 }}>{plant.notes}</div>}
 
-        {/* Companions toggle */}
         <button onClick={() => setShowCompanions(v => !v)}
           style={{ background: "none", border: "none", cursor: "pointer", color: "#5a8a6a", fontSize: 12, padding: "6px 0 0", display: "flex", alignItems: "center", gap: 4 }}>
           🌿 {showCompanions ? "Hide companions" : `Companions${(plant.companions?.good?.length || 0) + (plant.companions?.bad?.length || 0) > 0 ? ` (${(plant.companions?.good?.length || 0) + (plant.companions?.bad?.length || 0)})` : ""}`}
         </button>
 
-        {/* Companions panel — stacked vertically for mobile */}
         {showCompanions && (
           <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid #f0f0f0" }}>
-            {/* Plant with */}
             <div style={{ marginBottom: 10 }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: "#2d6a3f", marginBottom: 5, textTransform: "uppercase", letterSpacing: 0.5 }}>✓ Plant with</div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 6 }}>
@@ -603,13 +654,13 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete }) {
         )}
       </div>
 
-      {showEdit && <EditPlantModal plant={plant} onSave={updated => onUpdate(updated)} onClose={() => setShowEdit(false)} />}
-      {showCare && <CareLogModal plant={plant} onSave={updated => onUpdate(updated)} onClose={() => setShowCare(false)} />}
+      {showEdit && <EditPlantModal plant={plant} onSave={updated => { onUpdate(updated); toast && toast(`${updated.name} updated`, { icon: "✏️" }); }} onClose={() => setShowEdit(false)} />}
+      {showCare && <CareLogModal plant={plant} onSave={updated => onUpdate(updated)} onClose={() => setShowCare(false)} toast={toast} />}
     </>
   );
 }
 
-function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, filterZone, setFilterZone, filterStatus, setFilterStatus, onAddPlant, userDB, onSaveUserDB }) {
+function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, filterZone, setFilterZone, filterStatus, setFilterStatus, onAddPlant, userDB, onSaveUserDB, toast }) {
   const filtered = plants.filter(p => {
     const q = search.toLowerCase();
     const matchSearch = !q || p.name.toLowerCase().includes(q) || (p.variety || "").toLowerCase().includes(q) || (p.notes || "").toLowerCase().includes(q);
@@ -620,7 +671,6 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
 
   return (
     <div>
-      {/* Search + filters */}
       <div style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
         <input placeholder="Search plants..." value={search} onChange={e => setSearch(e.target.value)}
           style={{ flex: 1, minWidth: 0, padding: "9px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, fontFamily: "inherit" }} />
@@ -643,8 +693,6 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
         <button onClick={() => { setSearch(""); setFilterZone(""); setFilterStatus(""); }}
           style={{ background: "#f0f0f0", border: "none", borderRadius: 8, padding: "5px 14px", cursor: "pointer", fontSize: 13, marginBottom: 14 }}>× Clear filters</button>
       )}
-
-      {/* Zone sections */}
       {ZONES.map(zone => {
         const zonePlants = filtered.filter(p => p.zone === zone);
         return (
@@ -661,7 +709,7 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
                 + Add Plant
               </button>
             ) : (
-              zonePlants.map(p => <PlantCard key={p.id} plant={p} frostDates={frostDates} onUpdate={onUpdate} onDelete={onDelete} />)
+              zonePlants.map(p => <PlantCard key={p.id} plant={p} frostDates={frostDates} onUpdate={onUpdate} onDelete={onDelete} toast={toast} />)
             )}
           </div>
         );
@@ -1681,6 +1729,8 @@ const menuItem = { padding: "9px 16px", cursor: "pointer", fontSize: 13, whiteSp
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
+  const { toasts, toast } = useToast();
+
   const [plants, setPlants] = useState([]);
   const [seeds, setSeeds] = useState([]);
   const [frostDates, setFrostDates] = useState({});
@@ -1716,9 +1766,17 @@ export default function App() {
   async function saveUserDB(db) { setUserDB(db); await saveData("user_plant_db", db); }
   async function saveSeeds(s) { setSeeds(s); await saveData("seed_library", s); }
 
-  function handleAdd(plant) { savePlants([...plants, plant]); }
-  function handleUpdate(updated) { savePlants(plants.map(p => p.id === updated.id ? updated : p)); }
-  function handleDelete(id) { savePlants(plants.filter(p => p.id !== id)); }
+  function handleAdd(plant) {
+    savePlants([...plants, plant]);
+    toast(`${plant.name} added to ${plant.zone.split(" ")[0]}`, { icon: "🌱" });
+  }
+  function handleUpdate(updated) {
+    savePlants(plants.map(p => p.id === updated.id ? updated : p));
+  }
+  function handleDelete(id) {
+    savePlants(plants.filter(p => p.id !== id));
+    toast("Plant removed", { type: "warning", icon: "🗑" });
+  }
   function handleAddToGarden(entry) { setPrefillPlant(entry); setAddFlow("manual"); setShowAdd(true); }
   function handleAddSeedToGarden(seed) { setPrefillPlant({ name: seed.name, variety: seed.variety, about: seed.about, water: seed.water, sun: seed.sun, dtm: seed.dtm }); setAddFlow("manual"); setShowAdd(true); }
 
@@ -1742,6 +1800,7 @@ export default function App() {
     const now = new Date().toISOString();
     localStorage.setItem("last_backup_at", now);
     setLastBackup(now);
+    toast("Backup downloaded", { icon: "💾" });
   }
 
   function handleImport(e) {
@@ -1834,12 +1893,15 @@ export default function App() {
           <GardenTab plants={plants} frostDates={frostDates} onUpdate={handleUpdate} onDelete={handleDelete}
             search={search} setSearch={setSearch} filterZone={filterZone} setFilterZone={setFilterZone}
             filterStatus={filterStatus} setFilterStatus={setFilterStatus}
-            onAddPlant={openAddFlow} userDB={userDB} onSaveUserDB={saveUserDB} />
+            onAddPlant={openAddFlow} userDB={userDB} onSaveUserDB={saveUserDB} toast={toast} />
         )}
         {tab === "seeds" && <SeedLibraryTab seeds={seeds} onSaveSeeds={saveSeeds} onAddToGarden={handleAddSeedToGarden} />}
         {tab === "calendar" && <CalendarTab plants={plants} />}
         {tab === "harvest" && <HarvestTab plants={plants} frostDates={frostDates} onUpdate={handleUpdate} />}
       </div>
+
+      {/* ── Toast notifications ── */}
+      <Toast toasts={toasts} />
 
       {/* ── Bottom nav ── */}
       <nav style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 600, background: "#fff", borderTop: "1px solid #eee", display: "flex", zIndex: 100, paddingBottom: "env(safe-area-inset-bottom)" }}>
@@ -1887,10 +1949,9 @@ export default function App() {
       {showAdd && addFlow === "scan" && (
         <Modal onClose={closeAdd} width={480}>
           <SeedScanPicker onScanned={data => {
-            // Auto-save to seed library
             const seedEntry = { ...data, id: generateId(), addedAt: new Date().toISOString(), started: false, source: "Scanned" };
             saveSeeds([...seeds, seedEntry]);
-            // Also pre-fill the Add Plant form
+            toast(`${data.name || "Packet"} saved to Seed Library`, { icon: "🌰" });
             setPrefillPlant(data);
             setAddFlow("manual");
           }} onClose={closeAdd} />
@@ -1902,7 +1963,7 @@ export default function App() {
           prefill={prefillPlant} isTransplant={addFlow === "transplant"} />
       )}
 
-      {showFrost && <FrostModal frostDates={frostDates} onSave={saveFrost} onClose={() => setShowFrost(false)} />}
+      {showFrost && <FrostModal frostDates={frostDates} onSave={f => { saveFrost(f); toast("Frost dates saved", { icon: "❄️" }); }} onClose={() => setShowFrost(false)} />}
 
       {showBackup && (
         <Modal onClose={() => { setShowBackup(false); setImportError(""); setImportSuccess(false); }} width={440}>
