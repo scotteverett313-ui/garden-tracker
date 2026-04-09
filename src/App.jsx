@@ -971,7 +971,329 @@ function MyDBTab({ userDB, onSaveUserDB, onAddToGarden }) {
 }
 
 
-// ─── What to plant next logic ────────────────────────────────────────────────
+// ─── Seed Library ─────────────────────────────────────────────────────────────
+const SEED_SOURCES = ["Purchased", "Saved", "Traded", "Gift", "Other"];
+const SEED_FIELDS = [
+  { key: "name", label: "Plant Name", type: "text" },
+  { key: "variety", label: "Variety", type: "text" },
+  { key: "brand", label: "Brand / Source", type: "text" },
+  { key: "year", label: "Packet Year", type: "number" },
+  { key: "dtm", label: "Days to Maturity", type: "number" },
+  { key: "depth", label: "Planting Depth", type: "text" },
+  { key: "spacing", label: "Spacing", type: "text" },
+  { key: "sun", label: "Sun", type: "select", options: ["Full Sun", "Partial Shade", "Full Shade"] },
+  { key: "water", label: "Water", type: "select", options: ["Low", "Moderate", "Regular", "High"] },
+  { key: "startIndoors", label: "Start Indoors (wks before frost)", type: "number" },
+  { key: "germDays", label: "Germination (days)", type: "text" },
+  { key: "quantity", label: "Seeds Remaining", type: "text" },
+  { key: "source", label: "How I got them", type: "select", options: SEED_SOURCES },
+  { key: "notes", label: "Notes", type: "textarea" },
+];
+
+function SeedLibraryTab({ seeds, onSaveSeeds, onAddToGarden }) {
+  const [view, setView] = useState("library"); // library | scan | edit
+  const [editingSeed, setEditingSeed] = useState(null);
+  const [scanning, setScanning] = useState(false);
+  const [scanError, setScanError] = useState("");
+  const [scannedData, setScannedData] = useState(null);
+  const [search, setSearch] = useState("");
+  const [frontImg, setFrontImg] = useState(null);
+  const [backImg, setBackImg] = useState(null);
+  const frontRef = useRef();
+  const backRef = useRef();
+
+  const filtered = seeds.filter(s => {
+    const q = search.toLowerCase();
+    return !q || s.name?.toLowerCase().includes(q) || s.variety?.toLowerCase().includes(q) || s.brand?.toLowerCase().includes(q);
+  });
+
+  // Convert file to base64
+  async function fileToBase64(file) {
+    return new Promise((res, rej) => {
+      const reader = new FileReader();
+      reader.onload = () => res(reader.result.split(",")[1]);
+      reader.onerror = rej;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handleScan() {
+    if (!frontImg && !backImg) { setScanError("Please add at least one photo."); return; }
+    setScanning(true);
+    setScanError("");
+    try {
+      const content = [];
+      if (frontImg) {
+        const b64 = await fileToBase64(frontImg);
+        content.push({ type: "image", source: { type: "base64", media_type: frontImg.type, data: b64 } });
+        content.push({ type: "text", text: "This is the FRONT of a seed packet." });
+      }
+      if (backImg) {
+        const b64 = await fileToBase64(backImg);
+        content.push({ type: "image", source: { type: "base64", media_type: backImg.type, data: b64 } });
+        content.push({ type: "text", text: "This is the BACK of a seed packet." });
+      }
+      content.push({ type: "text", text: `Extract all information from this seed packet and return ONLY a JSON object with these fields (use null for anything not found):
+{
+  "name": "plant common name",
+  "variety": "variety name",
+  "brand": "brand or company name",
+  "year": "packet year as number or null",
+  "dtm": "days to maturity as number or null",
+  "depth": "planting depth e.g. 1/4 inch",
+  "spacing": "spacing e.g. 12 inches apart",
+  "sun": "Full Sun or Partial Shade or Full Shade",
+  "water": "Low or Moderate or Regular or High",
+  "startIndoors": "weeks before last frost as number or null",
+  "germDays": "germination days range e.g. 7-14",
+  "about": "1-2 sentence description from packet",
+  "notes": "any other useful info from the packet"
+}
+Return ONLY the JSON, no other text.` });
+
+      const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
+      if (!apiKey) throw new Error("No API key configured.");
+
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true",
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          messages: [{ role: "user", content }],
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err?.error?.message || `API error ${response.status}`);
+      }
+
+      const data = await response.json();
+      const text = data.content?.find(b => b.type === "text")?.text || "";
+      const clean = text.replace(/```json|```/g, "").trim();
+      const parsed = JSON.parse(clean);
+      setScannedData({ ...parsed, id: generateId(), addedAt: new Date().toISOString(), started: false });
+      setView("edit");
+    } catch (err) {
+      setScanError(`Scan failed: ${err.message || "Unknown error"}. Check your API key or try a clearer photo.`);
+    } finally {
+      setScanning(false);
+    }
+  }
+
+  function handleSave(seed) {
+    if (editingSeed?.id) {
+      onSaveSeeds(seeds.map(s => s.id === seed.id ? seed : s));
+    } else {
+      onSaveSeeds([...seeds, { ...seed, id: seed.id || generateId(), addedAt: seed.addedAt || new Date().toISOString() }]);
+    }
+    setEditingSeed(null);
+    setScannedData(null);
+    setFrontImg(null);
+    setBackImg(null);
+    setView("library");
+  }
+
+  function handleDelete(id) {
+    onSaveSeeds(seeds.filter(s => s.id !== id));
+  }
+
+  function handleMarkStarted(seed) {
+    onSaveSeeds(seeds.map(s => s.id === seed.id ? { ...s, started: !s.started } : s));
+  }
+
+  // ── Scan view ──
+  if (view === "scan") {
+    return (
+      <div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+          <button onClick={() => { setView("library"); setFrontImg(null); setBackImg(null); setScanError(""); }}
+            style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, color: "#666" }}>←</button>
+          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800 }}>Scan Seed Packet</h2>
+        </div>
+
+        <div style={{ background: "#f5f9f5", border: "1px solid #c8e6c9", borderRadius: 14, padding: 16, marginBottom: 16 }}>
+          <div style={{ fontSize: 13, color: "#555", lineHeight: 1.6 }}>
+            📸 Take or upload a photo of the <strong>front and back</strong> of your seed packet. Claude will read the text and fill in the details automatically. No photos are stored.
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+          {[
+            { label: "Front of packet", key: "front", ref: frontRef, img: frontImg, set: setFrontImg },
+            { label: "Back of packet", key: "back", ref: backRef, img: backImg, set: setBackImg },
+          ].map(side => (
+            <div key={side.key}>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, color: "#444" }}>{side.label}</div>
+              <label style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: `2px dashed ${side.img ? "#2d6a3f" : "#ccc"}`, borderRadius: 12, padding: 20, cursor: "pointer", background: side.img ? "#f0f9f0" : "#fafaf8", minHeight: 100, textAlign: "center", gap: 6 }}>
+                {side.img ? (
+                  <>
+                    <div style={{ fontSize: 28 }}>✓</div>
+                    <div style={{ fontSize: 12, color: "#2d6a3f", fontWeight: 600 }}>{side.img.name}</div>
+                    <div style={{ fontSize: 11, color: "#888" }}>Tap to change</div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontSize: 28 }}>📷</div>
+                    <div style={{ fontSize: 12, color: "#888" }}>Tap to add photo</div>
+                  </>
+                )}
+                <input ref={side.ref} type="file" accept="image/*" capture="environment"
+                  onChange={e => side.set(e.target.files[0] || null)} style={{ display: "none" }} />
+              </label>
+            </div>
+          ))}
+        </div>
+
+        {scanError && <div style={{ background: "#fdecea", color: "#c0392b", borderRadius: 10, padding: "10px 14px", fontSize: 13, marginBottom: 12 }}>⚠️ {scanError}</div>}
+
+        <button onClick={handleScan} disabled={scanning}
+          style={{ width: "100%", padding: 14, background: scanning ? "#aaa" : "#2d6a3f", color: "#fff", border: "none", borderRadius: 12, cursor: scanning ? "not-allowed" : "pointer", fontSize: 15, fontWeight: 700, marginBottom: 10 }}>
+          {scanning ? "📖 Reading packet..." : "✨ Scan & Extract Info"}
+        </button>
+        <button onClick={() => { setScannedData({ id: generateId(), addedAt: new Date().toISOString() }); setView("edit"); }}
+          style={{ width: "100%", padding: 12, background: "#fff", color: "#555", border: "1.5px solid #ddd", borderRadius: 12, cursor: "pointer", fontSize: 14 }}>
+          Enter manually instead
+        </button>
+      </div>
+    );
+  }
+
+  // ── Edit / Review view ──
+  if (view === "edit") {
+    const seed = editingSeed || scannedData || { id: generateId(), addedAt: new Date().toISOString() };
+    const [form, setForm] = useState(seed);
+
+    return (
+      <div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+          <button onClick={() => { setView(scannedData ? "scan" : "library"); setEditingSeed(null); }}
+            style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, color: "#666" }}>←</button>
+          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800 }}>{editingSeed ? "Edit Seed" : scannedData ? "Review & Save" : "Add Seed"}</h2>
+        </div>
+
+        {scannedData && !editingSeed && (
+          <div style={{ background: "#f0f9f0", border: "1px solid #b8ddc8", borderRadius: 10, padding: "8px 14px", marginBottom: 16, fontSize: 13, color: "#2d6a3f" }}>
+            ✨ Claude extracted this info from your packet. Review and edit anything that looks off, then save.
+          </div>
+        )}
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 16 }}>
+          {SEED_FIELDS.map(field => (
+            <div key={field.key} style={{ gridColumn: field.type === "textarea" ? "1 / -1" : undefined }}>
+              <label style={lbl}>{field.label}</label>
+              {field.type === "select" ? (
+                <select value={form[field.key] || ""} onChange={e => setForm(f => ({ ...f, [field.key]: e.target.value }))} style={sel}>
+                  <option value="">Select...</option>
+                  {field.options.map(o => <option key={o}>{o}</option>)}
+                </select>
+              ) : field.type === "textarea" ? (
+                <textarea value={form[field.key] || ""} onChange={e => setForm(f => ({ ...f, [field.key]: e.target.value }))}
+                  style={{ width: "100%", padding: "9px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit", minHeight: 70, resize: "vertical" }} />
+              ) : (
+                <input type={field.type} value={form[field.key] || ""} onChange={e => setForm(f => ({ ...f, [field.key]: e.target.value }))}
+                  style={{ width: "100%", padding: "9px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" }} />
+              )}
+            </div>
+          ))}
+          {/* About field */}
+          <div style={{ gridColumn: "1 / -1" }}>
+            <label style={lbl}>About (from packet)</label>
+            <textarea value={form.about || ""} onChange={e => setForm(f => ({ ...f, about: e.target.value }))}
+              style={{ width: "100%", padding: "9px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit", minHeight: 70, resize: "vertical" }} />
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: 10 }}>
+          <button onClick={() => handleSave(form)}
+            style={{ flex: 1, padding: 13, background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 12, cursor: "pointer", fontSize: 15, fontWeight: 700 }}>
+            💾 Save to Seed Library
+          </button>
+          <button onClick={() => { setView("library"); setEditingSeed(null); setScannedData(null); }}
+            style={{ padding: "13px 18px", background: "#fff", color: "#555", border: "1.5px solid #ddd", borderRadius: 12, cursor: "pointer", fontSize: 14 }}>
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Library view ──
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
+        <div>
+          <h2 style={{ margin: "0 0 4px", fontSize: 22, fontWeight: 800 }}>Seed Library</h2>
+          <p style={{ color: "#888", margin: 0, fontSize: 14 }}>{seeds.length} packet{seeds.length !== 1 ? "s" : ""} in your collection.</p>
+        </div>
+        <button onClick={() => { setScanError(""); setFrontImg(null); setBackImg(null); setView("scan"); }}
+          style={{ background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 10, padding: "10px 16px", cursor: "pointer", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+          📷 Scan Packet
+        </button>
+      </div>
+
+      <input placeholder="Search seeds..." value={search} onChange={e => setSearch(e.target.value)}
+        style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, fontFamily: "inherit", boxSizing: "border-box", marginBottom: 14 }} />
+
+      {seeds.length === 0 ? (
+        <div style={{ border: "1.5px dashed #ddd", borderRadius: 14, padding: 48, textAlign: "center" }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>🌰</div>
+          <div style={{ color: "#888", fontSize: 15, marginBottom: 4 }}>Your seed library is empty.</div>
+          <div style={{ color: "#bbb", fontSize: 14 }}>Scan your first seed packet to get started.</div>
+        </div>
+      ) : (
+        <>
+          {filtered.length === 0 && <div style={{ textAlign: "center", color: "#bbb", padding: "24px 0", fontSize: 14 }}>No seeds match your search.</div>}
+          {filtered.map(seed => (
+            <div key={seed.id} style={{ background: "#fff", border: `1px solid ${seed.started ? "#b8ddc8" : "#e8e8e8"}`, borderRadius: 14, padding: "14px 16px", marginBottom: 10 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
+                    <span style={{ fontWeight: 700, fontSize: 15 }}>{seed.name || "Unnamed"}</span>
+                    {seed.variety && <span style={{ color: "#888", fontSize: 13 }}>{seed.variety}</span>}
+                    {seed.started && <span style={{ fontSize: 11, background: "#eaf5ee", color: "#2d6a3f", padding: "2px 8px", borderRadius: 10, fontWeight: 600 }}>✓ Started</span>}
+                    {seed.year && <span style={{ fontSize: 11, background: "#f0f0f0", color: "#666", padding: "2px 7px", borderRadius: 10 }}>{seed.year}</span>}
+                  </div>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: seed.about ? 6 : 0 }}>
+                    {seed.brand && <span style={{ fontSize: 12, color: "#888" }}>🏷 {seed.brand}</span>}
+                    {seed.dtm && <span style={{ fontSize: 12, color: "#5a8a6a", background: "#eaf5ee", padding: "2px 7px", borderRadius: 10 }}>📅 {seed.dtm} DTM</span>}
+                    {seed.sun && <span style={{ fontSize: 12, color: "#8a7a2a", background: "#faf5e0", padding: "2px 7px", borderRadius: 10 }}>☀️ {seed.sun}</span>}
+                    {seed.water && <span style={{ fontSize: 12, color: "#3a6aaa", background: "#e4eef8", padding: "2px 7px", borderRadius: 10 }}>💧 {seed.water}</span>}
+                    {seed.quantity && <span style={{ fontSize: 12, color: "#888" }}>🌰 {seed.quantity} seeds</span>}
+                    {seed.source && <span style={{ fontSize: 12, color: "#888" }}>· {seed.source}</span>}
+                  </div>
+                  {seed.about && <div style={{ fontSize: 12, color: "#666", lineHeight: 1.4 }}>{seed.about}</div>}
+                  {seed.depth && <div style={{ fontSize: 12, color: "#999", marginTop: 4 }}>Depth: {seed.depth}{seed.spacing ? ` · Spacing: ${seed.spacing}` : ""}{seed.germDays ? ` · Germ: ${seed.germDays} days` : ""}</div>}
+                  {seed.startIndoors && <div style={{ fontSize: 12, color: "#999" }}>Start indoors: {seed.startIndoors} wks before last frost</div>}
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 5, flexShrink: 0 }}>
+                  <button onClick={() => onAddToGarden(seed)}
+                    style={{ background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" }}>+ Garden</button>
+                  <button onClick={() => handleMarkStarted(seed)}
+                    style={{ background: seed.started ? "#eaf5ee" : "#fff", color: seed.started ? "#2d6a3f" : "#555", border: "1px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 11, whiteSpace: "nowrap" }}>
+                    {seed.started ? "✓ Started" : "Mark started"}
+                  </button>
+                  <button onClick={() => { setEditingSeed(seed); setView("edit"); }}
+                    style={{ background: "none", border: "1px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 13 }}>✏️</button>
+                  <button onClick={() => handleDelete(seed.id)}
+                    style={{ background: "none", border: "1px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 13, color: "#c0392b" }}>🗑</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </>
+      )}
+    </div>
+  );
+}
+
+
 const ZONE_ORDER = ["Basement Grow Station", "Greenhouse", "Raised Beds", "In-Ground Beds"];
 
 function getNextPlantSuggestions({ zone, harvestedPlant, frostDates, existingPlants }) {
@@ -1229,6 +1551,7 @@ const menuItem = { padding: "9px 16px", cursor: "pointer", fontSize: 13, whiteSp
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const [plants, setPlants] = useState([]);
+  const [seeds, setSeeds] = useState([]);
   const [frostDates, setFrostDates] = useState({});
   const [userDB, setUserDB] = useState([]);
   const [tab, setTab] = useState("garden");
@@ -1241,9 +1564,10 @@ export default function App() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    Promise.all([loadData("garden_plants"), loadData("frost_dates"), loadData("user_plant_db")]).then(([p, f, db]) => {
+    Promise.all([loadData("garden_plants"), loadData("frost_dates"), loadData("user_plant_db"), loadData("seed_library")]).then(([p, f, db, sl]) => {
       if (p) setPlants(p);
       if (f) setFrostDates(f);
+      if (sl) setSeeds(sl);
       if (db) {
         setUserDB(db);
       } else {
@@ -1259,11 +1583,13 @@ export default function App() {
   async function savePlants(p) { setPlants(p); await saveData("garden_plants", p); }
   async function saveFrost(f) { setFrostDates(f); await saveData("frost_dates", f); }
   async function saveUserDB(db) { setUserDB(db); await saveData("user_plant_db", db); }
+  async function saveSeeds(s) { setSeeds(s); await saveData("seed_library", s); }
 
   function handleAdd(plant) { savePlants([...plants, plant]); }
   function handleUpdate(updated) { savePlants(plants.map(p => p.id === updated.id ? updated : p)); }
   function handleDelete(id) { savePlants(plants.filter(p => p.id !== id)); }
   function handleAddToGarden(entry) { setPrefillPlant(entry); setShowAdd(true); setTab("garden"); }
+  function handleAddSeedToGarden(seed) { setPrefillPlant({ name: seed.name, variety: seed.variety, about: seed.about, water: seed.water, sun: seed.sun, dtm: seed.dtm }); setShowAdd(true); setTab("garden"); }
 
   const [showBackup, setShowBackup] = useState(false);
   const [importError, setImportError] = useState("");
@@ -1275,7 +1601,8 @@ export default function App() {
       exportedAt: new Date().toISOString(),
       plants,
       frostDates,
-      userDB: userDB.filter(p => !p.seeded), // only export custom entries
+      seeds,
+      userDB: userDB.filter(p => !p.seeded),
     };
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -1331,6 +1658,7 @@ export default function App() {
         </div>
         <nav style={{ display: "flex", gap: 2, flexWrap: "wrap", flex: 1 }}>
           {navBtn("garden", "Garden", "🌱")}
+          {navBtn("seeds", "Seeds", "🌰")}
           {navBtn("harvest", "Harvest", "🧺")}
           {navBtn("calendar", "Calendar", "📅")}
           {navBtn("succession", "Succession", "🔄")}
@@ -1347,6 +1675,7 @@ export default function App() {
           search={search} setSearch={setSearch} filterZone={filterZone} setFilterZone={setFilterZone}
           filterStatus={filterStatus} setFilterStatus={setFilterStatus} setShowAdd={setShowAdd} setShowFrost={setShowFrost} />
       )}
+      {tab === "seeds" && <SeedLibraryTab seeds={seeds} onSaveSeeds={saveSeeds} onAddToGarden={handleAddSeedToGarden} />}
       {tab === "calendar" && <CalendarTab plants={plants} />}
       {tab === "harvest" && <HarvestTab plants={plants} frostDates={frostDates} onUpdate={handleUpdate} />}
       {tab === "succession" && <SuccessionTab plants={plants} />}
