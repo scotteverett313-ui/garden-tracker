@@ -7,13 +7,15 @@ const ZONE_COLORS = { "Basement Grow Station": "#e8e4f0", "Greenhouse": "#d6f0e8
 const STATUSES = [
   { label: "Seed", icon: "🌰" }, { label: "Germinating", icon: "🌱" }, { label: "Seedling", icon: "🌿" },
   { label: "Transplanted", icon: "🪴" }, { label: "Growing", icon: "🌾" }, { label: "Flowering", icon: "🌸" },
-  { label: "Fruiting", icon: "🍅" }, { label: "Harvesting", icon: "🧺" }, { label: "Dormant", icon: "💤" }
+  { label: "Fruiting", icon: "🍅" }, { label: "Harvesting", icon: "🧺" }, { label: "Dormant", icon: "💤" },
+  { label: "Harvested", icon: "✅" }, { label: "Dead", icon: "🪦" }
 ];
 
 const STATUS_COLORS = {
   "Seed": "#f5e6c8", "Germinating": "#e8f0d8", "Seedling": "#d6e8d0",
   "Transplanted": "#fde8c8", "Growing": "#d8ecd8", "Flowering": "#f0d8e8",
-  "Fruiting": "#fcd8d8", "Harvesting": "#d8e8c8", "Dormant": "#e8e8e8"
+  "Fruiting": "#fcd8d8", "Harvesting": "#d8e8c8", "Dormant": "#e8e8e8",
+  "Harvested": "#d4edda", "Dead": "#e8e8e8"
 };
 
 const CARE_TYPES = ["Watering", "Fertilizing", "Pruning", "Pest Treatment", "Observation"];
@@ -181,10 +183,15 @@ function Modal({ children, onClose, width = 560 }) {
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center", padding: 0 }}
       onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ background: "#fff", borderRadius: "16px 16px 0 0", padding: "20px 16px 32px", width: "100%", maxWidth: width, maxHeight: "92vh", overflowY: "auto", position: "relative" }}>
-        <div style={{ width: 36, height: 4, background: "#ddd", borderRadius: 4, margin: "0 auto 16px" }} />
-        <button onClick={onClose} style={{ position: "absolute", top: 16, right: 16, background: "none", border: "1px solid #ddd", borderRadius: "50%", width: 30, height: 30, cursor: "pointer", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
-        {children}
+      <div style={{ background: "#fff", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: width, maxHeight: "92vh", overflowY: "auto", position: "relative", display: "flex", flexDirection: "column" }}>
+        {/* Sticky header with drag handle and close */}
+        <div style={{ position: "sticky", top: 0, background: "#fff", zIndex: 10, padding: "12px 16px 8px", borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+          <div style={{ width: 36, height: 4, background: "#ddd", borderRadius: 4, margin: "0 auto" }} />
+          <button onClick={onClose} style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "#f0f0f0", border: "none", borderRadius: "50%", width: 30, height: 30, cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "#555" }}>×</button>
+        </div>
+        <div style={{ padding: "16px 16px 32px", flex: 1 }}>
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -495,7 +502,16 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete, toast }) {
   const nextZoneIdx = ZONES.indexOf(plant.zone) + 1;
   const nextZone = nextZoneIdx < ZONES.length ? ZONES[nextZoneIdx] : null;
 
+  const [showEndModal, setShowEndModal] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState(null);
+
   function updateStatus(status) {
+    if (status === "Harvested" || status === "Dead") {
+      setPendingStatus(status);
+      setShowEndModal(true);
+      setShowStatusPicker(false);
+      return;
+    }
     onUpdate({ ...plant, status });
     setShowStatusPicker(false);
     const s = STATUSES.find(x => x.label === status);
@@ -528,12 +544,9 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete, toast }) {
 
         {/* Header row */}
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
-          <div style={{ display: "flex", gap: 8, alignItems: "flex-start", flex: 1, minWidth: 0 }}>
-            <span style={{ fontSize: 18, marginTop: 1, flexShrink: 0 }}>{statusObj.icon}</span>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontWeight: 700, fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{plant.name}</div>
-              {plant.variety && <div style={{ color: "#888", fontSize: 13 }}>{plant.variety}</div>}
-            </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{plant.name}</div>
+            {plant.variety && <div style={{ color: "#888", fontSize: 13 }}>{plant.variety}</div>}
           </div>
           <div style={{ display: "flex", gap: 4, alignItems: "center", flexShrink: 0 }}>
             <button onClick={() => setShowCare(true)} title="Care log"
@@ -656,6 +669,62 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete, toast }) {
 
       {showEdit && <EditPlantModal plant={plant} onSave={updated => { onUpdate(updated); toast && toast(`${updated.name} updated`, { icon: "✏️" }); }} onClose={() => setShowEdit(false)} />}
       {showCare && <CareLogModal plant={plant} onSave={updated => onUpdate(updated)} onClose={() => setShowCare(false)} toast={toast} />}
+
+      {showEndModal && (
+        <Modal onClose={() => setShowEndModal(false)} width={420}>
+          <div style={{ textAlign: "center", paddingBottom: 8 }}>
+            <div style={{ fontSize: 40, marginBottom: 10 }}>{pendingStatus === "Harvested" ? "✅" : "🪦"}</div>
+            <h2 style={{ margin: "0 0 6px", fontSize: 20, fontWeight: 800 }}>
+              {pendingStatus === "Harvested" ? "Mark as Harvested?" : "Mark as Dead?"}
+            </h2>
+            <p style={{ color: "#888", fontSize: 14, marginBottom: 20 }}>
+              {pendingStatus === "Harvested"
+                ? `${plant.name} is done for this season. What would you like to do?`
+                : `Sorry to hear it. ${plant.name} didn't make it. What would you like to do?`}
+            </p>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {pendingStatus === "Harvested" && (
+              <button onClick={() => {
+                onUpdate({ ...plant, status: "Harvested", harvestedAt: new Date().toISOString() });
+                setShowEndModal(false);
+                toast && toast(`${plant.name} harvested! 🎉`, { icon: "✅" });
+              }} style={{ padding: "13px", background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 12, cursor: "pointer", fontSize: 15, fontWeight: 700 }}>
+                ✅ Mark Harvested — Keep in garden
+              </button>
+            )}
+            {pendingStatus === "Dead" && (
+              <button onClick={() => {
+                onUpdate({ ...plant, status: "Dead" });
+                setShowEndModal(false);
+                toast && toast(`${plant.name} removed`, { icon: "🪦" });
+              }} style={{ padding: "13px", background: "#888", color: "#fff", border: "none", borderRadius: 12, cursor: "pointer", fontSize: 15, fontWeight: 700 }}>
+                🪦 Mark Dead — Keep record
+              </button>
+            )}
+            <button onClick={() => {
+              onDelete(plant.id);
+              setShowEndModal(false);
+              toast && toast(`${plant.name} removed from garden`, { type: "warning", icon: "🗑" });
+            }} style={{ padding: "13px", background: "#fff", color: "#c0392b", border: "1.5px solid #c0392b", borderRadius: 12, cursor: "pointer", fontSize: 15, fontWeight: 600 }}>
+              🗑 Remove from Garden
+            </button>
+            {pendingStatus === "Harvested" && (
+              <button onClick={() => {
+                onUpdate({ ...plant, status: "Harvested", harvestedAt: new Date().toISOString() });
+                setShowEndModal(false);
+                toast && toast(`Plan succession for ${plant.name}`, { icon: "🔄" });
+              }} style={{ padding: "13px", background: "#f0f8f2", color: "#2d6a3f", border: "1.5px solid #b8ddc8", borderRadius: 12, cursor: "pointer", fontSize: 15, fontWeight: 600 }}>
+                🔄 Plan Succession Planting
+              </button>
+            )}
+            <button onClick={() => setShowEndModal(false)}
+              style={{ padding: "11px", background: "none", color: "#888", border: "none", cursor: "pointer", fontSize: 14 }}>
+              Cancel
+            </button>
+          </div>
+        </Modal>
+      )}
     </>
   );
 }
@@ -695,6 +764,8 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
       )}
       {ZONES.map(zone => {
         const zonePlants = filtered.filter(p => p.zone === zone);
+        // Hide zones not matching active filter
+        if (filterZone && filterZone !== zone) return null;
         return (
           <div key={zone} style={{ marginBottom: 24 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
