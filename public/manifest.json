@@ -1,11 +1,11 @@
 {
-  "name": "Plant Tracker",
-  "short_name": "Plants",
-  "description": "Track your seeds and plants across all growing zones",
+  "name": "Dirt Rich",
+  "short_name": "Dirt Rich",
+  "description": "Grow what you own. Track seeds, plants, and harvests across all your growing zones.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f8f8f6",
-  "theme_color": "#2d6a3f",
+  "background_color": "#faf6f0",
+  "theme_color": "#5c3d1e",
   "orientation": "portrait",
   "icons": [
     {

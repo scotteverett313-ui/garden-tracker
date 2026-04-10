@@ -133,7 +133,7 @@ function Toast({ toasts }) {
     <div style={{ position: "fixed", bottom: 90, left: "50%", transform: "translateX(-50%)", width: "calc(100% - 32px)", maxWidth: 560, zIndex: 999, display: "flex", flexDirection: "column", gap: 8, pointerEvents: "none" }}>
       {toasts.map(t => (
         <div key={t.id} style={{
-          background: t.type === "error" ? "#c0392b" : t.type === "warning" ? "#e67e22" : "#2d6a3f",
+          background: t.type === "error" ? "#c0392b" : t.type === "warning" ? "#e67e22" : "#5c3d1e",
           color: "#fff", borderRadius: 12, padding: "12px 16px", fontSize: 14, fontWeight: 600,
           display: "flex", alignItems: "center", gap: 10,
           boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
@@ -271,7 +271,7 @@ function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill }) {
             <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "#fff", border: "1px solid #e0e0e0", borderRadius: 10, zIndex: 10, boxShadow: "0 4px 12px rgba(0,0,0,0.1)", maxHeight: 200, overflowY: "auto" }}>
               {suggestions.map(p => (
                 <div key={p.name} onClick={() => selectSuggestion(p)} style={{ padding: "10px 14px", cursor: "pointer", fontSize: 14, borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", justifyContent: "space-between" }}
-                  onMouseEnter={e => e.currentTarget.style.background = "#f5f9f5"}
+                  onMouseEnter={e => e.currentTarget.style.background = "#fdf6ee"}
                   onMouseLeave={e => e.currentTarget.style.background = "#fff"}>
                   <span>{p.name}</span>
                   {p.isCustom && <span style={{ fontSize: 11, background: "#fff3cd", color: "#856404", padding: "2px 7px", borderRadius: 10, fontWeight: 600 }}>my db</span>}
@@ -311,7 +311,7 @@ function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill }) {
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 24 }}>
         <button onClick={onClose} style={{ padding: "10px 20px", border: "1.5px solid #ccc", borderRadius: 10, background: "#fff", cursor: "pointer", fontSize: 14 }}>Cancel</button>
-        <button onClick={handleSubmit} style={{ padding: "10px 24px", background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>+ Add Plant</button>
+        <button onClick={handleSubmit} style={{ padding: "10px 24px", background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>+ Add Plant</button>
       </div>
     </Modal>
   );
@@ -366,7 +366,7 @@ function EditPlantModal({ plant, onSave, onClose }) {
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 24 }}>
         <button onClick={onClose} style={{ padding: "10px 20px", border: "1.5px solid #ccc", borderRadius: 10, background: "#fff", cursor: "pointer", fontSize: 14 }}>Cancel</button>
-        <button onClick={handleSubmit} style={{ padding: "10px 24px", background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>Save Changes</button>
+        <button onClick={handleSubmit} style={{ padding: "10px 24px", background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>Save Changes</button>
       </div>
     </Modal>
   );
@@ -394,7 +394,7 @@ function FrostModal({ frostDates, onSave, onClose }) {
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
         <button onClick={onClose} style={{ padding: "10px 20px", border: "1.5px solid #ccc", borderRadius: 10, background: "#fff", cursor: "pointer", fontSize: 14 }}>Cancel</button>
-        <button onClick={() => { onSave({ lastSpring, firstFall }); onClose(); }} style={{ padding: "10px 24px", background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>Save Dates</button>
+        <button onClick={() => { onSave({ lastSpring, firstFall }); onClose(); }} style={{ padding: "10px 24px", background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>Save Dates</button>
       </div>
     </Modal>
   );
@@ -426,7 +426,7 @@ function CareLogModal({ plant, onSave, onClose, toast }) {
     <Modal onClose={onClose} width={600}>
       <h2 style={{ margin: "0 0 20px", fontSize: 22, fontWeight: 700 }}>{plant.name} {plant.variety ? <span style={{ color: "#888", fontWeight: 400 }}>({plant.variety})</span> : null}</h2>
       
-      <div style={{ background: "#f5f9f5", borderRadius: 12, padding: 16, marginBottom: 20 }}>
+      <div style={{ background: "#fdf6ee", borderRadius: 12, padding: 16, marginBottom: 20 }}>
         <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#666", marginBottom: 12 }}>GROWING OVERVIEW</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           {[
@@ -458,7 +458,7 @@ function CareLogModal({ plant, onSave, onClose, toast }) {
       <div style={{ marginBottom: 12 }}><label style={lbl}>Notes (optional)</label>
         <textarea placeholder="e.g. 1L water, added compost tea..." value={careNote} onChange={e => setCareNote(e.target.value)} style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit", minHeight: 70, resize: "vertical" }} />
       </div>
-      <button onClick={addEntry} style={{ width: "100%", padding: "12px", background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 15, fontWeight: 600, marginBottom: 20 }}>+ Log Care</button>
+      <button onClick={addEntry} style={{ width: "100%", padding: "12px", background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 15, fontWeight: 600, marginBottom: 20 }}>+ Log Care</button>
 
       <div style={{ borderTop: "1px solid #eee", paddingTop: 16 }}>
         {(!plant.careLog || plant.careLog.length === 0) ? (
@@ -553,7 +553,7 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete, toast }) {
               style={{ background: "none", border: "1px solid #ddd", borderRadius: 8, width: 32, height: 32, cursor: "pointer", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>💧</button>
             {nextZone && (
               <button onClick={() => moveToZone(nextZone)} title={`Move to ${nextZone}`}
-                style={{ background: "#f0f8f2", border: "1px solid #b8ddc8", borderRadius: 8, height: 32, padding: "0 8px", cursor: "pointer", fontSize: 12, fontWeight: 600, color: "#2d6a3f", whiteSpace: "nowrap" }}>
+                style={{ background: "#fdf6ee", border: "1px solid #d4a96a", borderRadius: 8, height: 32, padding: "0 8px", cursor: "pointer", fontSize: 12, fontWeight: 600, color: "#5c3d1e", whiteSpace: "nowrap" }}>
                 ⟫ {nextZone.split(" ")[0]}
               </button>
             )}
@@ -565,12 +565,12 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete, toast }) {
                   <div style={{ padding: "6px 12px 4px", fontSize: 11, color: "#aaa", fontWeight: 600, letterSpacing: 0.5 }}>MOVE TO</div>
                   {ZONES.map(z => z !== plant.zone && (
                     <div key={z} onClick={() => moveToZone(z)} style={{ padding: "8px 14px", cursor: "pointer", fontSize: 13 }}
-                      onMouseEnter={e => e.currentTarget.style.background = "#f5f9f5"}
+                      onMouseEnter={e => e.currentTarget.style.background = "#fdf6ee"}
                       onMouseLeave={e => e.currentTarget.style.background = "#fff"}>{z}</div>
                   ))}
                   <div style={{ borderTop: "1px solid #eee", margin: "4px 0" }} />
                   <div onClick={() => { setShowEdit(true); setShowMenu(false); }} style={{ padding: "8px 14px", cursor: "pointer", fontSize: 13 }}
-                    onMouseEnter={e => e.currentTarget.style.background = "#f5f9f5"}
+                    onMouseEnter={e => e.currentTarget.style.background = "#fdf6ee"}
                     onMouseLeave={e => e.currentTarget.style.background = "#fff"}>✏️ Edit Plant</div>
                   <div onClick={() => { onDelete(plant.id); setShowMenu(false); toast && toast("Plant removed", { type: "warning", icon: "🗑" }); }} style={{ padding: "8px 14px", cursor: "pointer", fontSize: 13, color: "#c0392b" }}
                     onMouseEnter={e => e.currentTarget.style.background = "#fff5f5"}
@@ -603,7 +603,7 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete, toast }) {
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8, alignItems: "center" }}>
           {plant.dateStarted && <span style={{ color: "#999", fontSize: 12 }}>Started {formatDate(plant.dateStarted)}</span>}
           {plant.quantity && <span style={{ color: "#999", fontSize: 12 }}>· Qty: {plant.quantity}</span>}
-          {plant.water && <span style={{ fontSize: 11, color: "#5a8a6a", background: "#eaf5ee", padding: "2px 7px", borderRadius: 10 }}>💧 {plant.water}</span>}
+          {plant.water && <span style={{ fontSize: 11, color: "#5a8a6a", background: "#f5ece0", padding: "2px 7px", borderRadius: 10 }}>💧 {plant.water}</span>}
           {plant.sun && <span style={{ fontSize: 11, color: "#8a7a2a", background: "#faf5e0", padding: "2px 7px", borderRadius: 10 }}>☀️ {plant.sun}</span>}
         </div>
 
@@ -629,12 +629,12 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete, toast }) {
         {showCompanions && (
           <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid #f0f0f0" }}>
             <div style={{ marginBottom: 10 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#2d6a3f", marginBottom: 5, textTransform: "uppercase", letterSpacing: 0.5 }}>✓ Plant with</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#5c3d1e", marginBottom: 5, textTransform: "uppercase", letterSpacing: 0.5 }}>✓ Plant with</div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 6 }}>
                 {(plant.companions?.good || []).map(c => (
-                  <span key={c} style={{ background: "#eaf5ee", color: "#2d6a3f", fontSize: 12, padding: "3px 8px", borderRadius: 12, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  <span key={c} style={{ background: "#f5ece0", color: "#5c3d1e", fontSize: 12, padding: "3px 8px", borderRadius: 12, display: "inline-flex", alignItems: "center", gap: 4 }}>
                     {c}
-                    <button onClick={() => removeCompanion("good", c)} style={{ background: "none", border: "none", cursor: "pointer", color: "#2d6a3f", fontSize: 13, lineHeight: 1, padding: 0, marginLeft: 2 }}>×</button>
+                    <button onClick={() => removeCompanion("good", c)} style={{ background: "none", border: "none", cursor: "pointer", color: "#5c3d1e", fontSize: 13, lineHeight: 1, padding: 0, marginLeft: 2 }}>×</button>
                   </span>
                 ))}
                 {(plant.companions?.good || []).length === 0 && <span style={{ fontSize: 12, color: "#bbb" }}>None added</span>}
@@ -642,7 +642,7 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete, toast }) {
               <div style={{ display: "flex", gap: 6 }}>
                 <input value={newGood} onChange={e => setNewGood(e.target.value)} onKeyDown={e => e.key === "Enter" && addCompanion("good")}
                   placeholder="Add companion plant..." style={{ flex: 1, padding: "6px 10px", border: "1px solid #ccc", borderRadius: 8, fontSize: 13, fontFamily: "inherit" }} />
-                <button onClick={() => addCompanion("good")} style={{ background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 14, fontWeight: 600 }}>+</button>
+                <button onClick={() => addCompanion("good")} style={{ background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 14, fontWeight: 600 }}>+</button>
               </div>
             </div>
             {/* Avoid near */}
@@ -689,7 +689,7 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete, toast }) {
                 onUpdate({ ...plant, status: "Harvested", harvestedAt: new Date().toISOString() });
                 setShowEndModal(false);
                 toast && toast(`${plant.name} harvested! 🎉`, { icon: "✅" });
-              }} style={{ padding: "13px", background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 12, cursor: "pointer", fontSize: 15, fontWeight: 700 }}>
+              }} style={{ padding: "13px", background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 12, cursor: "pointer", fontSize: 15, fontWeight: 700 }}>
                 ✅ Mark Harvested — Keep in garden
               </button>
             )}
@@ -714,7 +714,7 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete, toast }) {
                 onUpdate({ ...plant, status: "Harvested", harvestedAt: new Date().toISOString() });
                 setShowEndModal(false);
                 toast && toast(`Plan succession for ${plant.name}`, { icon: "🔄" });
-              }} style={{ padding: "13px", background: "#f0f8f2", color: "#2d6a3f", border: "1.5px solid #b8ddc8", borderRadius: 12, cursor: "pointer", fontSize: 15, fontWeight: 600 }}>
+              }} style={{ padding: "13px", background: "#fdf6ee", color: "#5c3d1e", border: "1.5px solid #d4a96a", borderRadius: 12, cursor: "pointer", fontSize: 15, fontWeight: 600 }}>
                 🔄 Plan Succession Planting
               </button>
             )}
@@ -744,7 +744,7 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
         <input placeholder="Search plants..." value={search} onChange={e => setSearch(e.target.value)}
           style={{ flex: 1, minWidth: 0, padding: "9px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, fontFamily: "inherit" }} />
         <button onClick={onAddPlant}
-          style={{ background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 10, padding: "9px 16px", cursor: "pointer", fontSize: 14, fontWeight: 700, whiteSpace: "nowrap" }}>
+          style={{ background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 10, padding: "9px 16px", cursor: "pointer", fontSize: 14, fontWeight: 700, whiteSpace: "nowrap" }}>
           + Add Plant
         </button>
       </div>
@@ -835,7 +835,7 @@ function CalendarTab({ plants }) {
       <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
         {[
           { label: "Start Indoors", color: "#e8e4f8", text: "#5a4aaa" },
-          { label: "Transplant", color: "#d8f0e4", text: "#2d6a3f" },
+          { label: "Transplant", color: "#f5ece0", text: "#5c3d1e" },
           { label: "Direct Sow", color: "#fef3c7", text: "#92400e" },
           { label: "Your start", color: "#fff3cd", text: "#856404" },
         ].map(b => (
@@ -848,7 +848,7 @@ function CalendarTab({ plants }) {
             <tr style={{ background: "#f8f8f8" }}>
               <th style={{ textAlign: "left", padding: "10px 14px", fontWeight: 600, width: 150, borderBottom: "1px solid #eee", position: "sticky", left: 0, background: "#f8f8f8", zIndex: 2 }}>Plant</th>
               {MONTHS.map((m, i) => (
-                <th key={m} style={{ textAlign: "center", padding: "10px 4px", fontWeight: 600, width: 44, borderBottom: "1px solid #eee", color: i === currentMonth ? "#2d6a3f" : "#555", background: i === currentMonth ? "#f0f8f2" : "#f8f8f8", fontSize: 12 }}>{m}</th>
+                <th key={m} style={{ textAlign: "center", padding: "10px 4px", fontWeight: 600, width: 44, borderBottom: "1px solid #eee", color: i === currentMonth ? "#5c3d1e" : "#555", background: i === currentMonth ? "#fdf6ee" : "#f8f8f8", fontSize: 12 }}>{m}</th>
               ))}
             </tr>
           </thead>
@@ -871,7 +871,7 @@ function CalendarTab({ plants }) {
                     let bg = "transparent", color = "transparent", label = "";
                     if (isStarted) { bg = "#fff3cd"; color = "#856404"; label = "★"; }
                     else if (isI) { bg = "#e8e4f8"; color = "#5a4aaa"; label = "I"; }
-                    else if (isT) { bg = "#d8f0e4"; color = "#2d6a3f"; label = "T"; }
+                    else if (isT) { bg = "#f5ece0"; color = "#5c3d1e"; label = "T"; }
                     else if (isD) { bg = "#fef3c7"; color = "#92400e"; label = "D"; }
                     return (
                       <td key={m} style={{ textAlign: "center", padding: "4px 2px", background: isCurrent ? "#f8fff8" : "transparent" }}>
@@ -923,11 +923,11 @@ function SuccessionTab({ plants }) {
           <h2 style={{ margin: "0 0 4px", fontSize: 26, fontWeight: 800 }}>Succession Planner</h2>
           <p style={{ color: "#888", margin: 0, fontSize: 14 }}>Space out sowings to get continuous harvests all season.</p>
         </div>
-        <button onClick={() => setShowAdd(true)} style={{ padding: "10px 20px", background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>+ Add Plan</button>
+        <button onClick={() => setShowAdd(true)} style={{ padding: "10px 20px", background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>+ Add Plan</button>
       </div>
 
       {showAdd && (
-        <div style={{ background: "#f5f9f5", borderRadius: 14, padding: 20, marginBottom: 24, border: "1px solid #ddeedd" }}>
+        <div style={{ background: "#fdf6ee", borderRadius: 14, padding: 20, marginBottom: 24, border: "1px solid #ddeedd" }}>
           <h3 style={{ margin: "0 0 16px", fontSize: 17 }}>New Succession Plan</h3>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
             <div><label style={lbl}>Plant Name</label>
@@ -947,7 +947,7 @@ function SuccessionTab({ plants }) {
             </div>
           </div>
           <div style={{ display: "flex", gap: 10 }}>
-            <button onClick={addPlan} style={{ padding: "10px 20px", background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>Create Plan</button>
+            <button onClick={addPlan} style={{ padding: "10px 20px", background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>Create Plan</button>
             <button onClick={() => setShowAdd(false)} style={{ padding: "10px 20px", border: "1.5px solid #ccc", borderRadius: 10, background: "#fff", cursor: "pointer", fontSize: 14 }}>Cancel</button>
           </div>
         </div>
@@ -971,7 +971,7 @@ function SuccessionTab({ plants }) {
             </div>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
               {plan.batches.map((batch, i) => (
-                <div key={i} style={{ background: "#f5f9f5", border: "1px solid #ddeedd", borderRadius: 10, padding: "10px 14px", minWidth: 120 }}>
+                <div key={i} style={{ background: "#fdf6ee", border: "1px solid #ddeedd", borderRadius: 10, padding: "10px 14px", minWidth: 120 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: "#5a8a6a", marginBottom: 4 }}>BATCH {i + 1}</div>
                   <div style={{ fontSize: 13 }}>🌱 Sow: {formatDate(batch.sow)}</div>
                   <div style={{ fontSize: 13 }}>🧺 Harvest: {formatDate(batch.harvest)}</div>
@@ -1035,7 +1035,7 @@ function MyDBTab({ userDB, onSaveUserDB, onAddToGarden }) {
         </div>
       ) : (
         <div>
-          <div style={{ marginBottom: 12, fontSize: 13, color: "#5a8a6a", background: "#eaf5ee", padding: "8px 14px", borderRadius: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ marginBottom: 12, fontSize: 13, color: "#5a8a6a", background: "#f5ece0", padding: "8px 14px", borderRadius: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span>📚 {filtered.length} of {userDB.length} plants</span>
             <span style={{ color: "#888", fontSize: 12 }}>{userDB.filter(p => !p.seeded).length} custom · {userDB.filter(p => p.seeded).length} built-in</span>
           </div>
@@ -1069,7 +1069,7 @@ function MyDBTab({ userDB, onSaveUserDB, onAddToGarden }) {
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 8 }}>
-                    <button onClick={() => setEditing(null)} style={{ padding: "7px 16px", background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>Done</button>
+                    <button onClick={() => setEditing(null)} style={{ padding: "7px 16px", background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>Done</button>
                     <button onClick={() => setEditing(null)} style={{ padding: "7px 16px", border: "1px solid #ccc", borderRadius: 8, background: "#fff", cursor: "pointer", fontSize: 13 }}>Cancel</button>
                   </div>
                 </div>
@@ -1081,7 +1081,7 @@ function MyDBTab({ userDB, onSaveUserDB, onAddToGarden }) {
                       {entry.seeded && <span style={{ fontSize: 11, background: "#e8e8e8", color: "#666", padding: "2px 7px", borderRadius: 10, fontWeight: 500 }}>built-in</span>}
                     </div>
                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                      {entry.dtm && <span style={{ fontSize: 12, color: "#5a8a6a", background: "#eaf5ee", padding: "2px 8px", borderRadius: 10 }}>📅 {entry.dtm} DTM</span>}
+                      {entry.dtm && <span style={{ fontSize: 12, color: "#5a8a6a", background: "#f5ece0", padding: "2px 8px", borderRadius: 10 }}>📅 {entry.dtm} DTM</span>}
                       {entry.water && <span style={{ fontSize: 12, color: "#3a6aaa", background: "#e4eef8", padding: "2px 8px", borderRadius: 10 }}>💧 {entry.water}</span>}
                       {entry.sun && <span style={{ fontSize: 12, color: "#8a6a00", background: "#faf0d0", padding: "2px 8px", borderRadius: 10 }}>☀️ {entry.sun}</span>}
                     </div>
@@ -1090,7 +1090,7 @@ function MyDBTab({ userDB, onSaveUserDB, onAddToGarden }) {
                   </div>
                   <div style={{ display: "flex", gap: 6, marginLeft: 12, flexShrink: 0 }}>
                     <button onClick={() => onAddToGarden(entry)}
-                      style={{ background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" }}>+ Add</button>
+                      style={{ background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" }}>+ Add</button>
                     <button onClick={() => setEditing(entry.name)} style={{ background: "none", border: "1px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 13 }}>✏️</button>
                     <button onClick={() => deleteEntry(entry.name)} style={{ background: "none", border: "1px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 13, color: "#c0392b" }}>🗑</button>
                   </div>
@@ -1268,7 +1268,7 @@ Return ONLY the JSON, no other text.` });
           <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800 }}>Scan Seed Packet</h2>
         </div>
 
-        <div style={{ background: "#f5f9f5", border: "1px solid #c8e6c9", borderRadius: 14, padding: 16, marginBottom: 16 }}>
+        <div style={{ background: "#fdf6ee", border: "1px solid #d4a96a", borderRadius: 14, padding: 16, marginBottom: 16 }}>
           <div style={{ fontSize: 13, color: "#555", lineHeight: 1.6 }}>
             📸 Take or upload a photo of the <strong>front and back</strong> of your seed packet. Claude will read the text and fill in the details automatically. No photos are stored.
           </div>
@@ -1281,11 +1281,11 @@ Return ONLY the JSON, no other text.` });
           ].map(side => (
             <div key={side.key}>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, color: "#444" }}>{side.label}</div>
-              <label style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: `2px dashed ${side.img ? "#2d6a3f" : "#ccc"}`, borderRadius: 12, padding: 20, cursor: "pointer", background: side.img ? "#f0f9f0" : "#fafaf8", minHeight: 100, textAlign: "center", gap: 6 }}>
+              <label style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: `2px dashed ${side.img ? "#5c3d1e" : "#ccc"}`, borderRadius: 12, padding: 20, cursor: "pointer", background: side.img ? "#fdf6ee" : "#fafaf8", minHeight: 100, textAlign: "center", gap: 6 }}>
                 {side.img ? (
                   <>
                     <div style={{ fontSize: 28 }}>✓</div>
-                    <div style={{ fontSize: 12, color: "#2d6a3f", fontWeight: 600 }}>{side.img.name}</div>
+                    <div style={{ fontSize: 12, color: "#5c3d1e", fontWeight: 600 }}>{side.img.name}</div>
                     <div style={{ fontSize: 11, color: "#888" }}>Tap to change</div>
                   </>
                 ) : (
@@ -1311,7 +1311,7 @@ Return ONLY the JSON, no other text.` });
         )}
 
         <button onClick={handleScan} disabled={scanning}
-          style={{ width: "100%", padding: 14, background: scanning ? "#aaa" : "#2d6a3f", color: "#fff", border: "none", borderRadius: 12, cursor: scanning ? "not-allowed" : "pointer", fontSize: 15, fontWeight: 700, marginBottom: 10 }}>
+          style={{ width: "100%", padding: 14, background: scanning ? "#aaa" : "#5c3d1e", color: "#fff", border: "none", borderRadius: 12, cursor: scanning ? "not-allowed" : "pointer", fontSize: 15, fontWeight: 700, marginBottom: 10 }}>
           {scanning ? "📖 Reading packet..." : "✨ Scan & Extract Info"}
         </button>
         <button onClick={() => { const blank = { id: generateId(), addedAt: new Date().toISOString() }; setScannedData(blank); setEditForm(blank); setView("edit"); }}
@@ -1336,7 +1336,7 @@ Return ONLY the JSON, no other text.` });
         </div>
 
         {scannedData && !editingSeed && (
-          <div style={{ background: "#f0f9f0", border: "1px solid #b8ddc8", borderRadius: 10, padding: "8px 14px", marginBottom: 16, fontSize: 13, color: "#2d6a3f" }}>
+          <div style={{ background: "#fdf6ee", border: "1px solid #d4a96a", borderRadius: 10, padding: "8px 14px", marginBottom: 16, fontSize: 13, color: "#5c3d1e" }}>
             ✨ Claude extracted this info from your packet. Review and edit anything that looks off, then save.
           </div>
         )}
@@ -1369,7 +1369,7 @@ Return ONLY the JSON, no other text.` });
 
         <div style={{ display: "flex", gap: 10 }}>
           <button onClick={() => handleSave(form)}
-            style={{ flex: 1, padding: 13, background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 12, cursor: "pointer", fontSize: 15, fontWeight: 700 }}>
+            style={{ flex: 1, padding: 13, background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 12, cursor: "pointer", fontSize: 15, fontWeight: 700 }}>
             💾 Save to Seed Library
           </button>
           <button onClick={() => { setView("library"); setEditingSeed(null); setScannedData(null); }}
@@ -1390,7 +1390,7 @@ Return ONLY the JSON, no other text.` });
           <p style={{ color: "#888", margin: 0, fontSize: 14 }}>{seeds.length} packet{seeds.length !== 1 ? "s" : ""} in your collection.</p>
         </div>
         <button onClick={() => { setScanError(""); setFrontImg(null); setBackImg(null); setView("scan"); }}
-          style={{ background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 10, padding: "10px 16px", cursor: "pointer", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+          style={{ background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 10, padding: "10px 16px", cursor: "pointer", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
           📷 Scan Packet
         </button>
       </div>
@@ -1408,18 +1408,18 @@ Return ONLY the JSON, no other text.` });
         <>
           {filtered.length === 0 && <div style={{ textAlign: "center", color: "#bbb", padding: "24px 0", fontSize: 14 }}>No seeds match your search.</div>}
           {filtered.map(seed => (
-            <div key={seed.id} style={{ background: "#fff", border: `1px solid ${seed.started ? "#b8ddc8" : "#e8e8e8"}`, borderRadius: 14, padding: "14px 16px", marginBottom: 10 }}>
+            <div key={seed.id} style={{ background: "#fff", border: `1px solid ${seed.started ? "#d4a96a" : "#e8e8e8"}`, borderRadius: 14, padding: "14px 16px", marginBottom: 10 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
                     <span style={{ fontWeight: 700, fontSize: 15 }}>{seed.name || "Unnamed"}</span>
                     {seed.variety && <span style={{ color: "#888", fontSize: 13 }}>{seed.variety}</span>}
-                    {seed.started && <span style={{ fontSize: 11, background: "#eaf5ee", color: "#2d6a3f", padding: "2px 8px", borderRadius: 10, fontWeight: 600 }}>✓ Started</span>}
+                    {seed.started && <span style={{ fontSize: 11, background: "#f5ece0", color: "#5c3d1e", padding: "2px 8px", borderRadius: 10, fontWeight: 600 }}>✓ Started</span>}
                     {seed.year && <span style={{ fontSize: 11, background: "#f0f0f0", color: "#666", padding: "2px 7px", borderRadius: 10 }}>{seed.year}</span>}
                   </div>
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: seed.about ? 6 : 0 }}>
                     {seed.brand && <span style={{ fontSize: 12, color: "#888" }}>🏷 {seed.brand}</span>}
-                    {seed.dtm && <span style={{ fontSize: 12, color: "#5a8a6a", background: "#eaf5ee", padding: "2px 7px", borderRadius: 10 }}>📅 {seed.dtm} DTM</span>}
+                    {seed.dtm && <span style={{ fontSize: 12, color: "#5a8a6a", background: "#f5ece0", padding: "2px 7px", borderRadius: 10 }}>📅 {seed.dtm} DTM</span>}
                     {seed.sun && <span style={{ fontSize: 12, color: "#8a7a2a", background: "#faf5e0", padding: "2px 7px", borderRadius: 10 }}>☀️ {seed.sun}</span>}
                     {seed.water && <span style={{ fontSize: 12, color: "#3a6aaa", background: "#e4eef8", padding: "2px 7px", borderRadius: 10 }}>💧 {seed.water}</span>}
                     {seed.quantity && <span style={{ fontSize: 12, color: "#888" }}>🌰 {seed.quantity} seeds</span>}
@@ -1431,9 +1431,9 @@ Return ONLY the JSON, no other text.` });
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 5, flexShrink: 0 }}>
                   <button onClick={() => onAddToGarden(seed)}
-                    style={{ background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" }}>+ Garden</button>
+                    style={{ background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" }}>+ Garden</button>
                   <button onClick={() => handleMarkStarted(seed)}
-                    style={{ background: seed.started ? "#eaf5ee" : "#fff", color: seed.started ? "#2d6a3f" : "#555", border: "1px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 11, whiteSpace: "nowrap" }}>
+                    style={{ background: seed.started ? "#f5ece0" : "#fff", color: seed.started ? "#5c3d1e" : "#555", border: "1px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 11, whiteSpace: "nowrap" }}>
                     {seed.started ? "✓ Started" : "Mark started"}
                   </button>
                   <button onClick={() => { setEditingSeed(seed); setEditForm(seed); setView("edit"); }}
@@ -1550,12 +1550,12 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
             </div>
             <div style={{ display: "flex", gap: 10, marginTop: 6, flexWrap: "wrap", alignItems: "center" }}>
               {daysLeft !== null && daysLeft > 0 && (
-                <span style={{ fontSize: 13, fontWeight: 600, color: daysLeft <= 7 ? "#e67e22" : "#2d6a3f" }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: daysLeft <= 7 ? "#e67e22" : "#5c3d1e" }}>
                   🗓 {daysLeft} day{daysLeft !== 1 ? "s" : ""} away — {formatDate(harvestDate)}
                 </span>
               )}
               {(daysLeft === null || daysLeft <= 0) && plant.status === "Harvesting" && (
-                <span style={{ fontSize: 13, fontWeight: 600, color: "#2d6a3f" }}>🎉 In harvest</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#5c3d1e" }}>🎉 In harvest</span>
               )}
               {(daysLeft !== null && daysLeft <= 0 && plant.status !== "Harvesting") && (
                 <span style={{ fontSize: 13, fontWeight: 600, color: "#c0392b" }}>⚡ Ready now!</span>
@@ -1566,7 +1566,7 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
           </div>
           {showMark && plant.status !== "Harvesting" && (
             <button onClick={() => markHarvested(plant)}
-              style={{ background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 10, padding: "7px 12px", cursor: "pointer", fontSize: 12, fontWeight: 600, flexShrink: 0, whiteSpace: "nowrap" }}>
+              style={{ background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 10, padding: "7px 12px", cursor: "pointer", fontSize: 12, fontWeight: 600, flexShrink: 0, whiteSpace: "nowrap" }}>
               ✓ Mark Harvested
             </button>
           )}
@@ -1574,7 +1574,7 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
 
         {/* What to plant next */}
         <button onClick={() => setShowNextFor(showNextFor === plant.id ? null : plant.id)}
-          style={{ marginTop: 10, background: "none", border: "1px solid #b8ddc8", borderRadius: 8, padding: "5px 12px", cursor: "pointer", fontSize: 12, color: "#2d6a3f", fontWeight: 600 }}>
+          style={{ marginTop: 10, background: "none", border: "1px solid #d4a96a", borderRadius: 8, padding: "5px 12px", cursor: "pointer", fontSize: 12, color: "#5c3d1e", fontWeight: 600 }}>
           🌱 {showNextFor === plant.id ? "Hide" : "What to plant next in this space?"}
         </button>
 
@@ -1592,12 +1592,12 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
                   const isIndoor = plant.zone === "Basement Grow Station" || plant.zone === "Greenhouse";
                   const action = isIndoor ? "Start indoors" : s.direct.length ? "Direct sow" : "Transplant";
                   return (
-                    <div key={s.name} style={{ background: s.isGoodCompanion ? "#f0faf4" : "#fafafa", border: `1px solid ${s.isGoodCompanion ? "#b8ddc8" : "#eee"}`, borderRadius: 10, padding: "10px 12px" }}>
+                    <div key={s.name} style={{ background: s.isGoodCompanion ? "#f0faf4" : "#fafafa", border: `1px solid ${s.isGoodCompanion ? "#d4a96a" : "#eee"}`, borderRadius: 10, padding: "10px 12px" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                           <span style={{ fontWeight: 700, fontSize: 14 }}>{s.name}</span>
                           <span style={{ fontSize: 11, background: "#e8e8e8", color: "#555", padding: "2px 7px", borderRadius: 10 }}>{s.type}</span>
-                          {s.isGoodCompanion && <span style={{ fontSize: 11, background: "#d4edda", color: "#2d6a3f", padding: "2px 7px", borderRadius: 10, fontWeight: 600 }}>✓ Good companion</span>}
+                          {s.isGoodCompanion && <span style={{ fontSize: 11, background: "#d4edda", color: "#5c3d1e", padding: "2px 7px", borderRadius: 10, fontWeight: 600 }}>✓ Good companion</span>}
                         </div>
                         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                           {dbEntry?.dtm && <span style={{ fontSize: 11, color: "#666" }}>📅 {dbEntry.dtm} DTM</span>}
@@ -1690,7 +1690,7 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
           )}
 
           {readyNow.length === 0 && comingSoon.length === 0 && (
-            <div style={{ background: "#f5f9f5", borderRadius: 14, padding: 24, textAlign: "center" }}>
+            <div style={{ background: "#fdf6ee", borderRadius: 14, padding: 24, textAlign: "center" }}>
               <div style={{ fontSize: 32, marginBottom: 8 }}>🌱</div>
               <div style={{ color: "#666", fontSize: 14 }}>Nothing ready in the next {window_} days — your plants are still growing!</div>
             </div>
@@ -1708,13 +1708,13 @@ function DBSearchPicker({ userDB, onSelect }) {
   return (
     <div>
       <input autoFocus placeholder="Search plants..." value={q} onChange={e => setQ(e.target.value)}
-        style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #2d6a3f", borderRadius: 10, fontSize: 15, boxSizing: "border-box", fontFamily: "inherit", marginBottom: 12 }} />
+        style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #5c3d1e", borderRadius: 10, fontSize: 15, boxSizing: "border-box", fontFamily: "inherit", marginBottom: 12 }} />
       <div style={{ maxHeight: 340, overflowY: "auto" }}>
         {results.length === 0 && <div style={{ textAlign: "center", color: "#bbb", padding: "24px 0", fontSize: 14 }}>No matches.</div>}
         {results.map(p => (
           <div key={p.name} onClick={() => onSelect(p)}
             style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 14px", borderRadius: 10, cursor: "pointer", marginBottom: 4, background: "#fafaf8", border: "1px solid #eee" }}
-            onMouseEnter={e => e.currentTarget.style.background = "#f0f9f0"}
+            onMouseEnter={e => e.currentTarget.style.background = "#fdf6ee"}
             onMouseLeave={e => e.currentTarget.style.background = "#fafaf8"}>
             <div>
               <div style={{ fontWeight: 600, fontSize: 15 }}>{p.name}</div>
@@ -1724,7 +1724,7 @@ function DBSearchPicker({ userDB, onSelect }) {
                 {p.water && <span style={{ fontSize: 11, color: "#888" }}>💧 {p.water}</span>}
               </div>
             </div>
-            <span style={{ fontSize: 18, color: "#2d6a3f" }}>→</span>
+            <span style={{ fontSize: 18, color: "#5c3d1e" }}>→</span>
           </div>
         ))}
       </div>
@@ -1778,16 +1778,16 @@ function SeedScanPicker({ onScanned }) {
       <h2 style={{ margin: "0 0 14px", fontSize: 20, fontWeight: 800 }}>📷 Scan Seed Packet</h2>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
         {[{ label: "Front", img: frontImg, set: setFrontImg }, { label: "Back", img: backImg, set: setBackImg }].map(side => (
-          <label key={side.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: `2px dashed ${side.img ? "#2d6a3f" : "#ccc"}`, borderRadius: 12, padding: 16, cursor: "pointer", background: side.img ? "#f0f9f0" : "#fafaf8", minHeight: 90, textAlign: "center", gap: 4 }}>
+          <label key={side.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: `2px dashed ${side.img ? "#5c3d1e" : "#ccc"}`, borderRadius: 12, padding: 16, cursor: "pointer", background: side.img ? "#fdf6ee" : "#fafaf8", minHeight: 90, textAlign: "center", gap: 4 }}>
             <div style={{ fontSize: 24 }}>{side.img ? "✓" : "📷"}</div>
-            <div style={{ fontSize: 12, color: side.img ? "#2d6a3f" : "#888", fontWeight: side.img ? 600 : 400 }}>{side.img ? side.img.name.slice(0, 16) : side.label}</div>
+            <div style={{ fontSize: 12, color: side.img ? "#5c3d1e" : "#888", fontWeight: side.img ? 600 : 400 }}>{side.img ? side.img.name.slice(0, 16) : side.label}</div>
             <input type="file" accept="image/*" capture="environment" onChange={e => side.set(e.target.files[0] || null)} style={{ display: "none" }} />
           </label>
         ))}
       </div>
       {error && <div style={{ background: "#fdecea", color: "#c0392b", borderRadius: 8, padding: "8px 12px", fontSize: 13, marginBottom: 10 }}>⚠️ {error}</div>}
       <button onClick={handleScan} disabled={scanning}
-        style={{ width: "100%", padding: 13, background: scanning ? "#aaa" : "#2d6a3f", color: "#fff", border: "none", borderRadius: 12, cursor: scanning ? "not-allowed" : "pointer", fontSize: 15, fontWeight: 700 }}>
+        style={{ width: "100%", padding: 13, background: scanning ? "#aaa" : "#5c3d1e", color: "#fff", border: "none", borderRadius: 12, cursor: scanning ? "not-allowed" : "pointer", fontSize: 15, fontWeight: 700 }}>
         {scanning ? "📖 Reading packet..." : "✨ Scan & Extract"}
       </button>
     </div>
@@ -1865,7 +1865,7 @@ export default function App() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `plant-tracker-backup-${new Date().toISOString().split("T")[0]}.json`;
+    a.download = `dirt-rich-backup-${new Date().toISOString().split("T")[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
     const now = new Date().toISOString();
@@ -1914,17 +1914,22 @@ export default function App() {
   ];
 
   return (
-    <div style={{ fontFamily: "system-ui, -apple-system, sans-serif", maxWidth: 600, margin: "0 auto", background: "#f8f8f6", minHeight: "100vh", paddingBottom: 80 }}>
+    <div style={{ fontFamily: "system-ui, -apple-system, sans-serif", maxWidth: 600, margin: "0 auto", background: "#faf6f0", minHeight: "100vh", paddingBottom: 80 }}>
 
       {/* ── Header ── */}
       <div style={{ background: "#fff", borderBottom: "1px solid #eee", padding: "14px 16px 10px", position: "sticky", top: 0, zIndex: 50 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 22 }}>🌿</span>
-            <span style={{ fontWeight: 800, fontSize: 18, letterSpacing: -0.5 }}>Plant Tracker</span>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: "#5c3d1e", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontSize: 18 }}>🌱</span>
+            </div>
+            <div>
+              <div style={{ fontWeight: 900, fontSize: 18, letterSpacing: -0.5, color: "#2a1a0a", lineHeight: 1 }}>Dirt Rich</div>
+              <div style={{ fontSize: 10, color: "#9a7a5a", letterSpacing: 1, textTransform: "uppercase", fontWeight: 600 }}>Grow what you own</div>
+            </div>
           </div>
           <button onClick={() => setShowBackup(true)}
-            style={{ background: "none", border: `1px solid ${!lastBackup || daysSince(lastBackup) >= 3 ? "#f0a500" : "#e0e0e0"}`, borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 12, color: !lastBackup || daysSince(lastBackup) >= 3 ? "#f0a500" : "#888", display: "flex", alignItems: "center", gap: 4 }}>
+            style={{ background: "none", border: `1px solid ${!lastBackup || daysSince(lastBackup) >= 3 ? "#d4a96a" : "#e0d0c0"}`, borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 12, color: !lastBackup || daysSince(lastBackup) >= 3 ? "#b8740a" : "#9a7a5a", display: "flex", alignItems: "center", gap: 4 }}>
             💾 {lastBackup ? `${daysSince(lastBackup)}d ago` : "Backup"}
           </button>
         </div>
@@ -1944,15 +1949,15 @@ export default function App() {
 
         {/* Frost date bar — always visible on Garden tab */}
         {tab === "garden" && (
-          <button onClick={() => setShowFrost(true)} style={{ width: "100%", background: "#f0f8f2", border: "1px solid #c8e6c9", borderRadius: 10, padding: "8px 12px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <button onClick={() => setShowFrost(true)} style={{ width: "100%", background: "#fdf6ee", border: "1px solid #d4a96a", borderRadius: 10, padding: "8px 12px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div style={{ textAlign: "left" }}>
               <div style={{ fontSize: 10, color: "#888", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>Last Spring Frost</div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#2d6a3f" }}>{frostDates.lastSpring ? formatDate(frostDates.lastSpring) : "Tap to set"}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#5c3d1e" }}>{frostDates.lastSpring ? formatDate(frostDates.lastSpring) : "Tap to set"}</div>
             </div>
-            <div style={{ width: 1, height: 32, background: "#c8e6c9" }} />
+            <div style={{ width: 1, height: 32, background: "#d4a96a" }} />
             <div style={{ textAlign: "right" }}>
               <div style={{ fontSize: 10, color: "#888", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>First Fall Frost</div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#2d6a3f" }}>{frostDates.firstFall ? formatDate(frostDates.firstFall) : "Tap to set"}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#5c3d1e" }}>{frostDates.firstFall ? formatDate(frostDates.firstFall) : "Tap to set"}</div>
             </div>
           </button>
         )}
@@ -1979,8 +1984,8 @@ export default function App() {
         {NAV_TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)} style={{ flex: 1, border: "none", background: "none", cursor: "pointer", padding: "10px 4px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
             <span style={{ fontSize: 20 }}>{t.icon}</span>
-            <span style={{ fontSize: 10, fontWeight: tab === t.id ? 700 : 500, color: tab === t.id ? "#2d6a3f" : "#aaa", letterSpacing: 0.2 }}>{t.label}</span>
-            {tab === t.id && <div style={{ width: 20, height: 2, background: "#2d6a3f", borderRadius: 2 }} />}
+            <span style={{ fontSize: 10, fontWeight: tab === t.id ? 700 : 500, color: tab === t.id ? "#5c3d1e" : "#aaa", letterSpacing: 0.2 }}>{t.label}</span>
+            {tab === t.id && <div style={{ width: 20, height: 2, background: "#5c3d1e", borderRadius: 2 }} />}
           </button>
         ))}
       </nav>
@@ -2040,11 +2045,11 @@ export default function App() {
         <Modal onClose={() => { setShowBackup(false); setImportError(""); setImportSuccess(false); }} width={440}>
           <h2 style={{ margin: "0 0 6px", fontSize: 20, fontWeight: 700 }}>💾 Backup & Restore</h2>
           <p style={{ color: "#888", fontSize: 13, marginBottom: 20, lineHeight: 1.5 }}>Your data lives on this device. Export to iCloud or Google Drive to keep it safe.</p>
-          <div style={{ background: "#f5f9f5", border: "1px solid #c8e6c9", borderRadius: 12, padding: 16, marginBottom: 12 }}>
+          <div style={{ background: "#fdf6ee", border: "1px solid #d4a96a", borderRadius: 12, padding: 16, marginBottom: 12 }}>
             <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>📤 Export</div>
             <div style={{ fontSize: 13, color: "#666", marginBottom: 4 }}>{plants.length} plant{plants.length !== 1 ? "s" : ""} · {seeds.length} seed packet{seeds.length !== 1 ? "s" : ""}</div>
             {lastBackup && <div style={{ fontSize: 12, color: "#888", marginBottom: 10 }}>Last backup: {daysSince(lastBackup) === 0 ? "today" : `${daysSince(lastBackup)} day${daysSince(lastBackup) !== 1 ? "s" : ""} ago`}</div>}
-            <button onClick={handleExport} style={{ width: "100%", padding: 11, background: "#2d6a3f", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>Download Backup</button>
+            <button onClick={handleExport} style={{ width: "100%", padding: 11, background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>Download Backup</button>
           </div>
           <div style={{ background: "#fafaf8", border: "1px solid #e8e8e8", borderRadius: 12, padding: 16 }}>
             <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8 }}>📥 Restore</div>
@@ -2053,7 +2058,7 @@ export default function App() {
               <input type="file" accept=".json" onChange={handleImport} style={{ display: "none" }} />
             </label>
             {importError && <div style={{ marginTop: 8, fontSize: 13, color: "#c0392b", background: "#fdecea", padding: "8px 12px", borderRadius: 8 }}>⚠️ {importError}</div>}
-            {importSuccess && <div style={{ marginTop: 8, fontSize: 13, color: "#2d6a3f", background: "#eaf5ee", padding: "8px 12px", borderRadius: 8 }}>✓ Restored!</div>}
+            {importSuccess && <div style={{ marginTop: 8, fontSize: 13, color: "#5c3d1e", background: "#f5ece0", padding: "8px 12px", borderRadius: 8 }}>✓ Restored!</div>}
           </div>
         </Modal>
       )}
