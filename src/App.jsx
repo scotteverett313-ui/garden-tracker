@@ -781,7 +781,7 @@ function PlantGridCard({ plant, onTap }) {
     <button onClick={onTap} style={{ background: "#fff", border: "2px solid #000", borderRadius: 16, padding: 0, cursor: "pointer", textAlign: "left", width: "100%", opacity: isDone ? 0.5 : 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
 
       {/* Plant image — fills top of card */}
-      <div style={{ width: "100%", aspectRatio: "1", background: "#f5f5f3", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", position: "relative" }}>
+      <div style={{ width: "100%", aspectRatio: "1", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", position: "relative" }}>
         {imageUrl
           ? <img src={imageUrl} alt={plant.name} style={{ width: "85%", height: "85%", objectFit: "contain", imageRendering: "pixelated" }} />
           : <span style={{ fontSize: 52 }}>{STATUSES.find(s => s.label === plant.status)?.icon || "🌱"}</span>
@@ -794,7 +794,6 @@ function PlantGridCard({ plant, onTap }) {
         )}
       </div>
 
-      {/* Name row */}
       <div style={{ padding: "10px 12px 12px" }}>
         <div style={{ fontWeight: 800, fontSize: 15, color: "#000", lineHeight: 1.2 }}>{plant.name}</div>
         {plant.variety && <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>{plant.variety}</div>}
@@ -2196,4 +2195,3 @@ export default function App() {
     </div>
   );
 }
-
