@@ -776,28 +776,42 @@ function PlantGridCard({ plant, onTap }) {
   const daysLeft = harvestDate ? daysUntil(harvestDate) : null;
   const isDone = plant.status === "Harvested" || plant.status === "Dead";
   const imageUrl = plant.imageUrl || getAutoIcon(plant.name)?.url || null;
+  const statusObj = STATUSES.find(s => s.label === plant.status) || STATUSES[0];
 
   return (
-    <button onClick={onTap} style={{ background: "#fff", border: "2px solid #000", borderRadius: 16, padding: 0, cursor: "pointer", textAlign: "left", width: "100%", opacity: isDone ? 0.5 : 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    <button onClick={onTap} style={{ background: "#fff", border: "2px solid #000", borderRadius: 16, padding: 12, cursor: "pointer", textAlign: "left", width: "100%", opacity: isDone ? 0.5 : 1, boxSizing: "border-box", display: "flex", flexDirection: "column", gap: 0 }}>
 
-      {/* Plant image — fills top of card */}
-      <div style={{ width: "100%", aspectRatio: "1", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", position: "relative" }}>
-        {imageUrl
-          ? <img src={imageUrl} alt={plant.name} style={{ width: "85%", height: "85%", objectFit: "contain", imageRendering: "pixelated" }} />
-          : <span style={{ fontSize: 52 }}>{STATUSES.find(s => s.label === plant.status)?.icon || "🌱"}</span>
-        }
-        {/* Harvest badge overlay */}
-        {daysLeft !== null && (
-          <div style={{ position: "absolute", top: 8, left: 8, right: 8, background: daysLeft <= 0 ? "#a8e063" : "rgba(255,255,255,0.92)", border: `1px solid ${daysLeft <= 0 ? "#000" : "#e0e0e0"}`, borderRadius: 8, padding: "3px 7px", fontSize: 10, fontWeight: 700, color: daysLeft <= 0 ? "#000" : daysLeft <= 14 ? "#c0392b" : "#888", textAlign: "center" }}>
-            {daysLeft <= 0 ? "🎉 Ready to harvest!" : `${daysLeft}d · ${formatDate(harvestDate)}`}
+      {/* Row 1 — Harvest info + menu button */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 12, color: "#000" }}>
+            {daysLeft !== null ? (daysLeft <= 0 ? "🎉 Ready!" : "Harvest in:") : "Started:"}
           </div>
-        )}
+          <div style={{ fontSize: 12, color: daysLeft !== null && daysLeft <= 14 ? "#c0392b" : "#888", fontWeight: 500 }}>
+            {daysLeft !== null
+              ? (daysLeft <= 0 ? "Harvest now" : `${daysLeft} days · ${formatDate(harvestDate)}`)
+              : (plant.dateStarted ? formatDate(plant.dateStarted) : plant.status)}
+          </div>
+        </div>
+        <div style={{ width: 32, height: 32, border: "1.5px solid #e0e0e0", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#888", flexShrink: 0 }}>⋯</div>
       </div>
 
-      <div style={{ padding: "10px 12px 12px" }}>
-        <div style={{ fontWeight: 800, fontSize: 15, color: "#000", lineHeight: 1.2 }}>{plant.name}</div>
-        {plant.variety && <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>{plant.variety}</div>}
+      {/* Row 2 — Pixel art image centered */}
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: 80, marginBottom: 10 }}>
+        {imageUrl
+          ? <img src={imageUrl} alt={plant.name} style={{ width: 70, height: 70, objectFit: "contain", imageRendering: "pixelated" }} />
+          : <span style={{ fontSize: 52 }}>{statusObj.icon}</span>
+        }
       </div>
+
+      {/* Row 3 — Status icon + plant name */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+        <span style={{ fontSize: 14 }}>{statusObj.icon}</span>
+        <span style={{ fontWeight: 800, fontSize: 15, color: "#000", lineHeight: 1.2 }}>{plant.name}</span>
+      </div>
+
+      {/* Row 4 — Variety */}
+      {plant.variety && <div style={{ fontSize: 12, color: "#666" }}>({plant.variety})</div>}
     </button>
   );
 }
