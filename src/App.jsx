@@ -479,21 +479,16 @@ function CareLogModal({ plant, onSave, onClose, toast }) {
   );
 }
 
-function PlantCard({ plant, frostDates, onUpdate, onDelete, toast }) {
+// ─── Plant Detail Sheet ───────────────────────────────────────────────────────
+function PlantDetailSheet({ plant, frostDates, onUpdate, onDelete, onClose, toast }) {
   const [showCompanions, setShowCompanions] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
-  const [showEdit, setShowEdit] = useState(false);
   const [showCare, setShowCare] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
   const [showStatusPicker, setShowStatusPicker] = useState(false);
+  const [showEndModal, setShowEndModal] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState(null);
   const [newGood, setNewGood] = useState("");
   const [newBad, setNewBad] = useState("");
-  const menuRef = useRef();
-
-  useEffect(() => {
-    function handleClick(e) { if (menuRef.current && !menuRef.current.contains(e.target)) setShowMenu(false); }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
 
   const statusObj = STATUSES.find(s => s.label === plant.status) || STATUSES[0];
   const harvestDate = calcHarvestDate(plant.dateStarted, plant.dtm);
@@ -502,15 +497,9 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete, toast }) {
   const nextZoneIdx = ZONES.indexOf(plant.zone) + 1;
   const nextZone = nextZoneIdx < ZONES.length ? ZONES[nextZoneIdx] : null;
 
-  const [showEndModal, setShowEndModal] = useState(false);
-  const [pendingStatus, setPendingStatus] = useState(null);
-
   function updateStatus(status) {
     if (status === "Harvested" || status === "Dead") {
-      setPendingStatus(status);
-      setShowEndModal(true);
-      setShowStatusPicker(false);
-      return;
+      setPendingStatus(status); setShowEndModal(true); setShowStatusPicker(false); return;
     }
     onUpdate({ ...plant, status });
     setShowStatusPicker(false);
@@ -518,153 +507,139 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete, toast }) {
     toast && toast(`${plant.name} → ${status}`, { icon: s?.icon });
   }
 
-  function moveToZone(zone) {
-    onUpdate({ ...plant, zone });
-    setShowMenu(false);
-    toast && toast(`Moved to ${zone.split(" ")[0]}`, { icon: ZONE_ICONS[zone] });
-  }
-
   function addCompanion(type) {
     const val = type === "good" ? newGood.trim() : newBad.trim();
     if (!val) return;
-    const updated = { ...plant, companions: { ...plant.companions, [type]: [...(plant.companions?.[type] || []), val] } };
-    onUpdate(updated);
+    onUpdate({ ...plant, companions: { ...plant.companions, [type]: [...(plant.companions?.[type] || []), val] } });
     type === "good" ? setNewGood("") : setNewBad("");
     toast && toast(`${val} added`, { icon: "🌿" });
   }
 
   function removeCompanion(type, item) {
-    const updated = { ...plant, companions: { ...plant.companions, [type]: (plant.companions?.[type] || []).filter(c => c !== item) } };
-    onUpdate(updated);
+    onUpdate({ ...plant, companions: { ...plant.companions, [type]: (plant.companions?.[type] || []).filter(c => c !== item) } });
   }
 
   return (
-    <>
-      <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e8e8e8", padding: "12px 14px", marginBottom: 10 }}>
+    <Modal onClose={onClose}>
+      {/* Plant name header */}
+      <div style={{ textAlign: "center", marginBottom: 16 }}>
+        <h2 style={{ margin: "0 0 2px", fontSize: 24, fontWeight: 900, letterSpacing: -0.5 }}>{plant.name}</h2>
+        {plant.variety && <div style={{ color: "#888", fontSize: 15 }}>({plant.variety})</div>}
+      </div>
 
-        {/* Header row */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontWeight: 700, fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{plant.name}</div>
-            {plant.variety && <div style={{ color: "#888", fontSize: 13 }}>{plant.variety}</div>}
-          </div>
-          <div style={{ display: "flex", gap: 4, alignItems: "center", flexShrink: 0 }}>
-            <button onClick={() => setShowCare(true)} title="Care log"
-              style={{ background: "none", border: "1px solid #ddd", borderRadius: 8, width: 32, height: 32, cursor: "pointer", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>💧</button>
-            {nextZone && (
-              <button onClick={() => moveToZone(nextZone)} title={`Move to ${nextZone}`}
-                style={{ background: "#fdf6ee", border: "1px solid #d4a96a", borderRadius: 8, height: 32, padding: "0 8px", cursor: "pointer", fontSize: 12, fontWeight: 600, color: "#5c3d1e", whiteSpace: "nowrap" }}>
-                ⟫ {nextZone.split(" ")[0]}
-              </button>
-            )}
-            <div ref={menuRef} style={{ position: "relative" }}>
-              <button onClick={() => setShowMenu(v => !v)}
-                style={{ background: "none", border: "1px solid #ddd", borderRadius: 8, width: 32, height: 32, cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>⋯</button>
-              {showMenu && (
-                <div style={{ position: "absolute", right: 0, top: "110%", background: "#fff", border: "1px solid #e0e0e0", borderRadius: 10, boxShadow: "0 4px 16px rgba(0,0,0,0.14)", zIndex: 200, minWidth: 160 }}>
-                  <div style={{ padding: "6px 12px 4px", fontSize: 11, color: "#aaa", fontWeight: 600, letterSpacing: 0.5 }}>MOVE TO</div>
-                  {ZONES.map(z => z !== plant.zone && (
-                    <div key={z} onClick={() => moveToZone(z)} style={{ padding: "8px 14px", cursor: "pointer", fontSize: 13 }}
-                      onMouseEnter={e => e.currentTarget.style.background = "#fdf6ee"}
-                      onMouseLeave={e => e.currentTarget.style.background = "#fff"}>{z}</div>
-                  ))}
-                  <div style={{ borderTop: "1px solid #eee", margin: "4px 0" }} />
-                  <div onClick={() => { setShowEdit(true); setShowMenu(false); }} style={{ padding: "8px 14px", cursor: "pointer", fontSize: 13 }}
-                    onMouseEnter={e => e.currentTarget.style.background = "#fdf6ee"}
-                    onMouseLeave={e => e.currentTarget.style.background = "#fff"}>✏️ Edit Plant</div>
-                  <div onClick={() => { onDelete(plant.id); setShowMenu(false); toast && toast("Plant removed", { type: "warning", icon: "🗑" }); }} style={{ padding: "8px 14px", cursor: "pointer", fontSize: 13, color: "#c0392b" }}
-                    onMouseEnter={e => e.currentTarget.style.background = "#fff5f5"}
-                    onMouseLeave={e => e.currentTarget.style.background = "#fff"}>🗑 Delete</div>
-                </div>
-              )}
-            </div>
-          </div>
+      {/* Growing overview card */}
+      <div style={{ background: "#f5f5f3", borderRadius: 14, padding: 16, marginBottom: 14 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <span style={{ fontWeight: 800, fontSize: 15 }}>Growing Overview</span>
+          {plant.dateStarted && <span style={{ fontSize: 13, color: "#888" }}>Started {formatDate(plant.dateStarted)}</span>}
         </div>
-
+        {/* Water + sun badges */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+          {plant.water && <span style={{ border: "1px solid #ccc", borderRadius: 20, padding: "3px 10px", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}>💧 {plant.water}</span>}
+          {plant.sun && <span style={{ border: "1px solid #ccc", borderRadius: 20, padding: "3px 10px", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}>☀️ {plant.sun}</span>}
+        </div>
+        {/* 2x2 grid */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          {[
+            { label: "Status", value: plant.status },
+            { label: "Zone", value: plant.zone.replace(" Grow Station", "").replace("In-Ground ", "In-Ground\n") },
+            { label: "Quantity", value: plant.quantity || "—" },
+            { label: "Days to Harvest", value: daysLeft !== null ? (daysLeft > 0 ? `${daysLeft} days` : "Ready!") : "—" },
+          ].map(item => (
+            <div key={item.label}>
+              <div style={{ fontSize: 12, color: "#888" }}>{item.label}</div>
+              <div style={{ fontWeight: 700, fontSize: 14 }}>{item.value}</div>
+            </div>
+          ))}
+        </div>
         {/* Quick status picker */}
-        <div style={{ marginTop: 10 }}>
+        <div style={{ marginTop: 12, borderTop: "1px solid #e0e0e0", paddingTop: 12 }}>
           <button onClick={() => setShowStatusPicker(v => !v)}
-            style={{ display: "inline-flex", alignItems: "center", gap: 6, background: STATUS_COLORS[plant.status] || "#eee", border: "none", borderRadius: 20, padding: "4px 10px", cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#3a5a3a" }}>
+            style={{ display: "inline-flex", alignItems: "center", gap: 6, background: STATUS_COLORS[plant.status] || "#eee", border: "none", borderRadius: 20, padding: "5px 12px", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
             {statusObj.icon} {plant.status} <span style={{ fontSize: 10, opacity: 0.6 }}>▾</span>
           </button>
           {showStatusPicker && (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8, padding: 10, background: "#fafaf8", borderRadius: 10, border: "1px solid #eee" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
               {STATUSES.map(s => (
                 <button key={s.label} onClick={() => updateStatus(s.label)}
-                  style={{ background: s.label === plant.status ? STATUS_COLORS[s.label] : "#fff", border: `1px solid ${s.label === plant.status ? "#bbb" : "#e0e0e0"}`, borderRadius: 20, padding: "5px 10px", cursor: "pointer", fontSize: 12, fontWeight: s.label === plant.status ? 700 : 400 }}>
+                  style={{ background: s.label === plant.status ? STATUS_COLORS[s.label] : "#fff", border: `1px solid ${s.label === plant.status ? "#bbb" : "#e0e0e0"}`, borderRadius: 20, padding: "4px 10px", cursor: "pointer", fontSize: 12, fontWeight: s.label === plant.status ? 700 : 400 }}>
                   {s.icon} {s.label}
                 </button>
               ))}
             </div>
           )}
         </div>
+        {/* Zone move */}
+        {nextZone && (
+          <button onClick={() => { onUpdate({ ...plant, zone: nextZone }); toast && toast(`Moved to ${nextZone.split(" ")[0]}`, { icon: "📍" }); }}
+            style={{ marginTop: 10, width: "100%", padding: "8px", background: "#fff", border: "1.5px solid #e0e0e0", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+            ⟫ Move to {nextZone}
+          </button>
+        )}
+      </div>
 
-        {/* Meta row */}
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8, alignItems: "center" }}>
-          {plant.dateStarted && <span style={{ color: "#999", fontSize: 12 }}>Started {formatDate(plant.dateStarted)}</span>}
-          {plant.quantity && <span style={{ color: "#999", fontSize: 12 }}>· Qty: {plant.quantity}</span>}
-          {plant.water && <span style={{ fontSize: 11, color: "#5a8a6a", background: "#f5ece0", padding: "2px 7px", borderRadius: 10 }}>💧 {plant.water}</span>}
-          {plant.sun && <span style={{ fontSize: 11, color: "#8a7a2a", background: "#faf5e0", padding: "2px 7px", borderRadius: 10 }}>☀️ {plant.sun}</span>}
+      {/* Frost warning */}
+      {hasFrostWarning && (
+        <div style={{ background: "#e8f0ff", borderRadius: 10, padding: "8px 12px", fontSize: 13, color: "#3a5aaa", marginBottom: 12 }}>
+          ❄️ Harvest may conflict with fall frost ({formatDate(frostDates.firstFall)})
         </div>
+      )}
 
-        {hasFrostWarning && (
-          <div style={{ marginTop: 7, background: "#e8f0ff", borderRadius: 8, padding: "5px 10px", fontSize: 12, color: "#3a5aaa" }}>
-            ❄️ Harvest may conflict with fall frost ({formatDate(frostDates.firstFall)})
-          </div>
-        )}
+      {/* About */}
+      {plant.about && (
+        <div style={{ background: "#f5f5f3", borderRadius: 12, padding: 14, fontSize: 14, color: "#555", lineHeight: 1.5, marginBottom: 14 }}>
+          {plant.about}
+        </div>
+      )}
+      {plant.notes && <div style={{ fontSize: 13, color: "#666", marginBottom: 14, lineHeight: 1.4 }}>{plant.notes}</div>}
 
-        {daysLeft !== null && (
-          <div style={{ marginTop: 5, fontSize: 12, color: daysLeft <= 14 ? "#c0392b" : "#5a8a5a" }}>
-            {daysLeft > 0 ? `🗓 Harvest in ${daysLeft} days — ${formatDate(harvestDate)}` : "🎉 Ready to harvest!"}
-          </div>
-        )}
-
-        {plant.notes && <div style={{ marginTop: 6, fontSize: 12, color: "#777", lineHeight: 1.4 }}>{plant.notes}</div>}
-
-        <button onClick={() => setShowCompanions(v => !v)}
-          style={{ background: "none", border: "none", cursor: "pointer", color: "#5a8a6a", fontSize: 12, padding: "6px 0 0", display: "flex", alignItems: "center", gap: 4 }}>
-          🌿 {showCompanions ? "Hide companions" : `Companions${(plant.companions?.good?.length || 0) + (plant.companions?.bad?.length || 0) > 0 ? ` (${(plant.companions?.good?.length || 0) + (plant.companions?.bad?.length || 0)})` : ""}`}
-        </button>
-
-        {showCompanions && (
-          <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid #f0f0f0" }}>
-            <div style={{ marginBottom: 10 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#5c3d1e", marginBottom: 5, textTransform: "uppercase", letterSpacing: 0.5 }}>✓ Plant with</div>
+      {/* Companions */}
+      <button onClick={() => setShowCompanions(v => !v)}
+        style={{ width: "100%", background: "#f5f5f3", border: "none", borderRadius: 12, padding: "12px 14px", cursor: "pointer", fontSize: 14, fontWeight: 600, textAlign: "left", marginBottom: showCompanions ? 0 : 14, display: "flex", justifyContent: "space-between" }}>
+        <span>🌿 Companion Plants {(plant.companions?.good?.length || 0) + (plant.companions?.bad?.length || 0) > 0 ? `(${(plant.companions?.good?.length || 0) + (plant.companions?.bad?.length || 0)})` : ""}</span>
+        <span style={{ color: "#888" }}>{showCompanions ? "▲" : "▼"}</span>
+      </button>
+      {showCompanions && (
+        <div style={{ background: "#f5f5f3", borderRadius: "0 0 12px 12px", padding: "0 14px 14px", marginBottom: 14 }}>
+          {["good", "bad"].map(type => (
+            <div key={type} style={{ marginBottom: type === "good" ? 12 : 0 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: type === "good" ? "#5c3d1e" : "#c0392b", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                {type === "good" ? "✓ Plant with" : "✗ Avoid near"}
+              </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 6 }}>
-                {(plant.companions?.good || []).map(c => (
-                  <span key={c} style={{ background: "#f5ece0", color: "#5c3d1e", fontSize: 12, padding: "3px 8px", borderRadius: 12, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                    {c}
-                    <button onClick={() => removeCompanion("good", c)} style={{ background: "none", border: "none", cursor: "pointer", color: "#5c3d1e", fontSize: 13, lineHeight: 1, padding: 0, marginLeft: 2 }}>×</button>
+                {(plant.companions?.[type] || []).map(c => (
+                  <span key={c} style={{ background: type === "good" ? "#f5ece0" : "#fdecea", color: type === "good" ? "#5c3d1e" : "#c0392b", fontSize: 12, padding: "3px 8px", borderRadius: 12, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    {c}<button onClick={() => removeCompanion(type, c)} style={{ background: "none", border: "none", cursor: "pointer", color: "inherit", fontSize: 13, lineHeight: 1, padding: 0, marginLeft: 2 }}>×</button>
                   </span>
                 ))}
-                {(plant.companions?.good || []).length === 0 && <span style={{ fontSize: 12, color: "#bbb" }}>None added</span>}
+                {!(plant.companions?.[type]?.length) && <span style={{ fontSize: 12, color: "#bbb" }}>None added</span>}
               </div>
               <div style={{ display: "flex", gap: 6 }}>
-                <input value={newGood} onChange={e => setNewGood(e.target.value)} onKeyDown={e => e.key === "Enter" && addCompanion("good")}
-                  placeholder="Add companion plant..." style={{ flex: 1, padding: "6px 10px", border: "1px solid #ccc", borderRadius: 8, fontSize: 13, fontFamily: "inherit" }} />
-                <button onClick={() => addCompanion("good")} style={{ background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 14, fontWeight: 600 }}>+</button>
+                <input value={type === "good" ? newGood : newBad}
+                  onChange={e => type === "good" ? setNewGood(e.target.value) : setNewBad(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && addCompanion(type)}
+                  placeholder={type === "good" ? "Add companion..." : "Add to avoid..."}
+                  style={{ flex: 1, padding: "6px 10px", border: "1px solid #ccc", borderRadius: 8, fontSize: 13, fontFamily: "inherit" }} />
+                <button onClick={() => addCompanion(type)}
+                  style={{ background: type === "good" ? "#5c3d1e" : "#c0392b", color: "#fff", border: "none", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 14, fontWeight: 600 }}>+</button>
               </div>
             </div>
-            {/* Avoid near */}
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#c0392b", marginBottom: 5, textTransform: "uppercase", letterSpacing: 0.5 }}>✗ Avoid near</div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 6 }}>
-                {(plant.companions?.bad || []).map(c => (
-                  <span key={c} style={{ background: "#fdecea", color: "#c0392b", fontSize: 12, padding: "3px 8px", borderRadius: 12, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                    {c}
-                    <button onClick={() => removeCompanion("bad", c)} style={{ background: "none", border: "none", cursor: "pointer", color: "#c0392b", fontSize: 13, lineHeight: 1, padding: 0, marginLeft: 2 }}>×</button>
-                  </span>
-                ))}
-                {(plant.companions?.bad || []).length === 0 && <span style={{ fontSize: 12, color: "#bbb" }}>None added</span>}
-              </div>
-              <div style={{ display: "flex", gap: 6 }}>
-                <input value={newBad} onChange={e => setNewBad(e.target.value)} onKeyDown={e => e.key === "Enter" && addCompanion("bad")}
-                  placeholder="Add plant to avoid..." style={{ flex: 1, padding: "6px 10px", border: "1px solid #ccc", borderRadius: 8, fontSize: 13, fontFamily: "inherit" }} />
-                <button onClick={() => addCompanion("bad")} style={{ background: "#c0392b", color: "#fff", border: "none", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 14, fontWeight: 600 }}>+</button>
-              </div>
-            </div>
-          </div>
-        )}
+          ))}
+        </div>
+      )}
+
+      {/* Care log button */}
+      <button onClick={() => setShowCare(true)}
+        style={{ width: "100%", padding: 15, background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 50, cursor: "pointer", fontSize: 16, fontWeight: 800, marginBottom: 12, letterSpacing: 0.3 }}>
+        + Log Care
+      </button>
+
+      {/* Actions */}
+      <div style={{ display: "flex", gap: 8 }}>
+        <button onClick={() => setShowEdit(true)}
+          style={{ flex: 1, padding: "10px", background: "#fff", border: "1.5px solid #e0e0e0", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>✏️ Edit</button>
+        <button onClick={() => { onDelete(plant.id); onClose(); toast && toast("Plant removed", { type: "warning", icon: "🗑" }); }}
+          style={{ flex: 1, padding: "10px", background: "#fff", border: "1.5px solid #e0e0e0", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 600, color: "#c0392b" }}>🗑 Remove</button>
       </div>
 
       {showEdit && <EditPlantModal plant={plant} onSave={updated => { onUpdate(updated); toast && toast(`${updated.name} updated`, { icon: "✏️" }); }} onClose={() => setShowEdit(false)} />}
@@ -674,62 +649,90 @@ function PlantCard({ plant, frostDates, onUpdate, onDelete, toast }) {
         <Modal onClose={() => setShowEndModal(false)} width={420}>
           <div style={{ textAlign: "center", paddingBottom: 8 }}>
             <div style={{ fontSize: 40, marginBottom: 10 }}>{pendingStatus === "Harvested" ? "✅" : "🪦"}</div>
-            <h2 style={{ margin: "0 0 6px", fontSize: 20, fontWeight: 800 }}>
-              {pendingStatus === "Harvested" ? "Mark as Harvested?" : "Mark as Dead?"}
-            </h2>
-            <p style={{ color: "#888", fontSize: 14, marginBottom: 20 }}>
-              {pendingStatus === "Harvested"
-                ? `${plant.name} is done for this season. What would you like to do?`
-                : `Sorry to hear it. ${plant.name} didn't make it. What would you like to do?`}
-            </p>
+            <h2 style={{ margin: "0 0 6px", fontSize: 20, fontWeight: 800 }}>{pendingStatus === "Harvested" ? "Mark as Harvested?" : "Mark as Dead?"}</h2>
+            <p style={{ color: "#888", fontSize: 14, marginBottom: 20 }}>{pendingStatus === "Harvested" ? `${plant.name} is done for this season.` : `${plant.name} didn't make it.`}</p>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {pendingStatus === "Harvested" && (
-              <button onClick={() => {
-                onUpdate({ ...plant, status: "Harvested", harvestedAt: new Date().toISOString() });
-                setShowEndModal(false);
-                toast && toast(`${plant.name} harvested! 🎉`, { icon: "✅" });
-              }} style={{ padding: "13px", background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 12, cursor: "pointer", fontSize: 15, fontWeight: 700 }}>
-                ✅ Mark Harvested — Keep in garden
-              </button>
-            )}
-            {pendingStatus === "Dead" && (
-              <button onClick={() => {
-                onUpdate({ ...plant, status: "Dead" });
-                setShowEndModal(false);
-                toast && toast(`${plant.name} removed`, { icon: "🪦" });
-              }} style={{ padding: "13px", background: "#888", color: "#fff", border: "none", borderRadius: 12, cursor: "pointer", fontSize: 15, fontWeight: 700 }}>
-                🪦 Mark Dead — Keep record
-              </button>
-            )}
-            <button onClick={() => {
-              onDelete(plant.id);
-              setShowEndModal(false);
-              toast && toast(`${plant.name} removed from garden`, { type: "warning", icon: "🗑" });
-            }} style={{ padding: "13px", background: "#fff", color: "#c0392b", border: "1.5px solid #c0392b", borderRadius: 12, cursor: "pointer", fontSize: 15, fontWeight: 600 }}>
+            <button onClick={() => { onUpdate({ ...plant, status: pendingStatus, harvestedAt: new Date().toISOString() }); setShowEndModal(false); onClose(); toast && toast(`${plant.name} marked as ${pendingStatus}`, { icon: pendingStatus === "Harvested" ? "✅" : "🪦" }); }}
+              style={{ padding: 13, background: "#a8e063", color: "#000", border: "2px solid #000", borderRadius: 50, cursor: "pointer", fontSize: 15, fontWeight: 700 }}>
+              {pendingStatus === "Harvested" ? "✅ Confirm Harvested" : "🪦 Confirm Dead"} — Keep record
+            </button>
+            <button onClick={() => { onDelete(plant.id); setShowEndModal(false); onClose(); toast && toast(`${plant.name} removed`, { type: "warning", icon: "🗑" }); }}
+              style={{ padding: 13, background: "#fff", color: "#c0392b", border: "1.5px solid #c0392b", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>
               🗑 Remove from Garden
             </button>
-            {pendingStatus === "Harvested" && (
-              <button onClick={() => {
-                onUpdate({ ...plant, status: "Harvested", harvestedAt: new Date().toISOString() });
-                setShowEndModal(false);
-                toast && toast(`Plan succession for ${plant.name}`, { icon: "🔄" });
-              }} style={{ padding: "13px", background: "#fdf6ee", color: "#5c3d1e", border: "1.5px solid #d4a96a", borderRadius: 12, cursor: "pointer", fontSize: 15, fontWeight: 600 }}>
-                🔄 Plan Succession Planting
-              </button>
-            )}
-            <button onClick={() => setShowEndModal(false)}
-              style={{ padding: "11px", background: "none", color: "#888", border: "none", cursor: "pointer", fontSize: 14 }}>
-              Cancel
-            </button>
+            <button onClick={() => setShowEndModal(false)} style={{ padding: 11, background: "none", color: "#888", border: "none", cursor: "pointer", fontSize: 14 }}>Cancel</button>
           </div>
         </Modal>
       )}
-    </>
+    </Modal>
   );
 }
 
-function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, filterZone, setFilterZone, filterStatus, setFilterStatus, onAddPlant, userDB, onSaveUserDB, toast }) {
+// ─── Plant Grid Card (minimal dashboard card) ─────────────────────────────────
+function PlantGridCard({ plant, onTap }) {
+  const harvestDate = calcHarvestDate(plant.dateStarted, plant.dtm);
+  const daysLeft = harvestDate ? daysUntil(harvestDate) : null;
+  const isDone = plant.status === "Harvested" || plant.status === "Dead";
+
+  return (
+    <button onClick={onTap} style={{ background: "#fff", border: "2px solid #000", borderRadius: 16, padding: 12, cursor: "pointer", textAlign: "left", width: "100%", opacity: isDone ? 0.5 : 1 }}>
+      {/* Harvest countdown */}
+      {daysLeft !== null && (
+        <div style={{ fontSize: 11, fontWeight: 700, color: daysLeft <= 0 ? "#2d8a3f" : daysLeft <= 14 ? "#c0392b" : "#888", marginBottom: 8 }}>
+          {daysLeft <= 0 ? "🎉 Ready!" : `Harvest in: ${daysLeft} days · ${formatDate(harvestDate)}`}
+        </div>
+      )}
+      {!daysLeft && <div style={{ fontSize: 11, color: "#bbb", marginBottom: 8 }}>{plant.status}</div>}
+
+      {/* Plant image */}
+      <div style={{ width: "100%", aspectRatio: "1", background: "#f5f5f3", borderRadius: 12, marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+        {plant.imageUrl
+          ? <img src={plant.imageUrl} alt={plant.name} style={{ width: "100%", height: "100%", objectFit: "contain", imageRendering: "pixelated" }} />
+          : <span style={{ fontSize: 36 }}>{STATUSES.find(s => s.label === plant.status)?.icon || "🌱"}</span>
+        }
+      </div>
+
+      {/* Name */}
+      <div style={{ fontWeight: 800, fontSize: 15, color: "#000", lineHeight: 1.2 }}>{plant.name}</div>
+      {plant.variety && <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>{plant.variety}</div>}
+    </button>
+  );
+}
+
+// ─── Plant List Card (compact list view) ──────────────────────────────────────
+function PlantListCard({ plant, onTap }) {
+  const harvestDate = calcHarvestDate(plant.dateStarted, plant.dtm);
+  const daysLeft = harvestDate ? daysUntil(harvestDate) : null;
+  const statusObj = STATUSES.find(s => s.label === plant.status) || STATUSES[0];
+  const isDone = plant.status === "Harvested" || plant.status === "Dead";
+
+  return (
+    <button onClick={onTap} style={{ background: "#fff", border: "2px solid #000", borderRadius: 14, padding: "12px 14px", cursor: "pointer", textAlign: "left", width: "100%", display: "flex", alignItems: "center", gap: 12, marginBottom: 8, opacity: isDone ? 0.5 : 1 }}>
+      <div style={{ width: 48, height: 48, background: "#f5f5f3", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" }}>
+        {plant.imageUrl
+          ? <img src={plant.imageUrl} alt={plant.name} style={{ width: "100%", height: "100%", objectFit: "contain", imageRendering: "pixelated" }} />
+          : <span style={{ fontSize: 24 }}>{statusObj.icon}</span>
+        }
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontWeight: 800, fontSize: 15 }}>{plant.name}</div>
+        {plant.variety && <div style={{ fontSize: 12, color: "#888" }}>{plant.variety}</div>}
+        {daysLeft !== null && (
+          <div style={{ fontSize: 12, color: daysLeft <= 0 ? "#2d8a3f" : daysLeft <= 14 ? "#c0392b" : "#888", marginTop: 2, fontWeight: 600 }}>
+            {daysLeft <= 0 ? "🎉 Ready!" : `${daysLeft}d to harvest`}
+          </div>
+        )}
+      </div>
+      <span style={{ fontSize: 12, color: "#888" }}>›</span>
+    </button>
+  );
+}
+
+function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, filterZone, setFilterZone, filterStatus, setFilterStatus, onAddPlant, toast }) {
+  const [viewMode, setViewMode] = useState("grid");
+  const [selectedPlant, setSelectedPlant] = useState(null);
+
   const filtered = plants.filter(p => {
     const q = search.toLowerCase();
     const matchSearch = !q || p.name.toLowerCase().includes(q) || (p.variety || "").toLowerCase().includes(q) || (p.notes || "").toLowerCase().includes(q);
@@ -740,54 +743,87 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
 
   return (
     <div>
-      <div style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
+      {/* Search row */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
         <input placeholder="Search plants..." value={search} onChange={e => setSearch(e.target.value)}
-          style={{ flex: 1, minWidth: 0, padding: "9px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, fontFamily: "inherit" }} />
-        <button onClick={onAddPlant}
-          style={{ background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 10, padding: "9px 16px", cursor: "pointer", fontSize: 14, fontWeight: 700, whiteSpace: "nowrap" }}>
-          + Add Plant
-        </button>
+          style={{ flex: 1, minWidth: 0, padding: "10px 14px", border: "2px solid #000", borderRadius: 50, fontSize: 14, fontFamily: "inherit", background: "#fff" }} />
+        {/* Grid/List toggle */}
+        <div style={{ display: "flex", border: "2px solid #000", borderRadius: 10, overflow: "hidden", flexShrink: 0 }}>
+          <button onClick={() => setViewMode("grid")} style={{ padding: "8px 12px", border: "none", background: viewMode === "grid" ? "#000" : "#fff", color: viewMode === "grid" ? "#fff" : "#000", cursor: "pointer", fontSize: 14 }}>⊞</button>
+          <button onClick={() => setViewMode("list")} style={{ padding: "8px 12px", border: "none", background: viewMode === "list" ? "#000" : "#fff", color: viewMode === "list" ? "#fff" : "#000", cursor: "pointer", fontSize: 14 }}>☰</button>
+        </div>
       </div>
-      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ ...sel, flex: 1 }}>
+
+      {/* Filters */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ ...sel, flex: 1, borderRadius: 50, border: "2px solid #000" }}>
           <option value="">All Status</option>
-          {STATUSES.map(s => <option key={s.label} value={s.label}>{s.icon} {s.label}</option>)}
+          {STATUSES.map(s => <option key={s.label} value={s.label}>{s.label}</option>)}
         </select>
-        <select value={filterZone} onChange={e => setFilterZone(e.target.value)} style={{ ...sel, flex: 1 }}>
+        <select value={filterZone} onChange={e => setFilterZone(e.target.value)} style={{ ...sel, flex: 1, borderRadius: 50, border: "2px solid #000" }}>
           <option value="">All Zones</option>
-          {ZONES.map(z => <option key={z}>{z}</option>)}
+          {ZONES.map(z => <option key={z} value={z}>{z.replace(" Grow Station", "").replace("In-Ground Beds", "In-Ground")}</option>)}
         </select>
       </div>
+
       {(search || filterZone || filterStatus) && (
         <button onClick={() => { setSearch(""); setFilterZone(""); setFilterStatus(""); }}
-          style={{ background: "#f0f0f0", border: "none", borderRadius: 8, padding: "5px 14px", cursor: "pointer", fontSize: 13, marginBottom: 14 }}>× Clear filters</button>
+          style={{ background: "#f0f0f0", border: "none", borderRadius: 8, padding: "5px 14px", cursor: "pointer", fontSize: 13, marginBottom: 14 }}>× Clear</button>
       )}
+
+      {/* Zone sections */}
       {ZONES.map(zone => {
         const zonePlants = filtered.filter(p => p.zone === zone);
-        // Hide zones not matching active filter
         if (filterZone && filterZone !== zone) return null;
         return (
-          <div key={zone} style={{ marginBottom: 24 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: ZONE_COLORS[zone], display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{ZONE_ICONS[zone]}</div>
+          <div key={zone} style={{ marginBottom: 28 }}>
+            {/* Zone header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 12 }}>
               <div>
-                <div style={{ fontWeight: 700, fontSize: 16 }}>{zone}</div>
-                <div style={{ color: "#888", fontSize: 12 }}>{zonePlants.length} plant{zonePlants.length !== 1 ? "s" : ""}</div>
+                <div style={{ fontWeight: 900, fontSize: 22, letterSpacing: -0.5, lineHeight: 1 }}>
+                  {zone.replace(" Grow Station", "").replace("In-Ground Beds", "In-Ground")}
+                </div>
+                <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>{zonePlants.length} plant{zonePlants.length !== 1 ? "s" : ""}</div>
               </div>
-            </div>
-            {zonePlants.length === 0 ? (
-              <button onClick={onAddPlant} style={{ width: "100%", border: "1.5px dashed #ccc", borderRadius: 12, padding: "18px", textAlign: "center", color: "#aaa", fontSize: 14, background: "none", cursor: "pointer" }}>
+              <button onClick={onAddPlant}
+                style={{ background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 50, padding: "8px 16px", cursor: "pointer", fontSize: 13, fontWeight: 800, whiteSpace: "nowrap" }}>
                 + Add Plant
               </button>
+            </div>
+
+            {/* Plants */}
+            {zonePlants.length === 0 ? (
+              <button onClick={onAddPlant} style={{ width: "100%", border: "2px dashed #ccc", borderRadius: 14, padding: 20, textAlign: "center", color: "#aaa", fontSize: 14, background: "none", cursor: "pointer" }}>
+                + Add Plant
+              </button>
+            ) : viewMode === "grid" ? (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                {zonePlants.map(p => <PlantGridCard key={p.id} plant={p} onTap={() => setSelectedPlant(p)} />)}
+              </div>
             ) : (
-              zonePlants.map(p => <PlantCard key={p.id} plant={p} frostDates={frostDates} onUpdate={onUpdate} onDelete={onDelete} toast={toast} />)
+              <div>
+                {zonePlants.map(p => <PlantListCard key={p.id} plant={p} onTap={() => setSelectedPlant(p)} />)}
+              </div>
             )}
           </div>
         );
       })}
+
+      {/* Plant detail sheet */}
+      {selectedPlant && (
+        <PlantDetailSheet
+          plant={plants.find(p => p.id === selectedPlant.id) || selectedPlant}
+          frostDates={frostDates}
+          onUpdate={updated => { onUpdate(updated); setSelectedPlant(updated); }}
+          onDelete={id => { onDelete(id); setSelectedPlant(null); }}
+          onClose={() => setSelectedPlant(null)}
+          toast={toast}
+        />
+      )}
     </div>
   );
 }
+
 
 function CalendarTab({ plants }) {
   const currentMonth = new Date().getMonth();
@@ -1919,30 +1955,22 @@ export default function App() {
       {/* ── Header ── */}
       <div style={{ background: "#fff", borderBottom: "1px solid #eee", padding: "14px 16px 10px", position: "sticky", top: 0, zIndex: 50 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: "#5c3d1e", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontSize: 18 }}>🌱</span>
-            </div>
-            <div>
-              <div style={{ fontWeight: 900, fontSize: 18, letterSpacing: -0.5, color: "#2a1a0a", lineHeight: 1 }}>Dirt Rich</div>
-              <div style={{ fontSize: 10, color: "#9a7a5a", letterSpacing: 1, textTransform: "uppercase", fontWeight: 600 }}>Grow what you own</div>
-            </div>
-          </div>
+          <div style={{ fontWeight: 900, fontSize: 32, letterSpacing: -1, color: "#000", lineHeight: 1 }}>Dirt Rich</div>
           <button onClick={() => setShowBackup(true)}
-            style={{ background: "none", border: `1px solid ${!lastBackup || daysSince(lastBackup) >= 3 ? "#d4a96a" : "#e0d0c0"}`, borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 12, color: !lastBackup || daysSince(lastBackup) >= 3 ? "#b8740a" : "#9a7a5a", display: "flex", alignItems: "center", gap: 4 }}>
-            💾 {lastBackup ? `${daysSince(lastBackup)}d ago` : "Backup"}
+            style={{ background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 50, padding: "8px 18px", cursor: "pointer", fontSize: 14, fontWeight: 800 }}>
+            {!lastBackup || daysSince(lastBackup) >= 3 ? "⚠️ Backup" : "💾 Backup"}
           </button>
         </div>
 
         {/* Backup reminder banner */}
         {(!lastBackup || daysSince(lastBackup) >= 3) && plants.length > 0 && (
-          <button onClick={() => setShowBackup(true)} style={{ width: "100%", background: "#fffbeb", border: "1px solid #fcd34d", borderRadius: 10, padding: "8px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, marginBottom: 8, textAlign: "left" }}>
+          <button onClick={() => setShowBackup(true)} style={{ width: "100%", background: "#fff8e1", border: "2px solid #f0a500", borderRadius: 10, padding: "8px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, marginBottom: 8, textAlign: "left" }}>
             <span style={{ fontSize: 16 }}>⚠️</span>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#92400e" }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: "#92400e" }}>
                 {!lastBackup ? "No backup yet" : `Last backup ${daysSince(lastBackup)} days ago`}
               </div>
-              <div style={{ fontSize: 11, color: "#b45309" }}>Tap to back up your {plants.length} plant{plants.length !== 1 ? "s" : ""} now</div>
+              <div style={{ fontSize: 11, color: "#b45309" }}>Tap to back up your {plants.length} plant{plants.length !== 1 ? "s" : ""}</div>
             </div>
           </button>
         )}
@@ -2065,3 +2093,4 @@ export default function App() {
     </div>
   );
 }
+ 
