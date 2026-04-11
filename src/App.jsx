@@ -775,28 +775,30 @@ function PlantGridCard({ plant, onTap }) {
   const harvestDate = calcHarvestDate(plant.dateStarted, plant.dtm);
   const daysLeft = harvestDate ? daysUntil(harvestDate) : null;
   const isDone = plant.status === "Harvested" || plant.status === "Dead";
+  const imageUrl = plant.imageUrl || getAutoIcon(plant.name)?.url || null;
 
   return (
-    <button onClick={onTap} style={{ background: "#fff", border: "2px solid #000", borderRadius: 16, padding: 12, cursor: "pointer", textAlign: "left", width: "100%", opacity: isDone ? 0.5 : 1 }}>
-      {/* Harvest countdown */}
-      {daysLeft !== null && (
-        <div style={{ fontSize: 11, fontWeight: 700, color: daysLeft <= 0 ? "#2d8a3f" : daysLeft <= 14 ? "#c0392b" : "#888", marginBottom: 8 }}>
-          {daysLeft <= 0 ? "🎉 Ready!" : `Harvest in: ${daysLeft} days · ${formatDate(harvestDate)}`}
-        </div>
-      )}
-      {!daysLeft && <div style={{ fontSize: 11, color: "#bbb", marginBottom: 8 }}>{plant.status}</div>}
+    <button onClick={onTap} style={{ background: "#fff", border: "2px solid #000", borderRadius: 16, padding: 0, cursor: "pointer", textAlign: "left", width: "100%", opacity: isDone ? 0.5 : 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
 
-      {/* Plant image */}
-      <div style={{ width: "100%", aspectRatio: "1", background: "#f5f5f3", borderRadius: 12, marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-        {plant.imageUrl
-          ? <img src={plant.imageUrl} alt={plant.name} style={{ width: "100%", height: "100%", objectFit: "contain", imageRendering: "pixelated" }} />
-          : <span style={{ fontSize: 36 }}>{STATUSES.find(s => s.label === plant.status)?.icon || "🌱"}</span>
+      {/* Plant image — fills top of card */}
+      <div style={{ width: "100%", aspectRatio: "1", background: "#f5f5f3", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", position: "relative" }}>
+        {imageUrl
+          ? <img src={imageUrl} alt={plant.name} style={{ width: "85%", height: "85%", objectFit: "contain", imageRendering: "pixelated" }} />
+          : <span style={{ fontSize: 52 }}>{STATUSES.find(s => s.label === plant.status)?.icon || "🌱"}</span>
         }
+        {/* Harvest badge overlay */}
+        {daysLeft !== null && (
+          <div style={{ position: "absolute", top: 8, left: 8, right: 8, background: daysLeft <= 0 ? "#a8e063" : "rgba(255,255,255,0.92)", border: `1px solid ${daysLeft <= 0 ? "#000" : "#e0e0e0"}`, borderRadius: 8, padding: "3px 7px", fontSize: 10, fontWeight: 700, color: daysLeft <= 0 ? "#000" : daysLeft <= 14 ? "#c0392b" : "#888", textAlign: "center" }}>
+            {daysLeft <= 0 ? "🎉 Ready to harvest!" : `${daysLeft}d · ${formatDate(harvestDate)}`}
+          </div>
+        )}
       </div>
 
-      {/* Name */}
-      <div style={{ fontWeight: 800, fontSize: 15, color: "#000", lineHeight: 1.2 }}>{plant.name}</div>
-      {plant.variety && <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>{plant.variety}</div>}
+      {/* Name row */}
+      <div style={{ padding: "10px 12px 12px" }}>
+        <div style={{ fontWeight: 800, fontSize: 15, color: "#000", lineHeight: 1.2 }}>{plant.name}</div>
+        {plant.variety && <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>{plant.variety}</div>}
+      </div>
     </button>
   );
 }
@@ -811,8 +813,8 @@ function PlantListCard({ plant, onTap }) {
   return (
     <button onClick={onTap} style={{ background: "#fff", border: "2px solid #000", borderRadius: 14, padding: "12px 14px", cursor: "pointer", textAlign: "left", width: "100%", display: "flex", alignItems: "center", gap: 12, marginBottom: 8, opacity: isDone ? 0.5 : 1 }}>
       <div style={{ width: 48, height: 48, background: "#f5f5f3", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" }}>
-        {plant.imageUrl
-          ? <img src={plant.imageUrl} alt={plant.name} style={{ width: "100%", height: "100%", objectFit: "contain", imageRendering: "pixelated" }} />
+        {plant.imageUrl || getAutoIcon(plant.name)
+          ? <img src={plant.imageUrl || getAutoIcon(plant.name)?.url} alt={plant.name} style={{ width: "100%", height: "100%", objectFit: "contain", imageRendering: "pixelated" }} />
           : <span style={{ fontSize: 24 }}>{statusObj.icon}</span>
         }
       </div>
@@ -2194,3 +2196,4 @@ export default function App() {
     </div>
   );
 }
+
