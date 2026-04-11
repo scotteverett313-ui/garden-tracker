@@ -20,6 +20,26 @@ const STATUS_COLORS = {
 
 const CARE_TYPES = ["Watering", "Fertilizing", "Pruning", "Pest Treatment", "Observation"];
 
+// ─── Pixel Art Icon Library ───────────────────────────────────────────────────
+const ICON_LIBRARY = [
+  { name: "Tomato",    url: "https://raw.githubusercontent.com/scotteverett313-ui/dirt-rich-assets/main/Tomato.png",    tags: ["tomato"] },
+  { name: "Carrot",   url: "https://raw.githubusercontent.com/scotteverett313-ui/dirt-rich-assets/main/Carrot.png",    tags: ["carrot"] },
+  { name: "Eggplant", url: "https://raw.githubusercontent.com/scotteverett313-ui/dirt-rich-assets/main/Eggplant.png",  tags: ["eggplant", "aubergine"] },
+  { name: "Lettuce",  url: "https://raw.githubusercontent.com/scotteverett313-ui/dirt-rich-assets/main/Lettuce.png",   tags: ["lettuce", "salad", "greens"] },
+  { name: "Sunflower",url: "https://raw.githubusercontent.com/scotteverett313-ui/dirt-rich-assets/main/Sunflower.png", tags: ["sunflower", "flower"] },
+];
+
+function getAutoIcon(plantName) {
+  if (!plantName) return null;
+  const lower = plantName.toLowerCase();
+  return ICON_LIBRARY.find(icon =>
+    icon.name.toLowerCase() === lower ||
+    icon.tags.some(tag => lower.includes(tag) || tag.includes(lower))
+  ) || null;
+}
+
+
+
 const PLANT_DB = [
   { name: "Tomato", dtm: 75, water: "Regular", sun: "Full Sun", about: "Warm-season crop. Start indoors 6-8 weeks before last frost. Needs consistent moisture and support." },
   { name: "Pepper", dtm: 80, water: "Regular", sun: "Full Sun", about: "Slow starter. Begin indoors 8-10 weeks before last frost. Loves heat and well-drained soil." },
@@ -197,6 +217,66 @@ function Modal({ children, onClose, width = 560 }) {
   );
 }
 
+// ─── Icon Picker ─────────────────────────────────────────────────────────────
+function IconPicker({ selected, onSelect, plantName }) {
+  const [showPicker, setShowPicker] = useState(false);
+  const autoIcon = getAutoIcon(plantName);
+  const effectiveIcon = selected || autoIcon;
+
+  return (
+    <div>
+      <label style={lbl}>Plant Icon</label>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        {/* Current icon preview */}
+        <div style={{ width: 64, height: 64, background: "#f5f5f3", border: "2px solid #000", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flexShrink: 0 }}>
+          {effectiveIcon
+            ? <img src={effectiveIcon.url} alt={effectiveIcon.name} style={{ width: "100%", height: "100%", objectFit: "contain", imageRendering: "pixelated" }} />
+            : <span style={{ fontSize: 28 }}>🌱</span>
+          }
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+            {effectiveIcon ? effectiveIcon.name : "No icon selected"}
+            {!selected && autoIcon && <span style={{ fontSize: 11, color: "#888", fontWeight: 400, marginLeft: 6 }}>(auto-matched)</span>}
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={() => setShowPicker(v => !v)}
+              style={{ padding: "6px 14px", background: "#a8e063", color: "#000", border: "2px solid #000", borderRadius: 50, cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
+              {showPicker ? "Close" : "Choose Icon"}
+            </button>
+            {selected && (
+              <button onClick={() => onSelect(null)}
+                style={{ padding: "6px 12px", background: "#fff", border: "1.5px solid #ccc", borderRadius: 50, cursor: "pointer", fontSize: 12, color: "#888" }}>
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Icon grid */}
+      {showPicker && (
+        <div style={{ marginTop: 12, background: "#f5f5f3", borderRadius: 14, padding: 14 }}>
+          <div style={{ fontSize: 12, color: "#888", marginBottom: 10, fontWeight: 600 }}>
+            {ICON_LIBRARY.length} icons available — more coming as you add pixel art
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(72px, 1fr))", gap: 10 }}>
+            {ICON_LIBRARY.map(icon => (
+              <button key={icon.name} onClick={() => { onSelect(icon); setShowPicker(false); }}
+                style={{ background: selected?.name === icon.name ? "#a8e063" : "#fff", border: `2px solid ${selected?.name === icon.name ? "#000" : "#e0e0e0"}`, borderRadius: 12, padding: 8, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                <div style={{ width: 48, height: 48, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <img src={icon.url} alt={icon.name} style={{ width: "100%", height: "100%", objectFit: "contain", imageRendering: "pixelated" }}
+                    onError={e => e.target.style.display = "none"} />
+                </div>
+                <span style={{ fontSize: 10, fontWeight: 600, color: "#555" }}>{icon.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill }) {
   const [form, setForm] = useState({
     name: prefill?.name || "",
@@ -209,15 +289,20 @@ function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill }) {
     dateStarted: new Date().toISOString().split("T")[0],
     dtm: prefill?.dtm || "",
     quantity: "",
-    notes: ""
+    notes: "",
+    imageUrl: prefill?.imageUrl || "",
   });
+  const [selectedIcon, setSelectedIcon] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
   const [showSugg, setShowSugg] = useState(false);
 
   function handleNameChange(val) {
     setForm(f => ({ ...f, name: val }));
+    if (!selectedIcon) {
+      const auto = getAutoIcon(val);
+      if (auto) setForm(f => ({ ...f, imageUrl: auto.url }));
+    }
     if (val.length > 1) {
-      // Search built-in DB first, then user's custom DB, deduplicated
       const builtIn = PLANT_DB.filter(p => p.name.toLowerCase().startsWith(val.toLowerCase()));
       const custom = (userDB || []).filter(p => p.name.toLowerCase().startsWith(val.toLowerCase()) && !builtIn.find(b => b.name.toLowerCase() === p.name.toLowerCase()));
       const all = [...builtIn, ...custom.map(p => ({ ...p, isCustom: true }))];
@@ -228,8 +313,17 @@ function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill }) {
     }
   }
 
+  function handleIconSelect(icon) {
+    setSelectedIcon(icon);
+    setForm(f => ({ ...f, imageUrl: icon ? icon.url : "" }));
+  }
+
   function selectSuggestion(plant) {
     setForm(f => ({ ...f, name: plant.name, about: plant.about || "", water: plant.water || "", sun: plant.sun || "", dtm: plant.dtm || "" }));
+    if (!selectedIcon) {
+      const auto = getAutoIcon(plant.name);
+      if (auto) setForm(f => ({ ...f, imageUrl: auto.url }));
+    }
     setShowSugg(false);
   }
 
@@ -237,19 +331,12 @@ function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill }) {
     if (!form.name.trim()) return;
     const plant = { ...form, id: generateId(), companions: { good: [...(COMPANION_DB[form.name]?.good || [])], bad: [...(COMPANION_DB[form.name]?.bad || [])] }, careLog: [] };
     onAdd(plant);
-
-    // Save to user DB if not already in built-in DB and has meaningful data
     const inBuiltIn = PLANT_DB.find(p => p.name.toLowerCase() === form.name.toLowerCase());
     const inUserDB = (userDB || []).find(p => p.name.toLowerCase() === form.name.toLowerCase());
     if (!inBuiltIn && !inUserDB && form.name.trim()) {
-      const entry = { name: form.name.trim(), dtm: form.dtm, water: form.water, sun: form.sun, about: form.about, addedAt: new Date().toISOString() };
-      onSaveUserDB([...(userDB || []), entry]);
+      onSaveUserDB([...(userDB || []), { name: form.name.trim(), dtm: form.dtm, water: form.water, sun: form.sun, about: form.about, addedAt: new Date().toISOString() }]);
     } else if (!inBuiltIn && inUserDB) {
-      // Update existing user DB entry with any new info filled in
-      const updated = (userDB || []).map(p => p.name.toLowerCase() === form.name.toLowerCase()
-        ? { ...p, dtm: form.dtm || p.dtm, water: form.water || p.water, sun: form.sun || p.sun, about: form.about || p.about }
-        : p);
-      onSaveUserDB(updated);
+      onSaveUserDB((userDB || []).map(p => p.name.toLowerCase() === form.name.toLowerCase() ? { ...p, dtm: form.dtm || p.dtm, water: form.water || p.water, sun: form.sun || p.sun, about: form.about || p.about } : p));
     }
     onClose();
   }
@@ -281,6 +368,9 @@ function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill }) {
           )}
         </div>
         <div><label style={lbl}>Variety</label>{input("variety", "e.g. Cherokee Purple")}</div>
+        <div style={{ gridColumn: "span 2" }}>
+          <IconPicker selected={selectedIcon} onSelect={handleIconSelect} plantName={form.name} />
+        </div>
         <div style={{ gridColumn: "span 2" }}><label style={lbl}>About</label><textarea placeholder="Short description or growing tips..." value={form.about} onChange={e => setForm(f => ({ ...f, about: e.target.value }))} style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit", minHeight: 70, resize: "vertical" }} /></div>
         <div><label style={lbl}>💧 Water</label>
           <select value={form.water} onChange={e => setForm(f => ({ ...f, water: e.target.value }))} style={sel}>
@@ -311,7 +401,7 @@ function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill }) {
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 24 }}>
         <button onClick={onClose} style={{ padding: "10px 20px", border: "1.5px solid #ccc", borderRadius: 10, background: "#fff", cursor: "pointer", fontSize: 14 }}>Cancel</button>
-        <button onClick={handleSubmit} style={{ padding: "10px 24px", background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>+ Add Plant</button>
+        <button onClick={handleSubmit} style={{ padding: "10px 24px", background: "#a8e063", color: "#000", border: "2px solid #000", borderRadius: 50, cursor: "pointer", fontSize: 14, fontWeight: 800 }}>+ Add Plant</button>
       </div>
     </Modal>
   );
@@ -319,6 +409,14 @@ function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill }) {
 
 function EditPlantModal({ plant, onSave, onClose }) {
   const [form, setForm] = useState({ ...plant });
+  const [selectedIcon, setSelectedIcon] = useState(
+    plant.imageUrl ? ICON_LIBRARY.find(i => i.url === plant.imageUrl) || { name: "Custom", url: plant.imageUrl } : null
+  );
+
+  function handleIconSelect(icon) {
+    setSelectedIcon(icon);
+    setForm(f => ({ ...f, imageUrl: icon ? icon.url : "" }));
+  }
 
   function handleSubmit() {
     onSave(form);
@@ -363,10 +461,13 @@ function EditPlantModal({ plant, onSave, onClose }) {
         <div><label style={lbl}>Days to Maturity</label>{input("dtm", "e.g. 75", "number")}</div>
         <div><label style={lbl}>Quantity</label>{input("quantity", "e.g. 4", "number")}</div>
         <div style={{ gridColumn: "span 2" }}><label style={lbl}>Notes</label><textarea value={form.notes || ""} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit", minHeight: 70, resize: "vertical" }} /></div>
+        <div style={{ gridColumn: "span 2" }}>
+          <IconPicker selected={selectedIcon} onSelect={handleIconSelect} plantName={form.name} />
+        </div>
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 24 }}>
         <button onClick={onClose} style={{ padding: "10px 20px", border: "1.5px solid #ccc", borderRadius: 10, background: "#fff", cursor: "pointer", fontSize: 14 }}>Cancel</button>
-        <button onClick={handleSubmit} style={{ padding: "10px 24px", background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>Save Changes</button>
+        <button onClick={handleSubmit} style={{ padding: "10px 24px", background: "#a8e063", color: "#000", border: "2px solid #000", borderRadius: 50, cursor: "pointer", fontSize: 14, fontWeight: 800 }}>Save Changes</button>
       </div>
     </Modal>
   );
@@ -2093,4 +2194,3 @@ export default function App() {
     </div>
   );
 }
- 
