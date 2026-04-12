@@ -172,13 +172,15 @@ function Toast({ toasts }) {
         button { transition: transform 0.12s ease, opacity 0.12s ease, background 0.15s ease; }
         button:active { transform: scale(0.95); opacity: 0.88; }
 
-        /* Card press */
-        .plant-card:active { transform: scale(0.97); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
-        .plant-card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+        /* Card press — collapses the offset shadow */
+        .plant-card { transition: transform 0.15s ease; }
+        .plant-card:active { transform: translate(4px, 4px); }
 
-        /* CTA press — lime green buttons */
-        .btn-cta:active { transform: scale(0.96); background: #8fcf45 !important; }
-        .btn-cta { transition: transform 0.12s ease, background 0.12s ease !important; }
+        /* CTA offset shadow wrapper */
+        .btn-cta-wrap { position: relative; display: inline-block; width: 100%; }
+        .btn-cta-wrap .btn-shadow { position: absolute; inset: 0; background: #000; border-radius: 50px; transform: translate(4px, 4px); z-index: 0; }
+        .btn-cta-wrap .btn-cta { position: relative; z-index: 1; width: 100%; transition: transform 0.12s ease !important; }
+        .btn-cta-wrap .btn-cta:active { transform: translate(4px, 4px) !important; background: #a8e063 !important; }
 
         /* Status pill */
         .status-pill { transition: transform 0.1s ease, background 0.15s ease; }
@@ -261,7 +263,20 @@ function Modal({ children, onClose, width = 560 }) {
   );
 }
 
-// ─── Icon Picker ─────────────────────────────────────────────────────────────
+// ─── CTA Button with offset shadow ───────────────────────────────────────────
+function CTAButton({ onClick, children, style = {}, disabled = false }) {
+  return (
+    <div style={{ position: "relative", width: "100%", ...( style.display === "inline-flex" ? { width: "auto" } : {}) }}>
+      <div style={{ position: "absolute", inset: 0, background: "#000", borderRadius: 50, transform: "translate(4px, 4px)", zIndex: 0 }} />
+      <button onClick={onClick} disabled={disabled} className="btn-cta"
+        style={{ position: "relative", zIndex: 1, width: "100%", background: disabled ? "#ccc" : "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 50, cursor: disabled ? "not-allowed" : "pointer", fontWeight: 800, fontFamily: "inherit", transition: "transform 0.12s ease", ...style }}>
+        {children}
+      </button>
+    </div>
+  );
+}
+
+
 function IconPicker({ selected, onSelect, plantName }) {
   const [showPicker, setShowPicker] = useState(false);
   const autoIcon = getAutoIcon(plantName);
@@ -445,7 +460,7 @@ function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill }) {
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 24 }}>
         <button onClick={onClose} style={{ padding: "10px 20px", border: "1.5px solid #ccc", borderRadius: 10, background: "#fff", cursor: "pointer", fontSize: 14 }}>Cancel</button>
-        <button onClick={handleSubmit} className="btn-cta" style={{ padding: "10px 24px", background: "#a8e063", color: "#000", border: "2px solid #000", borderRadius: 50, cursor: "pointer", fontSize: 14, fontWeight: 800 }}>+ Add Plant</button>
+        <CTAButton onClick={handleSubmit} style={{ padding: "11px 24px", fontSize: 14 }}>+ Add Plant</CTAButton>
       </div>
     </Modal>
   );
@@ -511,7 +526,7 @@ function EditPlantModal({ plant, onSave, onClose }) {
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 24 }}>
         <button onClick={onClose} style={{ padding: "10px 20px", border: "1.5px solid #ccc", borderRadius: 10, background: "#fff", cursor: "pointer", fontSize: 14 }}>Cancel</button>
-        <button onClick={handleSubmit} className="btn-cta" style={{ padding: "10px 24px", background: "#a8e063", color: "#000", border: "2px solid #000", borderRadius: 50, cursor: "pointer", fontSize: 14, fontWeight: 800 }}>Save Changes</button>
+        <CTAButton onClick={handleSubmit} style={{ padding: "11px 24px", fontSize: 14 }}>Save Changes</CTAButton>
       </div>
     </Modal>
   );
@@ -773,10 +788,7 @@ function PlantDetailSheet({ plant, frostDates, onUpdate, onDelete, onClose, toas
       )}
 
       {/* Care log button */}
-      <button onClick={() => setShowCare(true)}
-        className="btn-cta" style={{ width: "100%", padding: 15, background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 50, cursor: "pointer", fontSize: 16, fontWeight: 800, marginBottom: 12, letterSpacing: 0.3 }}>
-        + Log Care
-      </button>
+      <CTAButton onClick={() => setShowCare(true)} style={{ padding: 15, fontSize: 16, letterSpacing: 0.3, marginBottom: 12 }}>+ Log Care</CTAButton>
 
       {/* Actions */}
       <div style={{ display: "flex", gap: 8 }}>
@@ -822,40 +834,46 @@ function PlantGridCard({ plant, onTap }) {
   const statusObj = STATUSES.find(s => s.label === plant.status) || STATUSES[0];
 
   return (
-    <button onClick={onTap} className="plant-card" style={{ background: "#fff", border: "2px solid #000", borderRadius: 16, padding: 12, cursor: "pointer", textAlign: "left", width: "100%", opacity: isDone ? 0.5 : 1, boxSizing: "border-box", display: "flex", flexDirection: "column", gap: 0 }}>
+    // Offset shadow wrapper
+    <div style={{ position: "relative", opacity: isDone ? 0.5 : 1 }}>
+      {/* Black shadow layer offset behind */}
+      <div style={{ position: "absolute", inset: 0, background: "#000", borderRadius: 16, transform: "translate(4px, 4px)", zIndex: 0 }} />
+      {/* Main card on top */}
+      <button onClick={onTap} className="plant-card" style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: 16, padding: 12, cursor: "pointer", textAlign: "left", width: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: 0 }}>
 
-      {/* Row 1 — Harvest info + menu button */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
-        <div>
-          <div style={{ fontWeight: 700, fontSize: 12, color: "#000" }}>
-            {daysLeft !== null ? (daysLeft <= 0 ? "🎉 Ready!" : "Harvest in:") : "Started:"}
+        {/* Row 1 — Harvest info + menu button */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+          <div>
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#000" }}>
+              {daysLeft !== null ? (daysLeft <= 0 ? "🎉 Ready!" : "Harvest in:") : "Started:"}
+            </div>
+            <div style={{ fontSize: 12, color: daysLeft !== null && daysLeft <= 14 ? "#c0392b" : "#888", fontWeight: 500 }}>
+              {daysLeft !== null
+                ? (daysLeft <= 0 ? "Harvest now" : `${daysLeft} days · ${formatDate(harvestDate)}`)
+                : (plant.dateStarted ? formatDate(plant.dateStarted) : plant.status)}
+            </div>
           </div>
-          <div style={{ fontSize: 12, color: daysLeft !== null && daysLeft <= 14 ? "#c0392b" : "#888", fontWeight: 500 }}>
-            {daysLeft !== null
-              ? (daysLeft <= 0 ? "Harvest now" : `${daysLeft} days · ${formatDate(harvestDate)}`)
-              : (plant.dateStarted ? formatDate(plant.dateStarted) : plant.status)}
-          </div>
+          <div style={{ width: 32, height: 32, border: "1.5px solid #e0e0e0", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#888", flexShrink: 0 }}>⋯</div>
         </div>
-        <div style={{ width: 32, height: 32, border: "1.5px solid #e0e0e0", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#888", flexShrink: 0 }}>⋯</div>
-      </div>
 
-      {/* Row 2 — Pixel art image centered */}
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: 80, marginBottom: 10 }}>
-        {imageUrl
-          ? <img src={imageUrl} alt={plant.name} style={{ width: 70, height: 70, objectFit: "contain", imageRendering: "pixelated" }} />
-          : <span style={{ fontSize: 52 }}>{statusObj.icon}</span>
-        }
-      </div>
+        {/* Row 2 — Pixel art image centered */}
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: 80, marginBottom: 10 }}>
+          {imageUrl
+            ? <img src={imageUrl} alt={plant.name} style={{ width: 70, height: 70, objectFit: "contain", imageRendering: "pixelated" }} />
+            : <span style={{ fontSize: 52 }}>{statusObj.icon}</span>
+          }
+        </div>
 
-      {/* Row 3 — Status icon + plant name */}
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-        <span style={{ fontSize: 14 }}>{statusObj.icon}</span>
-        <span style={{ fontWeight: 800, fontSize: 15, color: "#000", lineHeight: 1.2 }}>{plant.name}</span>
-      </div>
+        {/* Row 3 — Status icon + plant name */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+          <span style={{ fontSize: 14 }}>{statusObj.icon}</span>
+          <span style={{ fontWeight: 800, fontSize: 15, color: "#000", lineHeight: 1.2 }}>{plant.name}</span>
+        </div>
 
-      {/* Row 4 — Variety */}
-      {plant.variety && <div style={{ fontSize: 12, color: "#666" }}>({plant.variety})</div>}
-    </button>
+        {/* Row 4 — Variety */}
+        {plant.variety && <div style={{ fontSize: 12, color: "#666" }}>({plant.variety})</div>}
+      </button>
+    </div>
   );
 }
 
@@ -944,10 +962,7 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
                 </div>
                 <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>{zonePlants.length} plant{zonePlants.length !== 1 ? "s" : ""}</div>
               </div>
-              <button onClick={onAddPlant}
-                className="btn-cta" style={{ background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 50, padding: "8px 16px", cursor: "pointer", fontSize: 13, fontWeight: 800, whiteSpace: "nowrap" }}>
-                + Add Plant
-              </button>
+              <CTAButton onClick={onAddPlant} style={{ padding: "8px 16px", fontSize: 13, width: "auto" }}>+ Add Plant</CTAButton>
             </div>
 
             {/* Plants */}
@@ -2115,10 +2130,9 @@ export default function App() {
       <div style={{ background: "#fff", borderBottom: "1px solid #eee", padding: "14px 16px 10px", position: "sticky", top: 0, zIndex: 50 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
           <div style={{ fontWeight: 900, fontSize: 32, letterSpacing: -1, color: "#000", lineHeight: 1 }}>Dirt Rich</div>
-          <button onClick={() => setShowBackup(true)}
-            className="btn-cta" style={{ background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 50, padding: "8px 18px", cursor: "pointer", fontSize: 14, fontWeight: 800 }}>
-            {!lastBackup || daysSince(lastBackup) >= 3 ? "⚠️ Backup" : "💾 Backup"}
-          </button>
+          <CTAButton onClick={() => setShowBackup(true)} style={{ padding: "7px 16px", fontSize: 13, width: "auto" }}>
+            {!lastBackup || daysSince(lastBackup) >= 3 ? "⚠️ Backup" : "Backup"}
+          </CTAButton>
         </div>
 
         {/* Backup reminder banner */}
