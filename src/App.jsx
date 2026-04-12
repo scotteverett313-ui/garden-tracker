@@ -174,13 +174,13 @@ function Toast({ toasts }) {
 
         /* Card press — collapses the offset shadow */
         .plant-card { transition: transform 0.15s ease; }
-        .plant-card:active { transform: translate(4px, 4px); }
+        .plant-card:active { transform: translate(0px, 4px); }
 
         /* CTA offset shadow wrapper */
         .btn-cta-wrap { position: relative; display: inline-block; width: 100%; }
         .btn-cta-wrap .btn-shadow { position: absolute; inset: 0; background: #000; border-radius: 50px; transform: translate(4px, 4px); z-index: 0; }
         .btn-cta-wrap .btn-cta { position: relative; z-index: 1; width: 100%; transition: transform 0.12s ease !important; }
-        .btn-cta-wrap .btn-cta:active { transform: translate(4px, 4px) !important; background: #a8e063 !important; }
+        .btn-cta-wrap .btn-cta:active { transform: translate(0px, 4px) !important; background: #a8e063 !important; }
 
         /* Status pill */
         .status-pill { transition: transform 0.1s ease, background 0.15s ease; }
@@ -265,9 +265,10 @@ function Modal({ children, onClose, width = 560 }) {
 
 // ─── CTA Button with offset shadow ───────────────────────────────────────────
 function CTAButton({ onClick, children, style = {}, disabled = false }) {
+  const isFullWidth = style.width !== "auto";
   return (
-    <div style={{ position: "relative", width: "100%", ...( style.display === "inline-flex" ? { width: "auto" } : {}) }}>
-      <div style={{ position: "absolute", inset: 0, background: "#000", borderRadius: 50, transform: "translate(4px, 4px)", zIndex: 0 }} />
+    <div style={{ position: "relative", width: isFullWidth ? "100%" : "auto", display: isFullWidth ? "block" : "inline-block" }}>
+      <div style={{ position: "absolute", inset: 0, background: "#000", borderRadius: 50, transform: "translate(0px, 4px)", zIndex: 0 }} />
       <button onClick={onClick} disabled={disabled} className="btn-cta"
         style={{ position: "relative", zIndex: 1, width: "100%", background: disabled ? "#ccc" : "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 50, cursor: disabled ? "not-allowed" : "pointer", fontWeight: 800, fontFamily: "inherit", transition: "transform 0.12s ease", ...style }}>
         {children}
@@ -837,7 +838,7 @@ function PlantGridCard({ plant, onTap }) {
     // Offset shadow wrapper
     <div style={{ position: "relative", opacity: isDone ? 0.5 : 1 }}>
       {/* Black shadow layer offset behind */}
-      <div style={{ position: "absolute", inset: 0, background: "#000", borderRadius: 16, transform: "translate(4px, 4px)", zIndex: 0 }} />
+      <div style={{ position: "absolute", inset: 0, background: "#000", borderRadius: 16, transform: "translate(0px, 4px)", zIndex: 0 }} />
       {/* Main card on top */}
       <button onClick={onTap} className="plant-card" style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: 16, padding: 12, cursor: "pointer", textAlign: "left", width: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: 0 }}>
 
