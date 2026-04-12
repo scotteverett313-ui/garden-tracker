@@ -163,7 +163,51 @@ function Toast({ toasts }) {
           <span>{t.message}</span>
         </div>
       ))}
-      <style>{`@keyframes slideUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }`}</style>
+      <style>{`
+        @keyframes slideUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes popIn { 0% { transform:scale(0.92); opacity:0; } 60% { transform:scale(1.04); } 100% { transform:scale(1); opacity:1; } }
+        @keyframes shimmer { 0% { opacity:1; } 50% { opacity:0.7; } 100% { opacity:1; } }
+
+        /* Global press state for all buttons */
+        button { transition: transform 0.12s ease, opacity 0.12s ease, background 0.15s ease; }
+        button:active { transform: scale(0.95); opacity: 0.88; }
+
+        /* Card press */
+        .plant-card:active { transform: scale(0.97); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+        .plant-card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+
+        /* CTA press — lime green buttons */
+        .btn-cta:active { transform: scale(0.96); background: #8fcf45 !important; }
+        .btn-cta { transition: transform 0.12s ease, background 0.12s ease !important; }
+
+        /* Status pill */
+        .status-pill { transition: transform 0.1s ease, background 0.15s ease; }
+        .status-pill:active { transform: scale(0.93); }
+
+        /* Nav tabs */
+        .nav-tab { transition: transform 0.1s ease; }
+        .nav-tab:active { transform: scale(0.88); }
+
+        /* Icon picker */
+        .icon-btn { transition: transform 0.12s ease, border-color 0.12s ease; }
+        .icon-btn:active { transform: scale(0.9); }
+
+        /* Toast entry */
+        .toast-item { animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+
+        /* Modal sheet */
+        .modal-sheet { animation: sheetUp 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+        @keyframes sheetUp { from { transform:translateY(100%); opacity:0.5; } to { transform:translateY(0); opacity:1; } }
+
+        /* Zone Add Plant dashed button */
+        .add-zone-btn { transition: border-color 0.15s ease, color 0.15s ease; }
+        .add-zone-btn:hover { border-color: #000; color: #000; }
+        .add-zone-btn:active { transform: scale(0.98); background: #f5f5f3 !important; }
+
+        /* Care type buttons */
+        .care-type-btn { transition: all 0.15s ease; }
+        .care-type-btn:active { transform: scale(0.94); }
+      `}</style>
     </div>
   );
 }
@@ -203,7 +247,7 @@ function Modal({ children, onClose, width = 560 }) {
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center", padding: 0 }}
       onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ background: "#fff", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: width, maxHeight: "92vh", overflowY: "auto", position: "relative", display: "flex", flexDirection: "column" }}>
+      <div className="modal-sheet" style={{ background: "#fff", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: width, maxHeight: "92vh", overflowY: "auto", position: "relative", display: "flex", flexDirection: "column" }}>
         {/* Sticky header with drag handle and close */}
         <div style={{ position: "sticky", top: 0, background: "#fff", zIndex: 10, padding: "12px 16px 8px", borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
           <div style={{ width: 36, height: 4, background: "#ddd", borderRadius: 4, margin: "0 auto" }} />
@@ -262,7 +306,7 @@ function IconPicker({ selected, onSelect, plantName }) {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(72px, 1fr))", gap: 10 }}>
             {ICON_LIBRARY.map(icon => (
-              <button key={icon.name} onClick={() => { onSelect(icon); setShowPicker(false); }}
+              <button key={icon.name} onClick={() => { onSelect(icon); setShowPicker(false); }} className="icon-btn"
                 style={{ background: selected?.name === icon.name ? "#a8e063" : "#fff", border: `2px solid ${selected?.name === icon.name ? "#000" : "#e0e0e0"}`, borderRadius: 12, padding: 8, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                 <div style={{ width: 48, height: 48, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <img src={icon.url} alt={icon.name} style={{ width: "100%", height: "100%", objectFit: "contain", imageRendering: "pixelated" }}
@@ -401,7 +445,7 @@ function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill }) {
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 24 }}>
         <button onClick={onClose} style={{ padding: "10px 20px", border: "1.5px solid #ccc", borderRadius: 10, background: "#fff", cursor: "pointer", fontSize: 14 }}>Cancel</button>
-        <button onClick={handleSubmit} style={{ padding: "10px 24px", background: "#a8e063", color: "#000", border: "2px solid #000", borderRadius: 50, cursor: "pointer", fontSize: 14, fontWeight: 800 }}>+ Add Plant</button>
+        <button onClick={handleSubmit} className="btn-cta" style={{ padding: "10px 24px", background: "#a8e063", color: "#000", border: "2px solid #000", borderRadius: 50, cursor: "pointer", fontSize: 14, fontWeight: 800 }}>+ Add Plant</button>
       </div>
     </Modal>
   );
@@ -467,7 +511,7 @@ function EditPlantModal({ plant, onSave, onClose }) {
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 24 }}>
         <button onClick={onClose} style={{ padding: "10px 20px", border: "1.5px solid #ccc", borderRadius: 10, background: "#fff", cursor: "pointer", fontSize: 14 }}>Cancel</button>
-        <button onClick={handleSubmit} style={{ padding: "10px 24px", background: "#a8e063", color: "#000", border: "2px solid #000", borderRadius: 50, cursor: "pointer", fontSize: 14, fontWeight: 800 }}>Save Changes</button>
+        <button onClick={handleSubmit} className="btn-cta" style={{ padding: "10px 24px", background: "#a8e063", color: "#000", border: "2px solid #000", borderRadius: 50, cursor: "pointer", fontSize: 14, fontWeight: 800 }}>Save Changes</button>
       </div>
     </Modal>
   );
@@ -653,16 +697,15 @@ function PlantDetailSheet({ plant, frostDates, onUpdate, onDelete, onClose, toas
             </div>
           ))}
         </div>
-        {/* Quick status picker */}
         <div style={{ marginTop: 12, borderTop: "1px solid #e0e0e0", paddingTop: 12 }}>
-          <button onClick={() => setShowStatusPicker(v => !v)}
+          <button onClick={() => setShowStatusPicker(v => !v)} className="status-pill"
             style={{ display: "inline-flex", alignItems: "center", gap: 6, background: STATUS_COLORS[plant.status] || "#eee", border: "none", borderRadius: 20, padding: "5px 12px", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
             {statusObj.icon} {plant.status} <span style={{ fontSize: 10, opacity: 0.6 }}>▾</span>
           </button>
           {showStatusPicker && (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8, animation: "popIn 0.2s ease" }}>
               {STATUSES.map(s => (
-                <button key={s.label} onClick={() => updateStatus(s.label)}
+                <button key={s.label} onClick={() => updateStatus(s.label)} className="status-pill"
                   style={{ background: s.label === plant.status ? STATUS_COLORS[s.label] : "#fff", border: `1px solid ${s.label === plant.status ? "#bbb" : "#e0e0e0"}`, borderRadius: 20, padding: "4px 10px", cursor: "pointer", fontSize: 12, fontWeight: s.label === plant.status ? 700 : 400 }}>
                   {s.icon} {s.label}
                 </button>
@@ -731,7 +774,7 @@ function PlantDetailSheet({ plant, frostDates, onUpdate, onDelete, onClose, toas
 
       {/* Care log button */}
       <button onClick={() => setShowCare(true)}
-        style={{ width: "100%", padding: 15, background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 50, cursor: "pointer", fontSize: 16, fontWeight: 800, marginBottom: 12, letterSpacing: 0.3 }}>
+        className="btn-cta" style={{ width: "100%", padding: 15, background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 50, cursor: "pointer", fontSize: 16, fontWeight: 800, marginBottom: 12, letterSpacing: 0.3 }}>
         + Log Care
       </button>
 
@@ -755,7 +798,7 @@ function PlantDetailSheet({ plant, frostDates, onUpdate, onDelete, onClose, toas
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <button onClick={() => { onUpdate({ ...plant, status: pendingStatus, harvestedAt: new Date().toISOString() }); setShowEndModal(false); onClose(); toast && toast(`${plant.name} marked as ${pendingStatus}`, { icon: pendingStatus === "Harvested" ? "✅" : "🪦" }); }}
-              style={{ padding: 13, background: "#a8e063", color: "#000", border: "2px solid #000", borderRadius: 50, cursor: "pointer", fontSize: 15, fontWeight: 700 }}>
+              className="btn-cta" style={{ padding: 13, background: "#a8e063", color: "#000", border: "2px solid #000", borderRadius: 50, cursor: "pointer", fontSize: 15, fontWeight: 700 }}>
               {pendingStatus === "Harvested" ? "✅ Confirm Harvested" : "🪦 Confirm Dead"} — Keep record
             </button>
             <button onClick={() => { onDelete(plant.id); setShowEndModal(false); onClose(); toast && toast(`${plant.name} removed`, { type: "warning", icon: "🗑" }); }}
@@ -779,7 +822,7 @@ function PlantGridCard({ plant, onTap }) {
   const statusObj = STATUSES.find(s => s.label === plant.status) || STATUSES[0];
 
   return (
-    <button onClick={onTap} style={{ background: "#fff", border: "2px solid #000", borderRadius: 16, padding: 12, cursor: "pointer", textAlign: "left", width: "100%", opacity: isDone ? 0.5 : 1, boxSizing: "border-box", display: "flex", flexDirection: "column", gap: 0 }}>
+    <button onClick={onTap} className="plant-card" style={{ background: "#fff", border: "2px solid #000", borderRadius: 16, padding: 12, cursor: "pointer", textAlign: "left", width: "100%", opacity: isDone ? 0.5 : 1, boxSizing: "border-box", display: "flex", flexDirection: "column", gap: 0 }}>
 
       {/* Row 1 — Harvest info + menu button */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
@@ -824,7 +867,7 @@ function PlantListCard({ plant, onTap }) {
   const isDone = plant.status === "Harvested" || plant.status === "Dead";
 
   return (
-    <button onClick={onTap} style={{ background: "#fff", border: "2px solid #000", borderRadius: 14, padding: "12px 14px", cursor: "pointer", textAlign: "left", width: "100%", display: "flex", alignItems: "center", gap: 12, marginBottom: 8, opacity: isDone ? 0.5 : 1 }}>
+    <button onClick={onTap} className="plant-card" style={{ background: "#fff", border: "2px solid #000", borderRadius: 14, padding: "12px 14px", cursor: "pointer", textAlign: "left", width: "100%", display: "flex", alignItems: "center", gap: 12, marginBottom: 8, opacity: isDone ? 0.5 : 1 }}>
       <div style={{ width: 48, height: 48, background: "#f5f5f3", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" }}>
         {plant.imageUrl || getAutoIcon(plant.name)
           ? <img src={plant.imageUrl || getAutoIcon(plant.name)?.url} alt={plant.name} style={{ width: "100%", height: "100%", objectFit: "contain", imageRendering: "pixelated" }} />
@@ -902,14 +945,14 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
                 <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>{zonePlants.length} plant{zonePlants.length !== 1 ? "s" : ""}</div>
               </div>
               <button onClick={onAddPlant}
-                style={{ background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 50, padding: "8px 16px", cursor: "pointer", fontSize: 13, fontWeight: 800, whiteSpace: "nowrap" }}>
+                className="btn-cta" style={{ background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 50, padding: "8px 16px", cursor: "pointer", fontSize: 13, fontWeight: 800, whiteSpace: "nowrap" }}>
                 + Add Plant
               </button>
             </div>
 
             {/* Plants */}
             {zonePlants.length === 0 ? (
-              <button onClick={onAddPlant} style={{ width: "100%", border: "2px dashed #ccc", borderRadius: 14, padding: 20, textAlign: "center", color: "#aaa", fontSize: 14, background: "none", cursor: "pointer" }}>
+              <button onClick={onAddPlant} className="add-zone-btn" style={{ width: "100%", border: "2px dashed #ccc", borderRadius: 14, padding: 20, textAlign: "center", color: "#aaa", fontSize: 14, background: "none", cursor: "pointer" }}>
                 + Add Plant
               </button>
             ) : viewMode === "grid" ? (
@@ -2073,7 +2116,7 @@ export default function App() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
           <div style={{ fontWeight: 900, fontSize: 32, letterSpacing: -1, color: "#000", lineHeight: 1 }}>Dirt Rich</div>
           <button onClick={() => setShowBackup(true)}
-            style={{ background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 50, padding: "8px 18px", cursor: "pointer", fontSize: 14, fontWeight: 800 }}>
+            className="btn-cta" style={{ background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 50, padding: "8px 18px", cursor: "pointer", fontSize: 14, fontWeight: 800 }}>
             {!lastBackup || daysSince(lastBackup) >= 3 ? "⚠️ Backup" : "💾 Backup"}
           </button>
         </div>
@@ -2126,7 +2169,7 @@ export default function App() {
       {/* ── Bottom nav ── */}
       <nav style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 600, background: "#fff", borderTop: "1px solid #eee", display: "flex", zIndex: 100, paddingBottom: "env(safe-area-inset-bottom)" }}>
         {NAV_TABS.map(t => (
-          <button key={t.id} onClick={() => setTab(t.id)} style={{ flex: 1, border: "none", background: "none", cursor: "pointer", padding: "10px 4px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+          <button key={t.id} onClick={() => setTab(t.id)} className="nav-tab" style={{ flex: 1, border: "none", background: "none", cursor: "pointer", padding: "10px 4px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
             <span style={{ fontSize: 20 }}>{t.icon}</span>
             <span style={{ fontSize: 10, fontWeight: tab === t.id ? 700 : 500, color: tab === t.id ? "#5c3d1e" : "#aaa", letterSpacing: 0.2 }}>{t.label}</span>
             {tab === t.id && <div style={{ width: 20, height: 2, background: "#5c3d1e", borderRadius: 2 }} />}
