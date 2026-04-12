@@ -250,12 +250,15 @@ function Modal({ children, onClose, width = 560 }) {
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center", padding: 0 }}
       onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal-sheet" style={{ background: "#fff", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: width, maxHeight: "92vh", overflowY: "auto", position: "relative", display: "flex", flexDirection: "column" }}>
-        {/* Sticky header with drag handle and close */}
-        <div style={{ position: "sticky", top: 0, background: "#fff", zIndex: 10, padding: "12px 16px 8px", borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-          <div style={{ width: 36, height: 4, background: "#ddd", borderRadius: 4, margin: "0 auto" }} />
-          <button onClick={onClose} style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "#f0f0f0", border: "none", borderRadius: "50%", width: 30, height: 30, cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "#555" }}>×</button>
+        {/* Sticky header — drag handle centered, X on left */}
+        <div style={{ position: "sticky", top: 0, background: "#fff", zIndex: 10, padding: "20px 16px 12px", borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", flexShrink: 0 }}>
+          <button onClick={onClose} style={{ background: "#f0f0f0", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "#555", flexShrink: 0, marginRight: 12 }}>×</button>
+          <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>
+            <div style={{ width: 36, height: 4, background: "#ddd", borderRadius: 4 }} />
+          </div>
+          <div style={{ width: 32, flexShrink: 0, marginLeft: 12 }} />
         </div>
-        <div style={{ padding: "16px 16px 32px", flex: 1 }}>
+        <div style={{ padding: "20px 16px 40px", flex: 1 }}>
           {children}
         </div>
       </div>
@@ -680,14 +683,23 @@ function PlantDetailSheet({ plant, frostDates, onUpdate, onDelete, onClose, toas
     onUpdate({ ...plant, companions: { ...plant.companions, [type]: (plant.companions?.[type] || []).filter(c => c !== item) } });
   }
 
+  function toggleFavorite() {
+    onUpdate({ ...plant, favorite: !plant.favorite });
+    toast && toast(plant.favorite ? "Removed from favorites" : `${plant.name} favorited`, { icon: plant.favorite ? "🤍" : "❤️" });
+  }
+
   return (
     <Modal onClose={onClose}>
-      {/* Plant name header */}
-      <div style={{ textAlign: "center", marginBottom: 16 }}>
-        <h2 style={{ margin: "0 0 2px", fontSize: 24, fontWeight: 900, letterSpacing: -0.5 }}>{plant.name}</h2>
-        {plant.variety && <div style={{ color: "#888", fontSize: 15 }}>({plant.variety})</div>}
+      {/* Plant name header with favorite */}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 }}>
+        <div style={{ flex: 1, textAlign: "center" }}>
+          <h2 style={{ margin: "0 0 2px", fontSize: 24, fontWeight: 900, letterSpacing: -0.5 }}>{plant.name}</h2>
+          {plant.variety && <div style={{ color: "#888", fontSize: 15 }}>({plant.variety})</div>}
+        </div>
+        <button onClick={toggleFavorite} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 24, flexShrink: 0, padding: "0 0 0 8px", lineHeight: 1 }}>
+          {plant.favorite ? "❤️" : "🤍"}
+        </button>
       </div>
-
       {/* Growing overview card */}
       <div style={{ background: "#f5f5f3", borderRadius: 14, padding: 16, marginBottom: 14 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
@@ -910,13 +922,15 @@ function PlantListCard({ plant, onTap }) {
 function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, filterZone, setFilterZone, filterStatus, setFilterStatus, onAddPlant, toast }) {
   const [viewMode, setViewMode] = useState("grid");
   const [selectedPlant, setSelectedPlant] = useState(null);
+  const [favOnly, setFavOnly] = useState(false);
 
   const filtered = plants.filter(p => {
     const q = search.toLowerCase();
     const matchSearch = !q || p.name.toLowerCase().includes(q) || (p.variety || "").toLowerCase().includes(q) || (p.notes || "").toLowerCase().includes(q);
     const matchZone = !filterZone || p.zone === filterZone;
     const matchStatus = !filterStatus || p.status === filterStatus;
-    return matchSearch && matchZone && matchStatus;
+    const matchFav = !favOnly || p.favorite;
+    return matchSearch && matchZone && matchStatus && matchFav;
   });
 
   return (
@@ -925,10 +939,17 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
       <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
         <input placeholder="Search plants..." value={search} onChange={e => setSearch(e.target.value)}
           style={{ flex: 1, minWidth: 0, padding: "10px 14px", border: "2px solid #000", borderRadius: 50, fontSize: 14, fontFamily: "inherit", background: "#fff" }} />
-        {/* Grid/List toggle */}
-        <div style={{ display: "flex", border: "2px solid #000", borderRadius: 10, overflow: "hidden", flexShrink: 0 }}>
-          <button onClick={() => setViewMode("grid")} style={{ padding: "8px 12px", border: "none", background: viewMode === "grid" ? "#000" : "#fff", color: viewMode === "grid" ? "#fff" : "#000", cursor: "pointer", fontSize: 14 }}>⊞</button>
-          <button onClick={() => setViewMode("list")} style={{ padding: "8px 12px", border: "none", background: viewMode === "list" ? "#000" : "#fff", color: viewMode === "list" ? "#fff" : "#000", cursor: "pointer", fontSize: 14 }}>☰</button>
+        <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+          {/* Favorites toggle */}
+          <button onClick={() => setFavOnly(v => !v)}
+            style={{ width: 40, height: 40, border: `2px solid ${favOnly ? "#000" : "#ddd"}`, borderRadius: 10, background: favOnly ? "#000" : "#fff", cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {favOnly ? "❤️" : "🤍"}
+          </button>
+          {/* Grid/List toggle */}
+          <div style={{ display: "flex", border: "2px solid #000", borderRadius: 10, overflow: "hidden" }}>
+            <button onClick={() => setViewMode("grid")} style={{ padding: "8px 12px", border: "none", background: viewMode === "grid" ? "#000" : "#fff", color: viewMode === "grid" ? "#fff" : "#000", cursor: "pointer", fontSize: 14 }}>⊞</button>
+            <button onClick={() => setViewMode("list")} style={{ padding: "8px 12px", border: "none", background: viewMode === "list" ? "#000" : "#fff", color: viewMode === "list" ? "#fff" : "#000", cursor: "pointer", fontSize: 14 }}>☰</button>
+          </div>
         </div>
       </div>
 
@@ -1469,6 +1490,10 @@ Return ONLY the JSON, no other text.` });
     onSaveSeeds(seeds.map(s => s.id === seed.id ? { ...s, started: !s.started } : s));
   }
 
+  function handleBookmark(seed) {
+    onSaveSeeds(seeds.map(s => s.id === seed.id ? { ...s, bookmarked: !s.bookmarked } : s));
+  }
+
   // ── Scan view ──
   if (view === "scan") {
     return (
@@ -1600,17 +1625,20 @@ Return ONLY the JSON, no other text.` });
           <h2 style={{ margin: "0 0 4px", fontSize: 22, fontWeight: 800 }}>Seed Library</h2>
           <p style={{ color: "#888", margin: 0, fontSize: 14 }}>{seeds.length} packet{seeds.length !== 1 ? "s" : ""} in your collection.</p>
         </div>
-        <button onClick={() => { setScanError(""); setFrontImg(null); setBackImg(null); setView("scan"); }}
-          style={{ background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 10, padding: "10px 16px", cursor: "pointer", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+        <CTAButton onClick={() => { setScanError(""); setFrontImg(null); setBackImg(null); setView("scan"); }} style={{ padding: "10px 16px", fontSize: 14 }}>
           📷 Scan Packet
-        </button>
+        </CTAButton>
       </div>
 
-      <input placeholder="Search seeds..." value={search} onChange={e => setSearch(e.target.value)}
-        style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, fontFamily: "inherit", boxSizing: "border-box", marginBottom: 14 }} />
+      <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+        <input placeholder="Search seeds..." value={search} onChange={e => setSearch(e.target.value)}
+          style={{ flex: 1, padding: "10px 14px", border: "2px solid #000", borderRadius: 50, fontSize: 14, fontFamily: "inherit", boxSizing: "border-box" }} />
+        <button onClick={() => setSearch("")}
+          style={{ display: search ? "flex" : "none", width: 40, height: 40, border: "2px solid #000", borderRadius: 10, background: "#fff", cursor: "pointer", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>×</button>
+      </div>
 
       {seeds.length === 0 ? (
-        <div style={{ border: "1.5px dashed #ddd", borderRadius: 14, padding: 48, textAlign: "center" }}>
+        <div style={{ border: "2px dashed #ccc", borderRadius: 14, padding: 48, textAlign: "center" }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>🌰</div>
           <div style={{ color: "#888", fontSize: 15, marginBottom: 4 }}>Your seed library is empty.</div>
           <div style={{ color: "#bbb", fontSize: 14 }}>Scan your first seed packet to get started.</div>
@@ -1619,40 +1647,47 @@ Return ONLY the JSON, no other text.` });
         <>
           {filtered.length === 0 && <div style={{ textAlign: "center", color: "#bbb", padding: "24px 0", fontSize: 14 }}>No seeds match your search.</div>}
           {filtered.map(seed => (
-            <div key={seed.id} style={{ background: "#fff", border: `1px solid ${seed.started ? "#d4a96a" : "#e8e8e8"}`, borderRadius: 14, padding: "14px 16px", marginBottom: 10 }}>
+            <div key={seed.id} style={{ position: "relative", marginBottom: 12 }}>
+              <div style={{ position: "absolute", inset: 0, background: "#000", borderRadius: 14, transform: "translate(0, 4px)", zIndex: 0 }} />
+              <div style={{ position: "relative", zIndex: 1, background: "#fff", border: `2px solid #000`, borderRadius: 14, padding: "14px 16px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
-                    <span style={{ fontWeight: 700, fontSize: 15 }}>{seed.name || "Unnamed"}</span>
+                    <span style={{ fontWeight: 800, fontSize: 16 }}>{seed.name || "Unnamed"}</span>
                     {seed.variety && <span style={{ color: "#888", fontSize: 13 }}>{seed.variety}</span>}
-                    {seed.started && <span style={{ fontSize: 11, background: "#f5ece0", color: "#5c3d1e", padding: "2px 8px", borderRadius: 10, fontWeight: 600 }}>✓ Started</span>}
+                    {seed.started && <span style={{ fontSize: 11, background: "#a8e063", color: "#000", padding: "2px 8px", borderRadius: 10, fontWeight: 700, border: "1px solid #000" }}>✓ Started</span>}
                     {seed.year && <span style={{ fontSize: 11, background: "#f0f0f0", color: "#666", padding: "2px 7px", borderRadius: 10 }}>{seed.year}</span>}
                   </div>
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: seed.about ? 6 : 0 }}>
-                    {seed.brand && <span style={{ fontSize: 12, color: "#888" }}>🏷 {seed.brand}</span>}
-                    {seed.dtm && <span style={{ fontSize: 12, color: "#5a8a6a", background: "#f5ece0", padding: "2px 7px", borderRadius: 10 }}>📅 {seed.dtm} DTM</span>}
-                    {seed.sun && <span style={{ fontSize: 12, color: "#8a7a2a", background: "#faf5e0", padding: "2px 7px", borderRadius: 10 }}>☀️ {seed.sun}</span>}
-                    {seed.water && <span style={{ fontSize: 12, color: "#3a6aaa", background: "#e4eef8", padding: "2px 7px", borderRadius: 10 }}>💧 {seed.water}</span>}
-                    {seed.quantity && <span style={{ fontSize: 12, color: "#888" }}>🌰 {seed.quantity} seeds</span>}
-                    {seed.source && <span style={{ fontSize: 12, color: "#888" }}>· {seed.source}</span>}
+                    {seed.brand && <span style={{ fontSize: 12, color: "#888", fontWeight: 600 }}>{seed.brand}</span>}
+                    {seed.dtm && <span style={{ fontSize: 12, fontWeight: 700 }}>· {seed.dtm} DTM</span>}
+                    {seed.sun && <span style={{ fontSize: 12, color: "#888" }}>· ☀️ {seed.sun}</span>}
+                    {seed.water && <span style={{ fontSize: 12, color: "#888" }}>· 💧 {seed.water}</span>}
+                    {seed.quantity && <span style={{ fontSize: 12, color: "#888" }}>· 🌰 {seed.quantity}</span>}
                   </div>
-                  {seed.about && <div style={{ fontSize: 12, color: "#666", lineHeight: 1.4 }}>{seed.about}</div>}
-                  {seed.depth && <div style={{ fontSize: 12, color: "#999", marginTop: 4 }}>Depth: {seed.depth}{seed.spacing ? ` · Spacing: ${seed.spacing}` : ""}{seed.germDays ? ` · Germ: ${seed.germDays} days` : ""}</div>}
+                  {seed.about && <div style={{ fontSize: 13, color: "#555", lineHeight: 1.5, marginTop: 6 }}>{seed.about}</div>}
+                  {seed.depth && <div style={{ fontSize: 12, color: "#999", marginTop: 4 }}>Depth: {seed.depth}{seed.spacing ? ` · Spacing: ${seed.spacing}` : ""}{seed.germDays ? ` · Germ: ${seed.germDays}d` : ""}</div>}
                   {seed.startIndoors && <div style={{ fontSize: 12, color: "#999" }}>Start indoors: {seed.startIndoors} wks before last frost</div>}
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 5, flexShrink: 0 }}>
-                  <button onClick={() => onAddToGarden(seed)}
-                    style={{ background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" }}>+ Garden</button>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6, flexShrink: 0, alignItems: "flex-end" }}>
+                  <button onClick={() => handleBookmark(seed)}
+                    style={{ background: "none", border: "none", cursor: "pointer", fontSize: 22, padding: 0, lineHeight: 1 }}>
+                    {seed.bookmarked ? "🔖" : "🏷️"}
+                  </button>
+                  <CTAButton onClick={() => onAddToGarden(seed)} style={{ padding: "6px 12px", fontSize: 12, width: "auto" }}>+ Garden</CTAButton>
                   <button onClick={() => handleMarkStarted(seed)}
-                    style={{ background: seed.started ? "#f5ece0" : "#fff", color: seed.started ? "#5c3d1e" : "#555", border: "1px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 11, whiteSpace: "nowrap" }}>
+                    style={{ background: seed.started ? "#000" : "#fff", color: seed.started ? "#fff" : "#555", border: "2px solid #000", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>
                     {seed.started ? "✓ Started" : "Mark started"}
                   </button>
-                  <button onClick={() => { setEditingSeed(seed); setEditForm(seed); setView("edit"); }}
-                    style={{ background: "none", border: "1px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 13 }}>✏️</button>
-                  <button onClick={() => handleDelete(seed.id)}
-                    style={{ background: "none", border: "1px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 13, color: "#c0392b" }}>🗑</button>
+                  <div style={{ display: "flex", gap: 5 }}>
+                    <button onClick={() => { setEditingSeed(seed); setEditForm(seed); setView("edit"); }}
+                      style={{ background: "none", border: "1.5px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 13 }}>✏️</button>
+                    <button onClick={() => handleDelete(seed.id)}
+                      style={{ background: "none", border: "1.5px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 13, color: "#c0392b" }}>🗑</button>
+                  </div>
                 </div>
               </div>
+            </div>
             </div>
           ))}
         </>
@@ -2149,20 +2184,48 @@ export default function App() {
           </button>
         )}
 
-        {/* Frost date bar — always visible on Garden tab */}
-        {tab === "garden" && (
-          <button onClick={() => setShowFrost(true)} style={{ width: "100%", background: "#fdf6ee", border: "1px solid #d4a96a", borderRadius: 10, padding: "8px 12px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div style={{ textAlign: "left" }}>
-              <div style={{ fontSize: 10, color: "#888", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>Last Spring Frost</div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#5c3d1e" }}>{frostDates.lastSpring ? formatDate(frostDates.lastSpring) : "Tap to set"}</div>
-            </div>
-            <div style={{ width: 1, height: 32, background: "#d4a96a" }} />
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: 10, color: "#888", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>First Fall Frost</div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#5c3d1e" }}>{frostDates.firstFall ? formatDate(frostDates.firstFall) : "Tap to set"}</div>
-            </div>
-          </button>
-        )}
+        {/* Frost date progress bar — always visible on Garden tab */}
+        {tab === "garden" && (() => {
+          const today = new Date();
+          const spring = frostDates.lastSpring ? new Date(frostDates.lastSpring) : null;
+          const fall = frostDates.firstFall ? new Date(frostDates.firstFall) : null;
+          const totalDays = spring && fall ? (fall - spring) / (1000 * 60 * 60 * 24) : null;
+          const daysPassed = spring ? Math.max(0, (today - spring) / (1000 * 60 * 60 * 24)) : null;
+          const progress = totalDays && daysPassed !== null ? Math.min(100, Math.max(0, (daysPassed / totalDays) * 100)) : null;
+          const daysToFall = fall ? Math.ceil((fall - today) / (1000 * 60 * 60 * 24)) : null;
+          const inSeason = spring && fall && today >= spring && today <= fall;
+          return (
+            <button onClick={() => setShowFrost(true)} style={{ width: "100%", background: "#fdf0e0", border: "2px solid #000", borderRadius: 12, padding: "10px 14px", cursor: "pointer", textAlign: "left", boxSizing: "border-box" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: spring && fall ? 8 : 0 }}>
+                <div>
+                  <div style={{ fontSize: 10, color: "#888", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 2 }}>Growing Season</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#000" }}>
+                    {spring && fall
+                      ? inSeason
+                        ? daysToFall > 0 ? `${daysToFall} days until fall frost` : "First fall frost today!"
+                        : today < spring ? `${Math.ceil((spring - today) / (1000 * 60 * 60 * 24))}d until last frost` : "Season complete"
+                      : "Tap to set frost dates →"}
+                  </div>
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0 }}>
+                  <div style={{ fontSize: 11, color: "#888" }}>{spring ? formatDate(frostDates.lastSpring) : "—"} → {fall ? formatDate(frostDates.firstFall) : "—"}</div>
+                  {inSeason && <span style={{ fontSize: 10, background: "#a8e063", color: "#000", fontWeight: 800, padding: "2px 8px", borderRadius: 10, marginTop: 2, display: "inline-block", border: "1px solid #000" }}>In season</span>}
+                </div>
+              </div>
+              {progress !== null && (
+                <>
+                  <div style={{ height: 8, background: "#e0d0c0", borderRadius: 4, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${progress}%`, background: "#5c3d1e", borderRadius: 4 }} />
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 3 }}>
+                    <span style={{ fontSize: 10, color: "#888" }}>❄️ {formatDate(frostDates.lastSpring)}</span>
+                    <span style={{ fontSize: 10, color: "#888" }}>{formatDate(frostDates.firstFall)} ❄️</span>
+                  </div>
+                </>
+              )}
+            </button>
+          );
+        })()}
       </div>
 
       {/* ── Page content ── */}
