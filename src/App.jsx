@@ -272,8 +272,8 @@ function Modal({ children, onClose, width = 560 }) {
 function CTAButton({ onClick, children, style = {}, disabled = false }) {
   const isFullWidth = style.width !== "auto";
   return (
-    <div style={{ position: "relative", width: isFullWidth ? "100%" : "auto", display: isFullWidth ? "block" : "inline-block" }}>
-      <div style={{ position: "absolute", inset: 0, background: "#000", borderRadius: 50, transform: "translate(0px, 4px)", zIndex: 0 }} />
+    <div style={{ position: "relative", width: isFullWidth ? "100%" : "auto", display: isFullWidth ? "block" : "inline-block", paddingBottom: 4 }}>
+      <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 50, zIndex: 0 }} />
       <button onClick={onClick} disabled={disabled} className="btn-cta"
         style={{ position: "relative", zIndex: 1, width: "100%", background: disabled ? "#ccc" : "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 50, cursor: disabled ? "not-allowed" : "pointer", fontWeight: 800, fontFamily: "inherit", transition: "transform 0.12s ease", ...style }}>
         {children}
@@ -415,7 +415,7 @@ function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill }) {
     <Modal onClose={onClose}>
       <h2 style={{ margin: "0 0 16px", fontSize: 20, fontWeight: 700 }}>Add New Plant</h2>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
-        <div style={{ position: "relative" }}>
+        <div style={{ position: "relative", paddingBottom: 3 }}>
           <label style={lbl}>Plant Name *</label>
           <input placeholder="e.g. Tomato" value={form.name} onChange={e => handleNameChange(e.target.value)}
             style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #3a7a4a", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" }} />
@@ -803,10 +803,10 @@ function PlantDetailSheet({ plant, frostDates, onUpdate, onDelete, onClose, toas
       )}
 
       {/* Care log button */}
-      <CTAButton onClick={() => setShowCare(true)} style={{ padding: 15, fontSize: 16, letterSpacing: 0.3, marginBottom: 12 }}>+ Log Care</CTAButton>
+      <CTAButton onClick={() => setShowCare(true)} style={{ padding: 15, fontSize: 16, letterSpacing: 0.3, marginBottom: 16 }}>+ Log Care</CTAButton>
 
       {/* Actions */}
-      <div style={{ display: "flex", gap: 8 }}>
+      <div style={{ display: "flex", gap: 8, paddingTop: 4 }}>
         <button onClick={() => setShowEdit(true)}
           style={{ flex: 1, padding: "10px", background: "#fff", border: "1.5px solid #e0e0e0", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>✏️ Edit</button>
         <button onClick={() => { onDelete(plant.id); onClose(); toast && toast("Plant removed", { type: "warning", icon: "🗑" }); }}
@@ -849,10 +849,10 @@ function PlantGridCard({ plant, onTap }) {
   const statusObj = STATUSES.find(s => s.label === plant.status) || STATUSES[0];
 
   return (
-    // Offset shadow wrapper
-    <div style={{ position: "relative", opacity: isDone ? 0.5 : 1 }}>
-      {/* Black shadow layer offset behind */}
-      <div style={{ position: "absolute", inset: 0, background: "#000", borderRadius: 16, transform: "translate(0px, 4px)", zIndex: 0 }} />
+    // Offset shadow wrapper — paddingBottom gives shadow room so it doesn't bleed into next card
+    <div style={{ position: "relative", opacity: isDone ? 0.5 : 1, paddingBottom: 4 }}>
+      {/* Black shadow layer */}
+      <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 16, zIndex: 0 }} />
       {/* Main card on top */}
       <button onClick={onTap} className="plant-card" style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: 16, padding: 12, cursor: "pointer", textAlign: "left", width: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: 0 }}>
 
@@ -1649,8 +1649,8 @@ Return ONLY the JSON, no other text.` });
         <>
           {filtered.length === 0 && <div style={{ textAlign: "center", color: "#bbb", padding: "24px 0", fontSize: 14 }}>No seeds match your search.</div>}
           {filtered.map(seed => (
-            <div key={seed.id} style={{ position: "relative", marginBottom: 12 }}>
-              <div style={{ position: "absolute", inset: 0, background: "#000", borderRadius: 14, transform: "translate(0, 4px)", zIndex: 0 }} />
+            <div key={seed.id} style={{ position: "relative", marginBottom: 8, paddingBottom: 4 }}>
+              <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 14, zIndex: 0 }} />
               <div style={{ position: "relative", zIndex: 1, background: "#fff", border: `2px solid #000`, borderRadius: 14, padding: "14px 16px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -1788,8 +1788,8 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
       : [];
 
     return (
-      <div style={{ position: "relative", marginBottom: 12 }}>
-        <div style={{ position: "absolute", inset: 0, background: "#000", borderRadius: 16, transform: "translate(0, 4px)", zIndex: 0 }} />
+      <div style={{ position: "relative", marginBottom: 8, paddingBottom: 4 }}>
+        <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 16, zIndex: 0 }} />
         <div style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: 16, padding: "14px 16px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
@@ -1820,7 +1820,7 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
             </div>
             {showMark && plant.status !== "Harvesting" && (
               <div style={{ position: "relative", flexShrink: 0 }}>
-                <div style={{ position: "absolute", inset: 0, background: "#000", borderRadius: 50, transform: "translate(0, 3px)", zIndex: 0 }} />
+                <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 50, zIndex: 0 }} />
                 <button onClick={() => markHarvested(plant)} className="btn-cta"
                   style={{ position: "relative", zIndex: 1, background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 50, padding: "7px 14px", cursor: "pointer", fontSize: 12, fontWeight: 800 }}>
                   ✓ Harvest
@@ -1955,8 +1955,8 @@ function DBSearchPicker({ userDB, onSelect }) {
         {results.map(p => {
           const iconUrl = getAutoIcon(p.name)?.url;
           return (
-            <div key={p.name} style={{ position: "relative" }}>
-              <div style={{ position: "absolute", inset: 0, background: "#000", borderRadius: 12, transform: "translate(0, 3px)", zIndex: 0 }} />
+            <div key={p.name} style={{ position: "relative", paddingBottom: 3 }}>
+              <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 12, zIndex: 0 }} />
               <button onClick={() => onSelect(p)}
                 style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", background: "#fff", border: "2px solid #000", borderRadius: 12, cursor: "pointer", textAlign: "left", width: "100%", boxSizing: "border-box" }}>
                 <div style={{ width: 40, height: 40, background: "#f5f5f3", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" }}>
@@ -2266,8 +2266,8 @@ export default function App() {
               { flow: "transplant", icon: "🛒", title: "Bought as transplant", desc: "Already growing — quick add",                accent: "#f0f4ff" },
               { flow: "manual",     icon: "✏️", title: "Enter manually",       desc: "Blank form, full control",                   accent: "#fafaf8" },
             ].map(opt => (
-              <div key={opt.flow} style={{ position: "relative" }}>
-                <div style={{ position: "absolute", inset: 0, background: "#000", borderRadius: 14, transform: "translate(0, 3px)", zIndex: 0 }} />
+              <div key={opt.flow} style={{ position: "relative", paddingBottom: 3 }}>
+                <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 14, zIndex: 0 }} />
                 <button onClick={() => setAddFlow(opt.flow)}
                   style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: 14, padding: 16, background: opt.accent, border: "2px solid #000", borderRadius: 14, cursor: "pointer", textAlign: "left", width: "100%", boxSizing: "border-box" }}>
                   <div style={{ width: 48, height: 48, background: "#fff", border: "2px solid #000", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>{opt.icon}</div>
