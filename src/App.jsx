@@ -168,49 +168,43 @@ function Toast({ toasts }) {
       <style>{`
         @keyframes slideUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
         @keyframes popIn { 0% { transform:scale(0.92); opacity:0; } 60% { transform:scale(1.04); } 100% { transform:scale(1); opacity:1; } }
-        @keyframes shimmer { 0% { opacity:1; } 50% { opacity:0.7; } 100% { opacity:1; } }
+        @keyframes sheetUp { from { transform:translateY(100%); opacity:0.5; } to { transform:translateY(0); opacity:1; } }
 
-        /* Global press state for all buttons */
-        button { transition: transform 0.12s ease, opacity 0.12s ease, background 0.15s ease; }
-        button:active { transform: scale(0.95); opacity: 0.88; }
+        /* Global press — pushes down into shadow */
+        button { transition: transform 0.08s ease; }
+        button:active { transform: translateY(3px); }
 
-        /* Card press — collapses the offset shadow */
-        .plant-card { transition: transform 0.15s ease; }
-        .plant-card:active { transform: translate(0px, 4px); }
+        /* Plant card press — collapses into shadow */
+        .plant-card { transition: transform 0.08s ease; }
+        .plant-card:active { transform: translateY(4px); }
 
-        /* CTA offset shadow wrapper */
-        .btn-cta-wrap { position: relative; display: inline-block; width: 100%; }
-        .btn-cta-wrap .btn-shadow { position: absolute; inset: 0; background: #000; border-radius: 50px; transform: translate(4px, 4px); z-index: 0; }
-        .btn-cta-wrap .btn-cta { position: relative; z-index: 1; width: 100%; transition: transform 0.12s ease !important; }
-        .btn-cta-wrap .btn-cta:active { transform: translate(0px, 4px) !important; background: #a8e063 !important; }
+        /* CTA button press — collapses into shadow */
+        .btn-cta { transition: transform 0.08s ease !important; }
+        .btn-cta:active { transform: translateY(4px) !important; }
 
         /* Status pill */
-        .status-pill { transition: transform 0.1s ease, background 0.15s ease; }
-        .status-pill:active { transform: scale(0.93); }
+        .status-pill { transition: transform 0.08s ease; }
+        .status-pill:active { transform: translateY(2px); }
 
         /* Nav tabs */
-        .nav-tab { transition: transform 0.1s ease; }
-        .nav-tab:active { transform: scale(0.88); }
+        .nav-tab { transition: transform 0.08s ease; }
+        .nav-tab:active { transform: translateY(2px); }
 
         /* Icon picker */
-        .icon-btn { transition: transform 0.12s ease, border-color 0.12s ease; }
-        .icon-btn:active { transform: scale(0.9); }
-
-        /* Toast entry */
-        .toast-item { animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+        .icon-btn { transition: transform 0.08s ease; }
+        .icon-btn:active { transform: translateY(2px); }
 
         /* Modal sheet */
         .modal-sheet { animation: sheetUp 0.3s cubic-bezier(0.34,1.56,0.64,1); }
-        @keyframes sheetUp { from { transform:translateY(100%); opacity:0.5; } to { transform:translateY(0); opacity:1; } }
 
-        /* Zone Add Plant dashed button */
-        .add-zone-btn { transition: border-color 0.15s ease, color 0.15s ease; }
+        /* Zone dashed button */
+        .add-zone-btn { transition: border-color 0.15s ease, color 0.15s ease, transform 0.08s ease; }
         .add-zone-btn:hover { border-color: #000; color: #000; }
-        .add-zone-btn:active { transform: scale(0.98); background: #f5f5f3 !important; }
+        .add-zone-btn:active { transform: translateY(2px); }
 
         /* Care type buttons */
-        .care-type-btn { transition: all 0.15s ease; }
-        .care-type-btn:active { transform: scale(0.94); }
+        .care-type-btn { transition: transform 0.08s ease; }
+        .care-type-btn:active { transform: translateY(2px); }
       `}</style>
     </div>
   );
@@ -803,10 +797,10 @@ function PlantDetailSheet({ plant, frostDates, onUpdate, onDelete, onClose, toas
       )}
 
       {/* Care log button */}
-      <CTAButton onClick={() => setShowCare(true)} style={{ padding: 15, fontSize: 16, letterSpacing: 0.3, marginBottom: 16 }}>+ Log Care</CTAButton>
+      <CTAButton onClick={() => setShowCare(true)} style={{ padding: 15, fontSize: 16, letterSpacing: 0.3, marginBottom: 24 }}>+ Log Care</CTAButton>
 
       {/* Actions */}
-      <div style={{ display: "flex", gap: 8, paddingTop: 4 }}>
+      <div style={{ display: "flex", gap: 8, paddingTop: 0 }}>
         <button onClick={() => setShowEdit(true)}
           style={{ flex: 1, padding: "10px", background: "#fff", border: "1.5px solid #e0e0e0", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>✏️ Edit</button>
         <button onClick={() => { onDelete(plant.id); onClose(); toast && toast("Plant removed", { type: "warning", icon: "🗑" }); }}
