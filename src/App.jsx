@@ -147,7 +147,7 @@ export default function App() {
 
         {/* Row 1 — Logo + Backup */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-          <img src={ICONS.logo} alt="Dirt Rich" style={{ height: 40, objectFit: "contain" }} />
+          <img src={ICONS.logo} alt="Dirt Rich" style={{ height: 52, objectFit: "contain" }} />
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             {syncing && <span style={{ fontSize: 11, color: "#aaa" }}>syncing...</span>}
             <div style={{ position: "relative", paddingBottom: 3 }}>
