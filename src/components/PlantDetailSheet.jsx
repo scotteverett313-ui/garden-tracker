@@ -68,11 +68,12 @@ function PlantDetailSheet({ plant, frostDates, onUpdate, onDelete, onClose, toas
     <Modal onClose={onClose}>
       {/* Plant name header with favorite */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 }}>
+        <div style={{ width: 26, flexShrink: 0 }} />
         <div style={{ flex: 1, textAlign: "center" }}>
           <h2 style={{ margin: "0 0 2px", fontSize: 24, fontWeight: 900, letterSpacing: -0.5 }}>{plant.name}</h2>
           {plant.variety && <div style={{ color: "#888", fontSize: 15 }}>({plant.variety})</div>}
         </div>
-        <button onClick={toggleFavorite} style={{ background: "none", border: "none", cursor: "pointer", flexShrink: 0, padding: "0 0 0 8px", lineHeight: 1 }}>
+        <button onClick={toggleFavorite} style={{ background: "none", border: "none", cursor: "pointer", flexShrink: 0, padding: 0, lineHeight: 1 }}>
           <img src={plant.favorite ? ICONS.favActive : ICONS.favorite} alt="Favorite" style={{ width: 26, height: 26, objectFit: "contain" }} />
         </button>
       </div>
