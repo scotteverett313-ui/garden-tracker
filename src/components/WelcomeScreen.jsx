@@ -6,8 +6,8 @@ export function WelcomeScreen({ onDone }) {
 
   useEffect(() => {
     // Animate in, hold, then signal done
-    const hold = setTimeout(() => setPhase("out"), 9400);
-    const done = setTimeout(() => onDone(), 10000);
+    const hold = setTimeout(() => setPhase("out"), 1900);
+    const done = setTimeout(() => onDone(), 2500);
     return () => { clearTimeout(hold); clearTimeout(done); };
   }, []);
 
