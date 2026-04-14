@@ -178,9 +178,6 @@ export default function App() {
             </button>
           );
 
-          const [springMonth, springDay] = formatDate(frostDates.lastSpring).split(" ");
-          const [fallMonth, fallDay] = formatDate(frostDates.firstFall).split(" ");
-
           return (
             <button onClick={() => setShowSettings(true)} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left", marginTop: 12 }}>
               {/* Labels */}
@@ -188,19 +185,14 @@ export default function App() {
                 <span style={{ fontSize: 9, fontWeight: 800, color: "#aaa", textTransform: "uppercase", letterSpacing: 0.5 }}>Last Spring Frost</span>
                 <span style={{ fontSize: 9, fontWeight: 800, color: "#aaa", textTransform: "uppercase", letterSpacing: 0.5 }}>First Fall Frost</span>
               </div>
-              {/* Month | bar | Month | toggle */}
+              {/* Date | bar | Date | toggle — all on one line */}
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 17, fontWeight: 700, color: "#000", flexShrink: 0 }}>{springMonth}</span>
+                <span style={{ fontSize: 17, fontWeight: 700, color: "#000", flexShrink: 0 }}>{formatDate(frostDates.lastSpring)}</span>
                 <div style={{ flex: 1, height: 10, background: "#e8e8e8", borderRadius: 999, overflow: "hidden", border: "1.5px solid #ddd" }}>
                   <div style={{ height: "100%", width: `${progress}%`, background: "#a8e063", borderRadius: 999, transition: "width 0.3s ease" }} />
                 </div>
-                <span style={{ fontSize: 17, fontWeight: 700, color: "#000", flexShrink: 0 }}>{fallMonth}</span>
+                <span style={{ fontSize: 17, fontWeight: 700, color: "#000", flexShrink: 0 }}>{formatDate(frostDates.firstFall)}</span>
                 <span style={{ fontSize: 16, color: "#bbb", flexShrink: 0 }}>›</span>
-              </div>
-              {/* Day numbers */}
-              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
-                <span style={{ fontSize: 12, fontWeight: 600, color: "#888" }}>{springDay}</span>
-                <span style={{ fontSize: 12, fontWeight: 600, color: "#888" }}>{fallDay}</span>
               </div>
             </button>
           );
