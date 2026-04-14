@@ -173,28 +173,34 @@ export default function App() {
 
           if (!spring || !fall) return (
             <button onClick={() => setShowSettings(true)}
-              style={{ width: "100%", background: "#f5f5f3", border: "1.5px dashed #ccc", borderRadius: 12, padding: "12px 14px", cursor: "pointer", textAlign: "center", color: "#aaa", fontSize: 13, fontWeight: 600 }}>
+              style={{ width: "100%", background: "#f5f5f3", border: "1.5px dashed #ccc", borderRadius: 12, padding: "12px 14px", cursor: "pointer", textAlign: "center", color: "#aaa", fontSize: 13, fontWeight: 600, marginTop: 12 }}>
               Set frost dates to track your season →
             </button>
           );
 
+          const [springMonth, springDay] = formatDate(frostDates.lastSpring).split(" ");
+          const [fallMonth, fallDay] = formatDate(frostDates.firstFall).split(" ");
+
           return (
-            <button onClick={() => setShowSettings(true)} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                {/* Left: label + date */}
-                <div style={{ flexShrink: 0 }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>Last Spring Frost</div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: "#000" }}>{formatDate(frostDates.lastSpring)}</div>
-                </div>
-                {/* Progress bar */}
+            <button onClick={() => setShowSettings(true)} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left", marginTop: 12 }}>
+              {/* Labels */}
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                <span style={{ fontSize: 9, fontWeight: 800, color: "#aaa", textTransform: "uppercase", letterSpacing: 0.5 }}>Last Spring Frost</span>
+                <span style={{ fontSize: 9, fontWeight: 800, color: "#aaa", textTransform: "uppercase", letterSpacing: 0.5 }}>First Fall Frost</span>
+              </div>
+              {/* Month | bar | Month | toggle */}
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 17, fontWeight: 700, color: "#000", flexShrink: 0 }}>{springMonth}</span>
                 <div style={{ flex: 1, height: 10, background: "#e8e8e8", borderRadius: 999, overflow: "hidden", border: "1.5px solid #ddd" }}>
                   <div style={{ height: "100%", width: `${progress}%`, background: "#a8e063", borderRadius: 999, transition: "width 0.3s ease" }} />
                 </div>
-                {/* Right: label + date */}
-                <div style={{ flexShrink: 0, textAlign: "right" }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>First Fall Frost</div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: "#000" }}>{formatDate(frostDates.firstFall)}</div>
-                </div>
+                <span style={{ fontSize: 17, fontWeight: 700, color: "#000", flexShrink: 0 }}>{fallMonth}</span>
+                <span style={{ fontSize: 16, color: "#bbb", flexShrink: 0 }}>›</span>
+              </div>
+              {/* Day numbers */}
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: "#888" }}>{springDay}</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: "#888" }}>{fallDay}</span>
               </div>
             </button>
           );
