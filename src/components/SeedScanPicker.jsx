@@ -43,21 +43,29 @@ function SeedScanPicker({ onScanned }) {
 
   return (
     <div>
-      <h2 style={{ margin: "0 0 14px", fontSize: 20, fontWeight: 800 }}>📷 Scan Seed Packet</h2>
+      <h2 style={{ margin: "0 0 4px", fontSize: 22, fontWeight: 900, letterSpacing: -0.5 }}>Scan Seed Packet</h2>
+      <p style={{ margin: "0 0 16px", fontSize: 13, color: "#888" }}>Add a photo of the front and/or back — Claude reads the rest.</p>
+
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
         {[{ label: "Front", img: frontImg, set: setFrontImg }, { label: "Back", img: backImg, set: setBackImg }].map(side => (
-          <label key={side.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: `2px dashed ${side.img ? "#5c3d1e" : "#ccc"}`, borderRadius: 12, padding: 16, cursor: "pointer", background: side.img ? "#fdf6ee" : "#fafaf8", minHeight: 90, textAlign: "center", gap: 4 }}>
-            <div style={{ fontSize: 24 }}>{side.img ? "✓" : "📷"}</div>
-            <div style={{ fontSize: 12, color: side.img ? "#5c3d1e" : "#888", fontWeight: side.img ? 600 : 400 }}>{side.img ? side.img.name.slice(0, 16) : side.label}</div>
-            <input type="file" accept="image/*" capture="environment" onChange={e => side.set(e.target.files[0] || null)} style={{ display: "none" }} />
-          </label>
+          <div key={side.label} style={{ position: "relative", paddingBottom: 4 }}>
+            <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 14, zIndex: 0 }} />
+            <label style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: `2.5px solid #000`, borderRadius: 14, padding: "18px 12px", cursor: "pointer", background: side.img ? "#f0fbe0" : "#fff", minHeight: 90, textAlign: "center", gap: 6, boxSizing: "border-box" }}>
+              <div style={{ fontSize: 26 }}>{side.img ? "✅" : "📷"}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: side.img ? "#2d6a10" : "#aaa" }}>
+                {side.img ? side.img.name.slice(0, 16) : side.label}
+              </div>
+              <input type="file" accept="image/*" capture="environment" onChange={e => side.set(e.target.files[0] || null)} style={{ display: "none" }} />
+            </label>
+          </div>
         ))}
       </div>
-      {error && <div style={{ background: "#fdecea", color: "#c0392b", borderRadius: 8, padding: "8px 12px", fontSize: 13, marginBottom: 10 }}>⚠️ {error}</div>}
-      <button onClick={handleScan} disabled={scanning}
-        style={{ width: "100%", padding: 13, background: scanning ? "#aaa" : "#5c3d1e", color: "#fff", border: "none", borderRadius: 12, cursor: scanning ? "not-allowed" : "pointer", fontSize: 15, fontWeight: 700 }}>
+
+      {error && <div style={{ background: "#fdecea", color: "#c0392b", borderRadius: 10, padding: "10px 14px", fontSize: 13, marginBottom: 12, fontWeight: 600 }}>⚠️ {error}</div>}
+
+      <CTAButton onClick={handleScan} disabled={scanning} style={{ padding: "13px", fontSize: 15 }}>
         {scanning ? "📖 Reading packet..." : "✨ Scan & Extract"}
-      </button>
+      </CTAButton>
     </div>
   );
 }
