@@ -4,6 +4,7 @@ import { generateId, daysUntil, daysSince, formatDate, calcHarvestDate, getAutoI
 import { Modal } from "./Modal.jsx";
 import { CTAButton } from "./CTAButton.jsx";
 import { IconPicker } from "./IconPicker.jsx";
+import { EditPlantModal } from "./EditPlantModal.jsx";
 
 function PlantDetailSheet({ plant, frostDates, onUpdate, onDelete, onClose, toast }) {
   const [showCompanions, setShowCompanions] = useState(false);
