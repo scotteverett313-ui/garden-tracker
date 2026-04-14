@@ -1,6 +1,24 @@
 import { useState, useEffect, useRef } from "react";
+import { dbLoad, dbSave, dbLoadPlants, dbSavePlants, dbLoadSeeds, dbSaveSeeds } from "./supabase.js";
 
-const ZONES = ["Basement Grow Station", "Greenhouse", "Raised Beds", "In-Ground Beds"];
+const ASSET = (f) => `https://raw.githubusercontent.com/scotteverett313-ui/dirt-rich-assets/main/${f}`;
+
+const ICONS = {
+  logo:        ASSET("logo-dirtrich.png"),
+  garden:      ASSET("icon-seedling.png"),
+  seeds:       ASSET("icon-seed.png"),
+  calendar:    ASSET("icon-calender.png"),
+  harvest:     ASSET("icon-harvest.png"),
+  favorite:    ASSET("icon-favorite.png"),
+  favActive:   ASSET("icon-favorites-2.png"),
+  exit:        ASSET("icon-exit.png"),
+  menu:        ASSET("icon-menu.png"),
+  grid:        ASSET("icon-toggle-grid.png"),
+  list:        ASSET("icon-toggle-row.png"),
+  sun:         ASSET("icon-sun.png"),
+  water:       ASSET("icon-water.png"),
+  house:       ASSET("icon-house.png"),
+};
 const lbl = { display: "block", fontSize: 13, fontWeight: 600, marginBottom: 6, color: "#444" };
 const sel = { width: "100%", padding: "10px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, background: "#fff", fontFamily: "inherit", cursor: "pointer", boxSizing: "border-box" };
 const ZONE_ICONS = { "Basement Grow Station": "💡", "Greenhouse": "🏠", "Raised Beds": "🟫", "In-Ground Beds": "🌱" };
@@ -223,6 +241,7 @@ function useToast() {
 }
 
 
+// Keep localStorage as fallback for non-plant/seed data and offline
 async function loadData(key) {
   try {
     const val = localStorage.getItem(key);
@@ -230,7 +249,10 @@ async function loadData(key) {
   } catch { return null; }
 }
 async function saveData(key, value) {
-  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    await dbSave(key, value);
+  } catch {}
 }
 
 // ─── Components ──────────────────────────────────────────────────────────────
@@ -250,7 +272,9 @@ function Modal({ children, onClose, width = 560 }) {
       <div className="modal-sheet" style={{ background: "#fff", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: width, maxHeight: "92vh", overflowY: "auto", position: "relative", display: "flex", flexDirection: "column" }}>
         {/* Sticky header — drag handle centered, X on left */}
         <div style={{ position: "sticky", top: 0, background: "#fff", zIndex: 10, padding: "20px 16px 12px", borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", flexShrink: 0 }}>
-          <button onClick={onClose} style={{ background: "#f0f0f0", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "#555", flexShrink: 0, marginRight: 12 }}>×</button>
+          <button onClick={onClose} style={{ background: "#f0f0f0", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginRight: 12 }}>
+            <img src={ICONS.exit} alt="Close" style={{ width: 16, height: 16, objectFit: "contain" }} />
+          </button>
           <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>
             <div style={{ width: 36, height: 4, background: "#ddd", borderRadius: 4 }} />
           </div>
@@ -732,8 +756,8 @@ function PlantDetailSheet({ plant, frostDates, onUpdate, onDelete, onClose, toas
           <h2 style={{ margin: "0 0 2px", fontSize: 24, fontWeight: 900, letterSpacing: -0.5 }}>{plant.name}</h2>
           {plant.variety && <div style={{ color: "#888", fontSize: 15 }}>({plant.variety})</div>}
         </div>
-        <button onClick={toggleFavorite} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 24, flexShrink: 0, padding: "0 0 0 8px", lineHeight: 1 }}>
-          {plant.favorite ? "❤️" : "🤍"}
+        <button onClick={toggleFavorite} style={{ background: "none", border: "none", cursor: "pointer", flexShrink: 0, padding: "0 0 0 8px", lineHeight: 1 }}>
+          <img src={plant.favorite ? ICONS.favActive : ICONS.favorite} alt="Favorite" style={{ width: 26, height: 26, objectFit: "contain" }} />
         </button>
       </div>
       {/* Growing overview card */}
@@ -744,8 +768,8 @@ function PlantDetailSheet({ plant, frostDates, onUpdate, onDelete, onClose, toas
         </div>
         {/* Water + sun badges */}
         <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-          {plant.water && <span style={{ border: "1px solid #ccc", borderRadius: 20, padding: "3px 10px", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}>💧 {plant.water}</span>}
-          {plant.sun && <span style={{ border: "1px solid #ccc", borderRadius: 20, padding: "3px 10px", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}>☀️ {plant.sun}</span>}
+          {plant.water && <span style={{ border: "1px solid #ccc", borderRadius: 20, padding: "3px 10px", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><img src={ICONS.water} alt="water" style={{ width: 14, height: 14, objectFit: "contain" }} /> {plant.water}</span>}
+          {plant.sun && <span style={{ border: "1px solid #ccc", borderRadius: 20, padding: "3px 10px", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><img src={ICONS.sun} alt="sun" style={{ width: 14, height: 14, objectFit: "contain" }} /> {plant.sun}</span>}
         </div>
         {/* 2x2 grid */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -942,7 +966,9 @@ function PlantGridCard({ plant, onTap }) {
                 : (plant.dateStarted ? formatDate(plant.dateStarted) : plant.status)}
             </div>
           </div>
-          <div style={{ width: 32, height: 32, border: "1.5px solid #e0e0e0", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#888", flexShrink: 0 }}>⋯</div>
+          <div style={{ width: 32, height: 32, border: "1.5px solid #e0e0e0", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <img src={ICONS.menu} alt="Menu" style={{ width: 16, height: 16, objectFit: "contain" }} />
+        </div>
         </div>
 
         {/* Row 2 — Pixel art image centered */}
@@ -1018,13 +1044,17 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
         <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
           {/* Favorites toggle */}
           <button onClick={() => setFavOnly(v => !v)}
-            style={{ width: 40, height: 40, border: `2px solid ${favOnly ? "#000" : "#ddd"}`, borderRadius: 10, background: favOnly ? "#000" : "#fff", cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            {favOnly ? "❤️" : "🤍"}
+            style={{ width: 40, height: 40, border: `2px solid ${favOnly ? "#000" : "#ddd"}`, borderRadius: 10, background: favOnly ? "#000" : "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <img src={favOnly ? ICONS.favActive : ICONS.favorite} alt="Favorites" style={{ width: 20, height: 20, objectFit: "contain", filter: favOnly ? "invert(1)" : "none" }} />
           </button>
           {/* Grid/List toggle */}
           <div style={{ display: "flex", border: "2px solid #000", borderRadius: 10, overflow: "hidden" }}>
-            <button onClick={() => setViewMode("grid")} style={{ padding: "8px 12px", border: "none", background: viewMode === "grid" ? "#000" : "#fff", color: viewMode === "grid" ? "#fff" : "#000", cursor: "pointer", fontSize: 14 }}>⊞</button>
-            <button onClick={() => setViewMode("list")} style={{ padding: "8px 12px", border: "none", background: viewMode === "list" ? "#000" : "#fff", color: viewMode === "list" ? "#fff" : "#000", cursor: "pointer", fontSize: 14 }}>☰</button>
+            <button onClick={() => setViewMode("grid")} style={{ padding: "8px 10px", border: "none", background: viewMode === "grid" ? "#000" : "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <img src={ICONS.grid} alt="Grid" style={{ width: 18, height: 18, objectFit: "contain", filter: viewMode === "grid" ? "invert(1)" : "none" }} />
+            </button>
+            <button onClick={() => setViewMode("list")} style={{ padding: "8px 10px", border: "none", background: viewMode === "list" ? "#000" : "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <img src={ICONS.list} alt="List" style={{ width: 18, height: 18, objectFit: "contain", filter: viewMode === "list" ? "invert(1)" : "none" }} />
+            </button>
           </div>
         </div>
       </div>
@@ -2322,31 +2352,89 @@ export default function App() {
   const [filterZone, setFilterZone] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [loaded, setLoaded] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
-    Promise.all([loadData("garden_plants"), loadData("frost_dates"), loadData("user_plant_db"), loadData("seed_library")]).then(([p, f, db, sl]) => {
-      if (p) setPlants(p);
-      if (f) setFrostDates(f);
-      if (sl) setSeeds(sl);
-      if (db) {
-        setUserDB(db);
-      } else {
-        const seeded = PLANT_DB.map(p => ({ ...p, addedAt: new Date().toISOString(), seeded: true }));
-        setUserDB(seeded);
-        saveData("user_plant_db", seeded);
+    async function loadAll() {
+      setSyncing(true);
+      try {
+        // Plants — try Supabase first, fall back to localStorage
+        const [dbPlants, dbSeeds, f, db, sl, savedZones] = await Promise.all([
+          dbLoadPlants(),
+          dbLoadSeeds(),
+          loadData("frost_dates"),
+          loadData("user_plant_db"),
+          null, // seeds come from Supabase
+          loadData("garden_zones"),
+        ]);
+
+        // Plants
+        if (dbPlants && dbPlants.length > 0) {
+          setPlants(dbPlants);
+          // Sync to localStorage as backup
+          localStorage.setItem("garden_plants", JSON.stringify(dbPlants));
+        } else {
+          // Fall back to localStorage
+          const localPlants = await loadData("garden_plants");
+          if (localPlants && localPlants.length > 0) {
+            setPlants(localPlants);
+            // Migrate up to Supabase
+            await dbSavePlants(localPlants);
+          }
+        }
+
+        // Seeds
+        if (dbSeeds && dbSeeds.length > 0) {
+          setSeeds(dbSeeds);
+          localStorage.setItem("seed_library", JSON.stringify(dbSeeds));
+        } else {
+          const localSeeds = await loadData("seed_library");
+          if (localSeeds && localSeeds.length > 0) {
+            setSeeds(localSeeds);
+            await dbSaveSeeds(localSeeds);
+          }
+        }
+
+        // Other data (frost, userDB, zones) — still use Supabase via dbSave
+        if (f) setFrostDates(f);
+        if (savedZones && savedZones.length > 0) setZones(savedZones);
+        if (db) {
+          setUserDB(db);
+        } else {
+          const seeded = PLANT_DB.map(p => ({ ...p, addedAt: new Date().toISOString(), seeded: true }));
+          setUserDB(seeded);
+          saveData("user_plant_db", seeded);
+        }
+      } catch (e) {
+        console.error("Load error:", e);
+        // Full localStorage fallback
+        const [p, f, db, sl] = await Promise.all([
+          loadData("garden_plants"), loadData("frost_dates"),
+          loadData("user_plant_db"), loadData("seed_library")
+        ]);
+        if (p) setPlants(p);
+        if (f) setFrostDates(f);
+        if (sl) setSeeds(sl);
+        if (db) setUserDB(db);
       }
+      setSyncing(false);
       setLoaded(true);
-    });
-    // Load zones separately
-    loadData("garden_zones").then(savedZones => {
-      if (savedZones && savedZones.length > 0) setZones(savedZones);
-    });
+    }
+    loadAll();
   }, []);
 
-  async function savePlants(p) { setPlants(p); await saveData("garden_plants", p); }
+  async function savePlants(p) {
+    setPlants(p);
+    localStorage.setItem("garden_plants", JSON.stringify(p));
+    await dbSavePlants(p);
+  }
   async function saveFrost(f) { setFrostDates(f); await saveData("frost_dates", f); }
   async function saveUserDB(db) { setUserDB(db); await saveData("user_plant_db", db); }
-  async function saveSeeds(s) { setSeeds(s); await saveData("seed_library", s); }
+  async function saveSeeds(s) {
+    setSeeds(s);
+    localStorage.setItem("seed_library", JSON.stringify(s));
+    await dbSaveSeeds(s);
+  }
   async function saveZones(z) { setZones(z); await saveData("garden_zones", z); }
 
   function handleAdd(plant) {
@@ -2419,10 +2507,10 @@ export default function App() {
   );
 
   const NAV_TABS = [
-    { id: "garden", label: "Garden", icon: "🌱" },
-    { id: "seeds", label: "Seeds", icon: "🌰" },
-    { id: "calendar", label: "Calendar", icon: "📅" },
-    { id: "harvest", label: "Harvest", icon: "🧺" },
+    { id: "garden",   label: "My Garden", icon: ICONS.garden   },
+    { id: "seeds",    label: "Seeds",     icon: ICONS.seeds    },
+    { id: "calendar", label: "Calendar",  icon: ICONS.calendar },
+    { id: "harvest",  label: "Harvest",   icon: ICONS.harvest  },
   ];
 
   return (
@@ -2431,8 +2519,9 @@ export default function App() {
       {/* ── Header ── */}
       <div style={{ background: "#fff", borderBottom: "1px solid #eee", padding: "14px 16px 10px", position: "sticky", top: 0, zIndex: 50 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-          <div style={{ fontWeight: 900, fontSize: 32, letterSpacing: -1, color: "#000", lineHeight: 1 }}>Dirt Rich</div>
+          <img src={ICONS.logo} alt="Dirt Rich" style={{ height: 36, objectFit: "contain" }} />
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {syncing && <span style={{ fontSize: 11, color: "#888" }}>syncing...</span>}
             {(!lastBackup || daysSince(lastBackup) >= 3) && (
               <span style={{ fontSize: 16 }} title="Backup overdue">⚠️</span>
             )}
@@ -2519,9 +2608,9 @@ export default function App() {
       <nav style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 600, background: "#fff", borderTop: "1px solid #eee", display: "flex", zIndex: 100, paddingBottom: "env(safe-area-inset-bottom)" }}>
         {NAV_TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)} className="nav-tab" style={{ flex: 1, border: "none", background: "none", cursor: "pointer", padding: "10px 4px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-            <span style={{ fontSize: 20 }}>{t.icon}</span>
-            <span style={{ fontSize: 10, fontWeight: tab === t.id ? 700 : 500, color: tab === t.id ? "#5c3d1e" : "#aaa", letterSpacing: 0.2 }}>{t.label}</span>
-            {tab === t.id && <div style={{ width: 20, height: 2, background: "#5c3d1e", borderRadius: 2 }} />}
+            <img src={t.icon} alt={t.label} style={{ width: 24, height: 24, objectFit: "contain", opacity: tab === t.id ? 1 : 0.4 }} />
+            <span style={{ fontSize: 10, fontWeight: tab === t.id ? 700 : 500, color: tab === t.id ? "#000" : "#aaa", letterSpacing: 0.2 }}>{t.label}</span>
+            {tab === t.id && <div style={{ width: 20, height: 2, background: "#a8e063", borderRadius: 2 }} />}
           </button>
         ))}
       </nav>
