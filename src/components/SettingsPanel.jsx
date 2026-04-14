@@ -3,7 +3,39 @@ import { ICONS, STATUSES, STATUS_COLORS, CARE_TYPES, CARE_ICONS, PLANT_DB, COMPA
 import { generateId, daysUntil, daysSince, formatDate, calcHarvestDate, getAutoIcon } from "../utils.js";
 import { Modal } from "./Modal.jsx";
 import { CTAButton } from "./CTAButton.jsx";
-import { FrostModal } from "./FrostModal.jsx";
+
+function FrostSection({ frostDates, onSave }) {
+  const [lastSpring, setLastSpring] = useState(frostDates.lastSpring || "");
+  const [firstFall, setFirstFall] = useState(frostDates.firstFall || "");
+  const [saved, setSaved] = useState(false);
+
+  function handleSave() {
+    onSave({ lastSpring, firstFall });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  }
+
+  return (
+    <div>
+      <p style={{ color: "#888", fontSize: 13, margin: "0 0 20px" }}>Set your local frost dates to track your growing season.</p>
+      <div style={{ marginBottom: 16 }}>
+        <label style={{ display: "block", fontWeight: 700, fontSize: 13, marginBottom: 6 }}>Last Spring Frost</label>
+        <input type="date" value={lastSpring} onChange={e => setLastSpring(e.target.value)}
+          style={{ width: "100%", padding: "10px 12px", border: "2px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" }} />
+        <p style={{ color: "#aaa", fontSize: 12, marginTop: 4 }}>The last date frost typically occurs in spring.</p>
+      </div>
+      <div style={{ marginBottom: 24 }}>
+        <label style={{ display: "block", fontWeight: 700, fontSize: 13, marginBottom: 6 }}>First Fall Frost</label>
+        <input type="date" value={firstFall} onChange={e => setFirstFall(e.target.value)}
+          style={{ width: "100%", padding: "10px 12px", border: "2px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" }} />
+        <p style={{ color: "#aaa", fontSize: 12, marginTop: 4 }}>The first date frost typically occurs in fall.</p>
+      </div>
+      <CTAButton onClick={handleSave} style={{ padding: "11px", fontSize: 14 }}>
+        {saved ? "✓ Saved!" : "Save Dates"}
+      </CTAButton>
+    </div>
+  );
+}
 
 function SettingsPanel({ onClose, zones, onSaveZones, frostDates, onSaveFrost, plants, seeds, lastBackup, daysSince, onExport, onImport, importError, importSuccess }) {
   const [editingZone, setEditingZone] = useState(null);
@@ -148,7 +180,7 @@ function SettingsPanel({ onClose, zones, onSaveZones, frostDates, onSaveFrost, p
 
           {/* ── Frost Dates ── */}
           {activeSection === "frost" && (
-            <FrostModal frostDates={frostDates} onSave={onSaveFrost} onClose={() => {}} inline />
+            <FrostSection frostDates={frostDates} onSave={onSaveFrost} />
           )}
 
           {/* ── Backup ── */}
