@@ -468,8 +468,9 @@ function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill }) {
   );
 }
 
-function EditPlantModal({ plant, onSave, onClose }) {
+function EditPlantModal({ plant, onSave, onClose, onDelete }) {
   const [form, setForm] = useState({ ...plant });
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [selectedIcon, setSelectedIcon] = useState(
     plant.imageUrl ? ICON_LIBRARY.find(i => i.url === plant.imageUrl) || { name: "Custom", url: plant.imageUrl } : null
   );
@@ -530,6 +531,29 @@ function EditPlantModal({ plant, onSave, onClose }) {
         <button onClick={onClose} style={{ padding: "10px 20px", border: "1.5px solid #ccc", borderRadius: 10, background: "#fff", cursor: "pointer", fontSize: 14 }}>Cancel</button>
         <CTAButton onClick={handleSubmit} style={{ padding: "11px 24px", fontSize: 14 }}>Save Changes</CTAButton>
       </div>
+
+      {/* Delete zone — at the bottom, separated */}
+      {onDelete && (
+        <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #f0f0f0" }}>
+          {confirmDelete ? (
+            <div style={{ background: "#fdecea", border: "2px solid #c0392b", borderRadius: 12, padding: 16, textAlign: "center" }}>
+              <div style={{ fontWeight: 700, fontSize: 15, color: "#c0392b", marginBottom: 8 }}>Delete {plant.name}?</div>
+              <div style={{ fontSize: 13, color: "#888", marginBottom: 14 }}>This can't be undone.</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => onDelete(plant.id)}
+                  style={{ flex: 1, padding: "10px", background: "#c0392b", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 700 }}>Yes, delete</button>
+                <button onClick={() => setConfirmDelete(false)}
+                  style={{ flex: 1, padding: "10px", background: "#fff", border: "1.5px solid #ccc", borderRadius: 10, cursor: "pointer", fontSize: 14 }}>Cancel</button>
+              </div>
+            </div>
+          ) : (
+            <button onClick={() => setConfirmDelete(true)}
+              style={{ width: "100%", padding: "11px", background: "none", border: "1.5px solid #e0e0e0", borderRadius: 12, cursor: "pointer", fontSize: 14, color: "#c0392b", fontWeight: 600 }}>
+              🗑 Delete Plant
+            </button>
+          )}
+        </div>
+      )}
     </Modal>
   );
 }
@@ -644,13 +668,27 @@ function CareLogModal({ plant, onSave, onClose, toast }) {
 // ─── Plant Detail Sheet ───────────────────────────────────────────────────────
 function PlantDetailSheet({ plant, frostDates, onUpdate, onDelete, onClose, toast }) {
   const [showCompanions, setShowCompanions] = useState(false);
-  const [showCare, setShowCare] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [showStatusPicker, setShowStatusPicker] = useState(false);
   const [showEndModal, setShowEndModal] = useState(false);
   const [pendingStatus, setPendingStatus] = useState(null);
   const [newGood, setNewGood] = useState("");
   const [newBad, setNewBad] = useState("");
+  const [careType, setCareType] = useState("Watering");
+  const [careDate, setCareDate] = useState(new Date().toISOString().split("T")[0]);
+  const [careNote, setCareNote] = useState("");
+
+  function addCareEntry() {
+    const entry = { id: generateId(), type: careType, date: careDate, notes: careNote };
+    onUpdate({ ...plant, careLog: [...(plant.careLog || []), entry] });
+    setCareNote("");
+    const icons = { Watering: "💧", Fertilizing: "🌿", Pruning: "✂️", "Pest Treatment": "🐛", Observation: "👁" };
+    toast && toast(`${careType} logged`, { icon: icons[careType] || "✓" });
+  }
+
+  function deleteCareEntry(id) {
+    onUpdate({ ...plant, careLog: (plant.careLog || []).filter(e => e.id !== id) });
+  }
 
   const statusObj = STATUSES.find(s => s.label === plant.status) || STATUSES[0];
   const harvestDate = calcHarvestDate(plant.dateStarted, plant.dtm);
@@ -798,19 +836,59 @@ function PlantDetailSheet({ plant, frostDates, onUpdate, onDelete, onClose, toas
         </div>
       )}
 
-      {/* Care log button */}
-      <CTAButton onClick={() => setShowCare(true)} style={{ padding: 15, fontSize: 16, letterSpacing: 0.3, marginBottom: 24 }}>+ Log Care</CTAButton>
+      {/* ── Inline Care Log ── */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 12 }}>Care Log</div>
 
-      {/* Actions */}
-      <div style={{ display: "flex", gap: 8, paddingTop: 0 }}>
-        <button onClick={() => setShowEdit(true)}
-          style={{ flex: 1, padding: "10px", background: "#fff", border: "1.5px solid #e0e0e0", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>✏️ Edit</button>
-        <button onClick={() => { onDelete(plant.id); onClose(); toast && toast("Plant removed", { type: "warning", icon: "🗑" }); }}
-          style={{ flex: 1, padding: "10px", background: "#fff", border: "1.5px solid #e0e0e0", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 600, color: "#c0392b" }}>🗑 Remove</button>
+        {/* Quick log form */}
+        <div style={{ background: "#f5f5f3", borderRadius: 14, padding: 14, marginBottom: 12 }}>
+          <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+            <div style={{ flex: 1 }}>
+              <label style={lbl}>Type</label>
+              <select value={careType} onChange={e => setCareType(e.target.value)} style={{ ...sel, borderRadius: 10 }}>
+                {CARE_TYPES.map(t => <option key={t}>{t}</option>)}
+              </select>
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={lbl}>Date</label>
+              <input type="date" value={careDate} onChange={e => setCareDate(e.target.value)}
+                style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" }} />
+            </div>
+          </div>
+          <textarea placeholder="Notes (optional)..." value={careNote} onChange={e => setCareNote(e.target.value)}
+            style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit", minHeight: 60, resize: "vertical", marginBottom: 10 }} />
+          <CTAButton onClick={addCareEntry} style={{ padding: "11px", fontSize: 15 }}>+ Log Care</CTAButton>
+        </div>
+
+        {/* Care history */}
+        {(!plant.careLog || plant.careLog.length === 0) ? (
+          <p style={{ textAlign: "center", color: "#bbb", fontSize: 14, margin: "8px 0" }}>No care entries yet.</p>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+            {[...(plant.careLog || [])].reverse().map(entry => {
+              const icons = { Watering: "💧", Fertilizing: "🌿", Pruning: "✂️", "Pest Treatment": "🐛", Observation: "👁" };
+              return (
+                <div key={entry.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "10px 0", borderBottom: "1px solid #f0f0f0" }}>
+                  <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+                    <span style={{ fontSize: 16, marginTop: 1 }}>{icons[entry.type] || "✓"}</span>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 14 }}>{entry.type} <span style={{ color: "#888", fontWeight: 400, fontSize: 13 }}>· {formatDate(entry.date)}</span></div>
+                      {entry.notes && <div style={{ fontSize: 13, color: "#666", marginTop: 2 }}>{entry.notes}</div>}
+                    </div>
+                  </div>
+                  <button onClick={() => deleteCareEntry(entry.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ccc", fontSize: 18, flexShrink: 0 }}>×</button>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      {showEdit && <EditPlantModal plant={plant} onSave={updated => { onUpdate(updated); toast && toast(`${updated.name} updated`, { icon: "✏️" }); }} onClose={() => setShowEdit(false)} />}
-      {showCare && <CareLogModal plant={plant} onSave={updated => onUpdate(updated)} onClose={() => setShowCare(false)} toast={toast} />}
+      {/* Edit button only — delete moved to edit screen */}
+      <button onClick={() => setShowEdit(true)}
+        style={{ width: "100%", padding: "12px", background: "#fff", border: "2px solid #000", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 700 }}>✏️ Edit Plant</button>
+
+      {showEdit && <EditPlantModal plant={plant} onSave={updated => { onUpdate(updated); toast && toast(`${updated.name} updated`, { icon: "✏️" }); }} onClose={() => setShowEdit(false)} onDelete={id => { onDelete(id); onClose(); toast && toast("Plant removed", { type: "warning", icon: "🗑" }); }} />}
 
       {showEndModal && (
         <Modal onClose={() => setShowEndModal(false)} width={420}>
