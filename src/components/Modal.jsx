@@ -1,6 +1,13 @@
+import { useEffect } from "react";
 import { ICONS } from "../constants.js";
 
 export function Modal({ children, onClose, width = 560 }) {
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center", padding: 0 }}
       onClick={e => e.target === e.currentTarget && onClose()}>
