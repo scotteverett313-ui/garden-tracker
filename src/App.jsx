@@ -10,6 +10,7 @@ import { AddPlantModal } from "./components/AddPlantModal.jsx";
 import { DBSearchPicker } from "./components/DBSearchPicker.jsx";
 import { SeedScanPicker } from "./components/SeedScanPicker.jsx";
 import { SettingsPanel } from "./components/SettingsPanel.jsx";
+import { WelcomeScreen } from "./components/WelcomeScreen.jsx";
 import { GardenTab } from "./tabs/GardenTab.jsx";
 import { SeedLibraryTab } from "./tabs/SeedLibraryTab.jsx";
 import { CalendarTab } from "./tabs/CalendarTab.jsx";
@@ -41,6 +42,7 @@ export default function App() {
   const [lastBackup, setLastBackup] = useState(() => localStorage.getItem("last_backup_at") || null);
   const [loaded, setLoaded] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(() => !localStorage.getItem("dirt_rich_launched"));
 
   useEffect(() => {
     async function loadAll() {
@@ -110,10 +112,17 @@ export default function App() {
   }
 
   if (!loaded) return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh", gap: 12 }}>
-      <span style={{ fontSize: 40 }}>🌿</span>
-      <div style={{ color: "#888", fontSize: 15 }}>Loading your garden...</div>
-    </div>
+    <>
+      {showWelcome
+        ? <WelcomeScreen onDone={() => { localStorage.setItem("dirt_rich_launched", "1"); setShowWelcome(false); }} />
+        : (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh", gap: 12, background: "#faf6f0" }}>
+            <img src={ICONS.garden} alt="" style={{ width: 40, height: 40, objectFit: "contain", opacity: 0.4 }} />
+            <div style={{ color: "#aaa", fontSize: 14 }}>Loading your garden...</div>
+          </div>
+        )
+      }
+    </>
   );
 
   const NAV_TABS = [
