@@ -43,6 +43,15 @@ export default function App() {
   const [loaded, setLoaded] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [showWelcome, setShowWelcome] = useState(() => !localStorage.getItem("dirt_rich_launched"));
+  const [welcomeDone, setWelcomeDone] = useState(false);
+
+  function handleWelcomeDone() {
+    localStorage.setItem("dirt_rich_launched", "1");
+    setWelcomeDone(true);
+  }
+
+  // Show welcome until BOTH animation is done AND data is loaded
+  const stillShowingWelcome = showWelcome && (!welcomeDone || !loaded);
 
   useEffect(() => {
     async function loadAll() {
@@ -111,10 +120,10 @@ export default function App() {
     reader.readAsText(file); e.target.value = "";
   }
 
-  if (!loaded) return (
+  if (stillShowingWelcome || !loaded) return (
     <>
       {showWelcome
-        ? <WelcomeScreen onDone={() => { localStorage.setItem("dirt_rich_launched", "1"); setShowWelcome(false); }} />
+        ? <WelcomeScreen onDone={handleWelcomeDone} />
         : (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh", gap: 12, background: "#faf6f0" }}>
             <img src={ICONS.garden} alt="" style={{ width: 40, height: 40, objectFit: "contain", opacity: 0.4 }} />
