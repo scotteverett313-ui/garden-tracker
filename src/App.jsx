@@ -143,24 +143,26 @@ export default function App() {
 
   return (
     <div style={{ fontFamily: "system-ui, -apple-system, sans-serif", maxWidth: 600, margin: "0 auto", background: "#faf6f0", minHeight: "100vh", paddingBottom: 80 }}>
-      <div style={{ background: "#fff", borderBottom: "1px solid #eee", padding: "14px 16px 10px", position: "sticky", top: 0, zIndex: 50 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-          <img src={ICONS.logo} alt="Dirt Rich" style={{ height: 36, objectFit: "contain" }} />
+      <div style={{ background: "#fff", borderBottom: "1px solid #eee", padding: "14px 16px 14px", position: "sticky", top: 0, zIndex: 50 }}>
+
+        {/* Row 1 — Logo + Backup */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+          <img src={ICONS.logo} alt="Dirt Rich" style={{ height: 40, objectFit: "contain" }} />
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            {syncing && <span style={{ fontSize: 11, color: "#888" }}>syncing...</span>}
-            {(!lastBackup || daysSince(lastBackup) >= 3) && <span style={{ fontSize: 16 }}>⚠️</span>}
-            <button onClick={() => setShowSettings(true)} style={{ background: "#000", border: "none", borderRadius: 12, width: 40, height: 40, cursor: "pointer", fontSize: 20, display: "flex", alignItems: "center", justifyContent: "center" }}>⚙️</button>
+            {syncing && <span style={{ fontSize: 11, color: "#aaa" }}>syncing...</span>}
+            <div style={{ position: "relative", paddingBottom: 3 }}>
+              <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 999, zIndex: 0 }} />
+              <button onClick={() => setShowBackup(true)} className="btn-cta"
+                style={{ position: "relative", zIndex: 1, background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 999, padding: "8px 20px", cursor: "pointer", fontWeight: 800, fontSize: 14, fontFamily: "inherit" }}>
+                {(!lastBackup || daysSince(lastBackup) >= 3) ? "⚠️ Backup" : "Backup"}
+              </button>
+            </div>
+            <button onClick={() => setShowSettings(true)}
+              style={{ background: "#000", border: "none", borderRadius: 12, width: 40, height: 40, cursor: "pointer", fontSize: 20, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>⚙️</button>
           </div>
         </div>
-        {(!lastBackup || daysSince(lastBackup) >= 3) && plants.length > 0 && (
-          <button onClick={() => setShowBackup(true)} style={{ width: "100%", background: "#fff8e1", border: "2px solid #f0a500", borderRadius: 10, padding: "8px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, marginBottom: 8, textAlign: "left" }}>
-            <span style={{ fontSize: 16 }}>⚠️</span>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: "#92400e" }}>{!lastBackup ? "No backup yet" : `Last backup ${daysSince(lastBackup)} days ago`}</div>
-              <div style={{ fontSize: 11, color: "#b45309" }}>Tap to back up your {plants.length} plant{plants.length !== 1 ? "s" : ""}</div>
-            </div>
-          </button>
-        )}
+
+        {/* Row 2+3 — Frost progress bar */}
         {tab === "garden" && (() => {
           const today = new Date();
           const spring = frostDates.lastSpring ? new Date(frostDates.lastSpring) : null;
@@ -168,33 +170,30 @@ export default function App() {
           const totalDays = spring && fall ? (fall - spring) / (1000 * 60 * 60 * 24) : null;
           const daysPassed = spring ? Math.max(0, (today - spring) / (1000 * 60 * 60 * 24)) : null;
           const progress = totalDays && daysPassed !== null ? Math.min(100, Math.max(0, (daysPassed / totalDays) * 100)) : null;
-          const daysToFall = fall ? Math.ceil((fall - today) / (1000 * 60 * 60 * 24)) : null;
-          const inSeason = spring && fall && today >= spring && today <= fall;
+
+          if (!spring || !fall) return (
+            <button onClick={() => setShowSettings(true)}
+              style={{ width: "100%", background: "#f5f5f3", border: "1.5px dashed #ccc", borderRadius: 12, padding: "12px 14px", cursor: "pointer", textAlign: "center", color: "#aaa", fontSize: 13, fontWeight: 600 }}>
+              Set frost dates to track your season →
+            </button>
+          );
+
           return (
-            <button onClick={() => setShowFrost(true)} style={{ width: "100%", background: "#fdf0e0", border: "2px solid #000", borderRadius: 12, padding: "10px 14px", cursor: "pointer", textAlign: "left", boxSizing: "border-box" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: spring && fall ? 8 : 0 }}>
-                <div>
-                  <div style={{ fontSize: 10, color: "#888", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 2 }}>Growing Season</div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#000" }}>
-                    {spring && fall ? (inSeason ? (daysToFall > 0 ? `${daysToFall} days until fall frost` : "First fall frost today!") : (today < spring ? `${Math.ceil((spring - today) / (1000 * 60 * 60 * 24))}d until last frost` : "Season complete")) : "Tap to set frost dates →"}
-                  </div>
-                </div>
-                <div style={{ textAlign: "right", flexShrink: 0 }}>
-                  <div style={{ fontSize: 11, color: "#888" }}>{spring ? formatDate(frostDates.lastSpring) : "—"} → {fall ? formatDate(frostDates.firstFall) : "—"}</div>
-                  {inSeason && <span style={{ fontSize: 10, background: "#a8e063", color: "#000", fontWeight: 800, padding: "2px 8px", borderRadius: 10, marginTop: 2, display: "inline-block", border: "1px solid #000" }}>In season</span>}
-                </div>
+            <button onClick={() => setShowSettings(true)} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left" }}>
+              {/* Labels */}
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                <span style={{ fontSize: 11, fontWeight: 800, color: "#555", textTransform: "uppercase", letterSpacing: 0.5 }}>Last Spring Frost</span>
+                <span style={{ fontSize: 11, fontWeight: 800, color: "#555", textTransform: "uppercase", letterSpacing: 0.5 }}>First Fall Frost</span>
               </div>
-              {progress !== null && (
-                <>
-                  <div style={{ height: 8, background: "#e0d0c0", borderRadius: 4, overflow: "hidden" }}>
-                    <div style={{ height: "100%", width: `${progress}%`, background: "#5c3d1e", borderRadius: 4 }} />
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 3 }}>
-                    <span style={{ fontSize: 10, color: "#888" }}>❄️ {formatDate(frostDates.lastSpring)}</span>
-                    <span style={{ fontSize: 10, color: "#888" }}>{formatDate(frostDates.firstFall)} ❄️</span>
-                  </div>
-                </>
-              )}
+              {/* Dates + bar */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 17, fontWeight: 700, color: "#000", flexShrink: 0 }}>{formatDate(frostDates.lastSpring)}</span>
+                {/* Progress bar */}
+                <div style={{ flex: 1, height: 10, background: "#e8e8e8", borderRadius: 999, overflow: "hidden", border: "1.5px solid #ddd" }}>
+                  <div style={{ height: "100%", width: `${progress}%`, background: "#a8e063", borderRadius: 999, transition: "width 0.3s ease" }} />
+                </div>
+                <span style={{ fontSize: 17, fontWeight: 700, color: "#000", flexShrink: 0 }}>{formatDate(frostDates.firstFall)}</span>
+              </div>
             </button>
           );
         })()}
