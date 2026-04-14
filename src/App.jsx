@@ -180,19 +180,21 @@ export default function App() {
 
           return (
             <button onClick={() => setShowSettings(true)} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left" }}>
-              {/* Labels */}
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                <span style={{ fontSize: 11, fontWeight: 800, color: "#555", textTransform: "uppercase", letterSpacing: 0.5 }}>Last Spring Frost</span>
-                <span style={{ fontSize: 11, fontWeight: 800, color: "#555", textTransform: "uppercase", letterSpacing: 0.5 }}>First Fall Frost</span>
-              </div>
-              {/* Dates + bar */}
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 17, fontWeight: 700, color: "#000", flexShrink: 0 }}>{formatDate(frostDates.lastSpring)}</span>
+                {/* Left: label + date */}
+                <div style={{ flexShrink: 0 }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>Last Spring Frost</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "#000" }}>{formatDate(frostDates.lastSpring)}</div>
+                </div>
                 {/* Progress bar */}
                 <div style={{ flex: 1, height: 10, background: "#e8e8e8", borderRadius: 999, overflow: "hidden", border: "1.5px solid #ddd" }}>
                   <div style={{ height: "100%", width: `${progress}%`, background: "#a8e063", borderRadius: 999, transition: "width 0.3s ease" }} />
                 </div>
-                <span style={{ fontSize: 17, fontWeight: 700, color: "#000", flexShrink: 0 }}>{formatDate(frostDates.firstFall)}</span>
+                {/* Right: label + date */}
+                <div style={{ flexShrink: 0, textAlign: "right" }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>First Fall Frost</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "#000" }}>{formatDate(frostDates.firstFall)}</div>
+                </div>
               </div>
             </button>
           );
