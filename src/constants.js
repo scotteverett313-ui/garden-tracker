@@ -65,11 +65,27 @@ export const CARE_ICONS = { Watering: "💧", Fertilizing: "🌿", Pruning: "✂
 
 // ─── Pixel Art Icon Library ───────────────────────────────────────────────────
 export const ICON_LIBRARY = [
-  { name: "Tomato",    url: ASSET("Tomato.png"),    tags: ["tomato"] },
-  { name: "Carrot",    url: ASSET("Carrot.png"),    tags: ["carrot"] },
-  { name: "Eggplant",  url: ASSET("Eggplant.png"),  tags: ["eggplant", "aubergine"] },
-  { name: "Lettuce",   url: ASSET("Lettuce.png"),   tags: ["lettuce", "salad", "greens"] },
-  { name: "Sunflower", url: ASSET("Sunflower.png"), tags: ["sunflower", "flower"] },
+  { name: "Alyssum",     url: ASSET("Alyssum.png"),      tags: ["alyssum", "flower"] },
+  { name: "Artichoke",   url: ASSET("Artichoke.png"),    tags: ["artichoke"] },
+  { name: "Arugula",     url: ASSET("Arugula.png"),      tags: ["arugula", "rocket", "greens"] },
+  { name: "Basil",       url: ASSET("Basil.png"),        tags: ["basil", "herb"] },
+  { name: "Bell Pepper", url: ASSET("Bell Pepper.png"),  tags: ["pepper", "bell pepper", "capsicum"] },
+  { name: "Broccoli",    url: ASSET("Broccoli.png"),     tags: ["broccoli"] },
+  { name: "Calendula",   url: ASSET("Calendula.png"),    tags: ["calendula", "flower"] },
+  { name: "Carrot",      url: ASSET("Carrot.png"),       tags: ["carrot"] },
+  { name: "Cauliflower", url: ASSET("Cauliflower.png"),  tags: ["cauliflower"] },
+  { name: "Chives",      url: ASSET("Chives.png"),       tags: ["chives", "herb"] },
+  { name: "Cilantro",    url: ASSET("Cilantro.png"),     tags: ["cilantro", "coriander", "herb"] },
+  { name: "Cosmos",      url: ASSET("Cosmos.png"),       tags: ["cosmos", "flower"] },
+  { name: "Eggplant",    url: ASSET("Eggplant.png"),     tags: ["eggplant", "aubergine"] },
+  { name: "Hot Pepper",  url: ASSET("Hot Pepper.png"),   tags: ["pepper", "hot pepper", "chili"] },
+  { name: "Kohlrabi",    url: ASSET("Kohlrabi.png"),     tags: ["kohlrabi"] },
+  { name: "Lettuce",     url: ASSET("Lettuce.png"),      tags: ["lettuce", "salad", "greens"] },
+  { name: "Okra",        url: ASSET("Okra.png"),         tags: ["okra"] },
+  { name: "Spinach",     url: ASSET("Spinach.png"),      tags: ["spinach", "greens"] },
+  { name: "Sunflower",   url: ASSET("Sunflower.png"),    tags: ["sunflower", "flower"] },
+  { name: "Tomato",      url: ASSET("Tomato.png"),       tags: ["tomato"] },
+  { name: "Zinna",       url: ASSET("Zinna.png"),        tags: ["zinnia", "zinna", "flower"] },
 ];
 
 // ─── Plant Database ───────────────────────────────────────────────────────────
