@@ -1,21 +1,33 @@
 // ─── Asset URLs ───────────────────────────────────────────────────────────────
-const ASSET = (f) => `https://raw.githubusercontent.com/scotteverett313-ui/dirt-rich-assets/main/${f}`;
+const ASSET = (f) => `/icons/${f}`;
 
 export const ICONS = {
-  logo:      ASSET("logo-dirtrich.png"),
-  garden:    ASSET("icon-seedling.png"),
-  seeds:     ASSET("icon-seed.png"),
-  calendar:  ASSET("icon-calender.png"),
-  harvest:   ASSET("icon-harvest.png"),
-  favorite:  ASSET("icon-favorite.png"),
-  favActive: ASSET("icon-favorites-2.png"),
-  exit:      ASSET("icon-exit.png"),
-  menu:      ASSET("icon-menu.png"),
-  grid:      ASSET("icon-toggle-grid.png"),
-  list:      ASSET("icon-toggle-row.png"),
-  sun:       ASSET("icon-sun.png"),
-  water:     ASSET("icon-water.png"),
-  house:     ASSET("icon-house.png"),
+  logo:          ASSET("Logo-dirtrich.png"),
+  garden:        ASSET("Icon-seedling.png"),
+  seeds:         ASSET("Icon-seed.png"),
+  calendar:      ASSET("Icon-Calender.png"),
+  harvest:       ASSET("Icon-Harvest.png"),
+  favorite:      ASSET("Icon-Favorite.png"),
+  favActive:     ASSET("icon-favorites-2.png"),
+  exit:          ASSET("Icon-Exit.png"),
+  menu:          ASSET("Icon-Menu.png"),
+  grid:          ASSET("Icon-Toggle-Grid.png"),
+  list:          ASSET("Icon-Toggle-Row.png"),
+  sun:           ASSET("Icon-Sun.png"),
+  water:         ASSET("Icon-Water.png"),
+  house:         ASSET("Icon-House.png"),
+  settings:      ASSET("Icon-Settings.png"),
+  seedlingGreen: ASSET("Icon-seedlinggreen.png"),
+  germinating:   ASSET("Icon-germinating.png"),
+  growing:       ASSET("Icon-growing.png"),
+  flowering:     ASSET("Icon-flowering.png"),
+  fruiting:      ASSET("Icon-Fruiting.png"),
+  harvesting:    ASSET("Icon- Harvesting.png"),
+  harvested:     ASSET("Icon-harvested.png"),
+  transplanted:  ASSET("Icon-Transplanted.png"),
+  dormant:       ASSET("Icon-dormant.png"),
+  overwintering: ASSET("Icon-Overwintering.png"),
+  dead:          ASSET("Icon-Dead.png"),
 };
 
 // ─── Shared styles ────────────────────────────────────────────────────────────
