@@ -105,14 +105,14 @@ function PlantDetailSheet({ plant, frostDates, onUpdate, onDelete, onClose, toas
         <div style={{ marginTop: 12, borderTop: "1px solid #e0e0e0", paddingTop: 12 }}>
           <button onClick={() => setShowStatusPicker(v => !v)} className="status-pill"
             style={{ display: "inline-flex", alignItems: "center", gap: 6, background: STATUS_COLORS[plant.status] || "#eee", border: "none", borderRadius: 20, padding: "5px 12px", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
-            {statusObj.icon} {plant.status} <span style={{ fontSize: 10, opacity: 0.6 }}>▾</span>
+            <img src={statusObj.img} alt={statusObj.label} style={{ width: 16, height: 16, objectFit: "contain" }} /> {plant.status} <span style={{ fontSize: 10, opacity: 0.6 }}>▾</span>
           </button>
           {showStatusPicker && (
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8, animation: "popIn 0.2s ease" }}>
               {STATUSES.map(s => (
                 <button key={s.label} onClick={() => updateStatus(s.label)} className="status-pill"
                   style={{ background: s.label === plant.status ? STATUS_COLORS[s.label] : "#fff", border: `1px solid ${s.label === plant.status ? "#bbb" : "#e0e0e0"}`, borderRadius: 20, padding: "4px 10px", cursor: "pointer", fontSize: 12, fontWeight: s.label === plant.status ? 700 : 400 }}>
-                  {s.icon} {s.label}
+                  <img src={s.img} alt={s.label} style={{ width: 14, height: 14, objectFit: "contain", verticalAlign: "middle" }} /> {s.label}
                 </button>
               ))}
             </div>

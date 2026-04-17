@@ -45,12 +45,17 @@ export const DEFAULT_ZONES = [
 
 // ─── Statuses ─────────────────────────────────────────────────────────────────
 export const STATUSES = [
-  { label: "Seed",        icon: "🌰" }, { label: "Germinating", icon: "🌱" },
-  { label: "Seedling",    icon: "🌿" }, { label: "Transplanted",icon: "🪴" },
-  { label: "Growing",     icon: "🌾" }, { label: "Flowering",   icon: "🌸" },
-  { label: "Fruiting",    icon: "🍅" }, { label: "Harvesting",  icon: "🧺" },
-  { label: "Dormant",     icon: "💤" }, { label: "Harvested",   icon: "✅" },
-  { label: "Dead",        icon: "🪦" },
+  { label: "Seed",         icon: "🌰", img: ASSET("Icon-seed.png") },
+  { label: "Germinating",  icon: "🌱", img: ASSET("Icon-germinating.png") },
+  { label: "Seedling",     icon: "🌿", img: ASSET("Icon-seedling.png") },
+  { label: "Transplanted", icon: "🪴", img: ASSET("Icon-Transplanted.png") },
+  { label: "Growing",      icon: "🌾", img: ASSET("Icon-growing.png") },
+  { label: "Flowering",    icon: "🌸", img: ASSET("Icon-flowering.png") },
+  { label: "Fruiting",     icon: "🍅", img: ASSET("Icon-Fruiting.png") },
+  { label: "Harvesting",   icon: "🧺", img: ASSET("Icon- Harvesting.png") },
+  { label: "Dormant",      icon: "💤", img: ASSET("Icon-dormant.png") },
+  { label: "Harvested",    icon: "✅", img: ASSET("Icon-harvested.png") },
+  { label: "Dead",         icon: "🪦", img: ASSET("Icon-Dead.png") },
 ];
 
 export const STATUS_COLORS = {

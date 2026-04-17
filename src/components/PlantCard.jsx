@@ -40,13 +40,13 @@ function PlantGridCard({ plant, onTap }) {
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: 80, marginBottom: 10 }}>
           {imageUrl
             ? <img src={imageUrl} alt={plant.name} style={{ width: 70, height: 70, objectFit: "contain", imageRendering: "pixelated" }} />
-            : <span style={{ fontSize: 52 }}>{statusObj.icon}</span>
+            : <img src={statusObj.img} alt={statusObj.label} style={{ width: 52, height: 52, objectFit: "contain" }} />
           }
         </div>
 
         {/* Row 3 — Status icon + plant name */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-          <span style={{ fontSize: 14 }}>{statusObj.icon}</span>
+          <img src={statusObj.img} alt={statusObj.label} style={{ width: 16, height: 16, objectFit: "contain" }} />
           <span style={{ fontWeight: 800, fontSize: 15, color: "#000", lineHeight: 1.2 }}>{plant.name}</span>
         </div>
 
@@ -70,7 +70,7 @@ function PlantListCard({ plant, onTap }) {
       <div style={{ width: 48, height: 48, background: "#f5f5f3", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" }}>
         {plant.imageUrl || getAutoIcon(plant.name)
           ? <img src={plant.imageUrl || getAutoIcon(plant.name)?.url} alt={plant.name} style={{ width: "100%", height: "100%", objectFit: "contain", imageRendering: "pixelated" }} />
-          : <span style={{ fontSize: 24 }}>{statusObj.icon}</span>
+          : <img src={statusObj.img} alt={statusObj.label} style={{ width: 32, height: 32, objectFit: "contain" }} />
         }
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>

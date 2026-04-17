@@ -100,7 +100,7 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
               <div style={{ width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 {imageUrl
                   ? <img src={imageUrl} alt={plant.name} style={{ width: 44, height: 44, objectFit: "contain", imageRendering: "pixelated" }} />
-                  : <span style={{ fontSize: 28 }}>{statusObj.icon}</span>}
+                  : <img src={statusObj.img} alt={statusObj.label} style={{ width: 36, height: 36, objectFit: "contain" }} />}
               </div>
               <div style={{ minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
