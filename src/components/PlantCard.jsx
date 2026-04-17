@@ -20,7 +20,7 @@ function PlantGridCard({ plant, onTap }) {
       <button onClick={onTap} className="plant-card" style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: 16, padding: 12, cursor: "pointer", textAlign: "left", width: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: 0 }}>
 
         {/* Row 1 — Harvest info + menu button */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
           <div>
             <div style={{ fontWeight: 700, fontSize: 12, color: "#000" }}>
               {daysLeft !== null ? (daysLeft <= 0 ? "🎉 Ready!" : "Harvest in:") : "Started:"}
@@ -32,9 +32,24 @@ function PlantGridCard({ plant, onTap }) {
             </div>
           </div>
           <div style={{ width: 32, height: 32, border: "1.5px solid #e0e0e0", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <img src={ICONS.menu} alt="Menu" style={{ width: 16, height: 16, objectFit: "contain" }} />
+            <img src={ICONS.menu} alt="Menu" style={{ width: 16, height: 16, objectFit: "contain" }} />
+          </div>
         </div>
-        </div>
+
+        {/* Harvest progress bar */}
+        {plant.dateStarted && plant.dtm && !isDone && (
+          <div style={{ marginBottom: 10 }}>
+            <div style={{ height: 4, background: "#f0f0f0", borderRadius: 999, overflow: "hidden" }}>
+              <div style={{
+                height: "100%",
+                width: `${Math.min(100, Math.max(0, (daysSince(plant.dateStarted) / parseInt(plant.dtm)) * 100))}%`,
+                background: daysLeft !== null && daysLeft <= 0 ? "#2d8a3f" : daysLeft !== null && daysLeft <= 14 ? "#c0392b" : "#a8e063",
+                borderRadius: 999,
+                transition: "width 0.3s ease",
+              }} />
+            </div>
+          </div>
+        )}
 
         {/* Row 2 — Pixel art image centered */}
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: 80, marginBottom: 10 }}>
@@ -82,6 +97,9 @@ function PlantListCard({ plant, onTap }) {
           </div>
         )}
       </div>
+      <span style={{ background: STATUS_COLORS[plant.status] || "#eee", borderRadius: 12, padding: "2px 8px", fontSize: 11, fontWeight: 600, color: "#555", flexShrink: 0, whiteSpace: "nowrap" }}>
+        {plant.status}
+      </span>
       <span style={{ fontSize: 12, color: "#888" }}>›</span>
     </button>
   );

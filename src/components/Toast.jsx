@@ -8,9 +8,17 @@ export function Toast({ toasts }) {
           display: "flex", alignItems: "center", gap: 10,
           boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
           animation: "slideUp 0.25s ease",
+          pointerEvents: t.action ? "auto" : "none",
         }}>
           <span style={{ fontSize: 18 }}>{t.type === "error" ? "⚠️" : t.type === "warning" ? "⚡" : t.icon || "✓"}</span>
-          <span>{t.message}</span>
+          <span style={{ flex: 1 }}>{t.message}</span>
+          {t.action && (
+            <button
+              onClick={() => { t.action.onClick(); t.action.dismiss(); }}
+              style={{ background: "rgba(255,255,255,0.25)", border: "1.5px solid rgba(255,255,255,0.6)", borderRadius: 8, padding: "4px 12px", cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#fff", flexShrink: 0 }}>
+              {t.action.label}
+            </button>
+          )}
         </div>
       ))}
       <style>{`

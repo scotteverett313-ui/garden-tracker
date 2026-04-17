@@ -6,7 +6,7 @@ import { CTAButton } from "./CTAButton.jsx";
 import { IconPicker } from "./IconPicker.jsx";
 import { EditPlantModal } from "./EditPlantModal.jsx";
 
-function PlantDetailSheet({ plant, frostDates, onUpdate, onDelete, onClose, toast }) {
+function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClose, toast }) {
   const [showCompanions, setShowCompanions] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [showStatusPicker, setShowStatusPicker] = useState(false);
@@ -229,7 +229,7 @@ function PlantDetailSheet({ plant, frostDates, onUpdate, onDelete, onClose, toas
       <button onClick={() => setShowEdit(true)}
         style={{ width: "100%", padding: "12px", background: "#fff", border: "2px solid #000", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 700 }}>✏️ Edit Plant</button>
 
-      {showEdit && <EditPlantModal plant={plant} onSave={updated => { onUpdate(updated); toast && toast(`${updated.name} updated`, { icon: "✏️" }); }} onClose={() => setShowEdit(false)} onDelete={id => { onDelete(id); onClose(); toast && toast("Plant removed", { type: "warning", icon: "🗑" }); }} />}
+      {showEdit && <EditPlantModal plant={plant} zones={zones} onSave={updated => { onUpdate(updated); toast && toast(`${updated.name} updated`, { icon: "✏️" }); }} onClose={() => setShowEdit(false)} onDelete={id => { onDelete(id); onClose(); toast && toast("Plant removed", { type: "warning", icon: "🗑" }); }} />}
 
       {showEndModal && (
         <Modal onClose={() => setShowEndModal(false)} width={420}>

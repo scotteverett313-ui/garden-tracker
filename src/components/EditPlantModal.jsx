@@ -5,7 +5,7 @@ import { Modal } from "./Modal.jsx";
 import { CTAButton } from "./CTAButton.jsx";
 import { IconPicker } from "./IconPicker.jsx";
 
-function EditPlantModal({ plant, onSave, onClose, onDelete }) {
+function EditPlantModal({ plant, onSave, onClose, onDelete, zones = DEFAULT_ZONES }) {
   const [form, setForm] = useState({ ...plant });
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [selectedIcon, setSelectedIcon] = useState(
@@ -48,7 +48,7 @@ function EditPlantModal({ plant, onSave, onClose, onDelete }) {
         </div>
         <div><label style={lbl}>Zone</label>
           <select value={form.zone} onChange={e => setForm(f => ({ ...f, zone: e.target.value }))} style={sel}>
-            {ZONES.map(z => <option key={z}>{z}</option>)}
+            {zones.map(z => <option key={z.id} value={z.name}>{z.name}</option>)}
           </select>
         </div>
         <div><label style={lbl}>Status</label>

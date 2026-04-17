@@ -80,7 +80,12 @@ export default function App() {
 
   function handleAdd(plant) { savePlants([...plants, plant]); toast(`${plant.name} added`, { icon: "🌱" }); }
   function handleUpdate(updated) { savePlants(plants.map(p => p.id === updated.id ? updated : p)); }
-  function handleDelete(id) { savePlants(plants.filter(p => p.id !== id)); toast("Plant removed", { type: "warning", icon: "🗑" }); }
+  function handleDelete(id) {
+    const deleted = plants.find(p => p.id === id);
+    const updated = plants.filter(p => p.id !== id);
+    savePlants(updated);
+    toast("Plant removed", { type: "warning", icon: "🗑", duration: 4000, action: { label: "Undo", onClick: () => savePlants([...updated, deleted]) } });
+  }
   function handleAddSeedToGarden(seed) { setPrefillPlant({ name: seed.name, variety: seed.variety, about: seed.about, water: seed.water, sun: seed.sun, dtm: seed.dtm }); setAddFlow("manual"); setShowAdd(true); }
   function openAddFlow() { setAddFlow("choose"); setShowAdd(true); setPrefillPlant(null); }
   function closeAdd() { setShowAdd(false); setAddFlow(null); setPrefillPlant(null); }
@@ -252,7 +257,7 @@ export default function App() {
       )}
 
       {showAdd && (addFlow === "manual" || addFlow === "transplant") && (
-        <AddPlantModal onAdd={handleAdd} onClose={closeAdd} userDB={userDB} onSaveUserDB={saveUserDB} prefill={prefillPlant} isTransplant={addFlow === "transplant"} />
+        <AddPlantModal onAdd={handleAdd} onClose={closeAdd} userDB={userDB} onSaveUserDB={saveUserDB} prefill={prefillPlant} isTransplant={addFlow === "transplant"} zones={zones} />
       )}
 
       {showSettings && (

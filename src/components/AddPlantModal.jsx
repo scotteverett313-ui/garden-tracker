@@ -7,14 +7,14 @@ import { IconPicker } from "./IconPicker.jsx";
 import { DBSearchPicker } from "./DBSearchPicker.jsx";
 import { SeedScanPicker } from "./SeedScanPicker.jsx";
 
-function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill }) {
+function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill, zones = DEFAULT_ZONES }) {
   const [form, setForm] = useState({
     name: prefill?.name || "",
     variety: prefill?.variety || "",
     about: prefill?.about || "",
     water: prefill?.water || "",
     sun: prefill?.sun || "",
-    zone: ZONES[0],
+    zone: zones[0]?.name || ZONES[0],
     status: "Seed",
     dateStarted: new Date().toISOString().split("T")[0],
     dtm: prefill?.dtm || "",
@@ -25,9 +25,11 @@ function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill }) {
   const [selectedIcon, setSelectedIcon] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
   const [showSugg, setShowSugg] = useState(false);
+  const [nameError, setNameError] = useState(false);
 
   function handleNameChange(val) {
     setForm(f => ({ ...f, name: val }));
+    if (val.trim()) setNameError(false);
     if (!selectedIcon) {
       const auto = getAutoIcon(val);
       if (auto) setForm(f => ({ ...f, imageUrl: auto.url }));
@@ -58,7 +60,7 @@ function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill }) {
   }
 
   function handleSubmit() {
-    if (!form.name.trim()) return;
+    if (!form.name.trim()) { setNameError(true); return; }
     const plant = { ...form, id: generateId(), companions: { good: [...(COMPANION_DB[form.name]?.good || [])], bad: [...(COMPANION_DB[form.name]?.bad || [])] }, careLog: [] };
     onAdd(plant);
     const inBuiltIn = PLANT_DB.find(p => p.name.toLowerCase() === form.name.toLowerCase());
@@ -83,7 +85,8 @@ function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill }) {
         <div style={{ position: "relative", paddingBottom: 3 }}>
           <label style={lbl}>Plant Name *</label>
           <input placeholder="e.g. Tomato" value={form.name} onChange={e => handleNameChange(e.target.value)}
-            style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #3a7a4a", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" }} />
+            style={{ width: "100%", padding: "10px 12px", border: `1.5px solid ${nameError ? "#c0392b" : "#3a7a4a"}`, borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" }} />
+          {nameError && <div style={{ fontSize: 12, color: "#c0392b", marginTop: 4, fontWeight: 600 }}>Plant name is required</div>}
           {showSugg && (
             <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "#fff", border: "1px solid #e0e0e0", borderRadius: 10, zIndex: 10, boxShadow: "0 4px 12px rgba(0,0,0,0.1)", maxHeight: 200, overflowY: "auto" }}>
               {suggestions.map(p => (
@@ -116,7 +119,7 @@ function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill }) {
         </div>
         <div><label style={lbl}>Zone *</label>
           <select value={form.zone} onChange={e => setForm(f => ({ ...f, zone: e.target.value }))} style={sel}>
-            {ZONES.map(z => <option key={z}>{z}</option>)}
+            {zones.map(z => <option key={z.id} value={z.name}>{z.name}</option>)}
           </select>
         </div>
         <div><label style={lbl}>Status</label>

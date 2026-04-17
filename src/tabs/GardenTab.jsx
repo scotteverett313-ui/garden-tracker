@@ -19,6 +19,8 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
     const matchFav = !favOnly || p.favorite;
     return matchSearch && matchZone && matchStatus && matchFav;
   });
+  const hasActiveFilters = !!(search || filterZone || filterStatus || favOnly);
+  const showEmptyState = hasActiveFilters && filtered.length === 0;
 
   return (
     <div>
@@ -56,13 +58,22 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
         </select>
       </div>
 
-      {(search || filterZone || filterStatus) && (
-        <button onClick={() => { setSearch(""); setFilterZone(""); setFilterStatus(""); }}
+      {hasActiveFilters && (
+        <button onClick={() => { setSearch(""); setFilterZone(""); setFilterStatus(""); setFavOnly(false); }}
           style={{ background: "#f0f0f0", border: "none", borderRadius: 8, padding: "5px 14px", cursor: "pointer", fontSize: 13, marginBottom: 14 }}>× Clear</button>
       )}
 
+      {/* Empty state when filters return no results */}
+      {showEmptyState && (
+        <div style={{ textAlign: "center", padding: "48px 20px" }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>🌱</div>
+          <div style={{ fontWeight: 800, fontSize: 17, color: "#444", marginBottom: 6 }}>No plants found</div>
+          <div style={{ fontSize: 14, color: "#aaa", marginBottom: 20 }}>Try adjusting your search or filters</div>
+        </div>
+      )}
+
       {/* Zone sections */}
-      {zones.map(zone => {
+      {!showEmptyState && zones.map(zone => {
         const zonePlants = filtered.filter(p => p.zone === zone.name);
         if (filterZone && filterZone !== zone.name) return null;
         const displayName = zone.name.replace(" Grow Station", "").replace("In-Ground Beds", "In-Ground");
@@ -100,6 +111,7 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
         <PlantDetailSheet
           plant={plants.find(p => p.id === selectedPlant.id) || selectedPlant}
           frostDates={frostDates}
+          zones={zones}
           onUpdate={updated => { onUpdate(updated); setSelectedPlant(updated); }}
           onDelete={id => { onDelete(id); setSelectedPlant(null); }}
           onClose={() => setSelectedPlant(null)}
