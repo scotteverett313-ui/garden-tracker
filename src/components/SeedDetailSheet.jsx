@@ -1,0 +1,208 @@
+import { useState } from "react";
+import { CALENDAR_DATA, MONTHS, lbl, sel } from "../constants.js";
+import { formatDate, getAutoIcon } from "../utils.js";
+import { Modal } from "./Modal.jsx";
+import { CTAButton } from "./CTAButton.jsx";
+
+function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onEdit }) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const calData = CALENDAR_DATA.find(c => c.name.toLowerCase() === seed.name?.toLowerCase());
+  const imageUrl = getAutoIcon(seed.name)?.url || null;
+
+  const currentYear = new Date().getFullYear();
+  const seedAge = seed.year ? currentYear - parseInt(seed.year) : null;
+  const freshness = seedAge === null ? null
+    : seedAge <= 1 ? { label: "Fresh", color: "#2d8a3f", bg: "#d4edda" }
+    : seedAge <= 3 ? { label: "Use soon", color: "#7d5a00", bg: "#fff3cd" }
+    : { label: "Check viability", color: "#c0392b", bg: "#fdecea" };
+
+  const hasPlantingGuide = seed.depth || seed.spacing || seed.startIndoors || seed.germDays;
+
+  return (
+    <Modal onClose={onClose}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 }}>
+        <div style={{ width: 26, flexShrink: 0 }} />
+        <div style={{ flex: 1, textAlign: "center" }}>
+          {imageUrl && (
+            <img src={imageUrl} alt={seed.name} style={{ width: 60, height: 60, objectFit: "contain", imageRendering: "pixelated", marginBottom: 6 }} />
+          )}
+          <h2 style={{ margin: "0 0 2px", fontSize: 24, fontWeight: 900, letterSpacing: -0.5 }}>{seed.name || "Unnamed"}</h2>
+          {seed.variety && <div style={{ color: "#888", fontSize: 15 }}>{seed.variety}</div>}
+          <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
+            {seed.brand && <span style={{ fontSize: 12, background: "#f0f0f0", borderRadius: 10, padding: "2px 9px", color: "#555" }}>{seed.brand}</span>}
+            {seed.source === "Scanned" && <span style={{ fontSize: 12, background: "#f0f8f0", borderRadius: 10, padding: "2px 9px", color: "#2d8a3f", fontWeight: 600 }}>✨ Scanned</span>}
+            {seed.started && <span style={{ fontSize: 12, background: "#a8e063", borderRadius: 10, padding: "2px 9px", color: "#000", fontWeight: 700, border: "1px solid #000" }}>✓ Started</span>}
+          </div>
+        </div>
+        <button onClick={() => onUpdate({ ...seed, bookmarked: !seed.bookmarked })}
+          style={{ background: "none", border: "none", cursor: "pointer", flexShrink: 0, padding: 0, lineHeight: 1, fontSize: 24 }}>
+          {seed.bookmarked ? "🔖" : "🏷️"}
+        </button>
+      </div>
+
+      {/* Packet Info */}
+      <div style={{ background: "#f5f5f3", borderRadius: 14, padding: 14, marginBottom: 14 }}>
+        <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 10 }}>Packet Info</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          {seed.year ? (
+            <div>
+              <div style={{ fontSize: 12, color: "#888" }}>Packet Year</div>
+              <div style={{ fontWeight: 700, fontSize: 14, display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                {seed.year}
+                {freshness && (
+                  <span style={{ fontSize: 11, background: freshness.bg, color: freshness.color, padding: "1px 7px", borderRadius: 10, fontWeight: 700 }}>
+                    {freshness.label}
+                  </span>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div>
+              <div style={{ fontSize: 12, color: "#888" }}>Packet Year</div>
+              <div style={{ fontSize: 13, color: "#bbb" }}>Not recorded</div>
+            </div>
+          )}
+          <div>
+            <div style={{ fontSize: 12, color: "#888" }}>Days to Maturity</div>
+            <div style={{ fontWeight: 700, fontSize: 14 }}>{seed.dtm ? `${seed.dtm} days` : "—"}</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 12, color: "#888" }}>☀️ Sun</div>
+            <div style={{ fontWeight: 700, fontSize: 14 }}>{seed.sun || "—"}</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 12, color: "#888" }}>💧 Water</div>
+            <div style={{ fontWeight: 700, fontSize: 14 }}>{seed.water || "—"}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Planting Guide */}
+      {hasPlantingGuide && (
+        <div style={{ background: "#f5f5f3", borderRadius: 14, padding: 14, marginBottom: 14 }}>
+          <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 10 }}>Planting Guide</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            {seed.depth && (
+              <div>
+                <div style={{ fontSize: 12, color: "#888" }}>Planting Depth</div>
+                <div style={{ fontWeight: 700, fontSize: 14 }}>{seed.depth}</div>
+              </div>
+            )}
+            {seed.spacing && (
+              <div>
+                <div style={{ fontSize: 12, color: "#888" }}>Spacing</div>
+                <div style={{ fontWeight: 700, fontSize: 14 }}>{seed.spacing}</div>
+              </div>
+            )}
+            {seed.startIndoors && (
+              <div>
+                <div style={{ fontSize: 12, color: "#888" }}>Start Indoors</div>
+                <div style={{ fontWeight: 700, fontSize: 14 }}>{seed.startIndoors} wks before last frost</div>
+              </div>
+            )}
+            {seed.germDays && (
+              <div>
+                <div style={{ fontSize: 12, color: "#888" }}>Germination</div>
+                <div style={{ fontWeight: 700, fontSize: 14 }}>{seed.germDays} days</div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* When to Sow */}
+      {calData && (
+        <div style={{ background: "#f5f5f3", borderRadius: 14, padding: 14, marginBottom: 14 }}>
+          <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 10 }}>When to Sow</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(12, 1fr)", gap: 3, marginBottom: 10 }}>
+            {MONTHS.map((m, i) => {
+              const mo = i + 1;
+              const isIndoors = calData.indoors?.includes(mo);
+              const isTransplant = calData.transplant?.includes(mo);
+              const isDirect = calData.direct?.includes(mo);
+              const bg = isIndoors ? "#c8e6f8" : isTransplant ? "#c8f0c8" : isDirect ? "#f5f0a8" : "#e8e8e8";
+              const label = isIndoors ? "In" : isTransplant ? "Tr" : isDirect ? "Di" : "";
+              return (
+                <div key={m} style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: 8, color: "#999", fontWeight: 700, marginBottom: 3, textTransform: "uppercase" }}>{m}</div>
+                  <div style={{ height: 22, background: bg, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, color: label ? "#444" : "#ccc" }}>
+                    {label || "·"}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+            {[{ color: "#c8e6f8", label: "Start indoors" }, { color: "#c8f0c8", label: "Transplant" }, { color: "#f5f0a8", label: "Direct sow" }].map(l => (
+              <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <div style={{ width: 10, height: 10, background: l.color, borderRadius: 2 }} />
+                <span style={{ fontSize: 11, color: "#666" }}>{l.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* About */}
+      {seed.about && (
+        <div style={{ background: "#f5f5f3", borderRadius: 12, padding: 14, fontSize: 14, color: "#555", lineHeight: 1.55, marginBottom: 14 }}>
+          {seed.about}
+        </div>
+      )}
+
+      {/* Notes */}
+      {seed.notes && (
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ fontWeight: 700, fontSize: 13, color: "#444", marginBottom: 4 }}>Notes</div>
+          <div style={{ fontSize: 13, color: "#666", lineHeight: 1.5 }}>{seed.notes}</div>
+        </div>
+      )}
+
+      {seed.addedAt && (
+        <div style={{ fontSize: 12, color: "#bbb", textAlign: "center", marginBottom: 18 }}>
+          Added {formatDate(seed.addedAt)}
+        </div>
+      )}
+
+      {/* Actions */}
+      <CTAButton onClick={() => { onAddToGarden(seed); onClose(); }} style={{ padding: "13px", fontSize: 15, marginBottom: 10 }}>
+        🌱 Add to Garden
+      </CTAButton>
+      <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+        <button onClick={() => onUpdate({ ...seed, started: !seed.started })}
+          style={{ flex: 1, padding: "10px", background: seed.started ? "#000" : "#fff", color: seed.started ? "#fff" : "#555", border: "2px solid #000", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 700 }}>
+          {seed.started ? "✓ Started" : "Mark Started"}
+        </button>
+        <button onClick={() => onEdit(seed)}
+          style={{ flex: 1, padding: "10px", background: "#fff", border: "2px solid #000", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 700 }}>
+          ✏️ Edit
+        </button>
+      </div>
+
+      {/* Delete */}
+      <div style={{ paddingTop: 4, borderTop: "1px solid #f0f0f0" }}>
+        {showDeleteConfirm ? (
+          <div style={{ background: "#fdecea", border: "2px solid #c0392b", borderRadius: 12, padding: 14, textAlign: "center", marginTop: 12 }}>
+            <div style={{ fontWeight: 700, fontSize: 15, color: "#c0392b", marginBottom: 6 }}>Remove {seed.name}?</div>
+            <div style={{ fontSize: 13, color: "#888", marginBottom: 12 }}>This can't be undone.</div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={() => { onDelete(seed.id); onClose(); }}
+                style={{ flex: 1, padding: "10px", background: "#c0392b", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 700 }}>Delete</button>
+              <button onClick={() => setShowDeleteConfirm(false)}
+                style={{ flex: 1, padding: "10px", background: "#fff", border: "1.5px solid #ccc", borderRadius: 10, cursor: "pointer", fontSize: 14 }}>Cancel</button>
+            </div>
+          </div>
+        ) : (
+          <button onClick={() => setShowDeleteConfirm(true)}
+            style={{ width: "100%", padding: "11px", background: "none", border: "1.5px solid #e0e0e0", borderRadius: 12, cursor: "pointer", fontSize: 14, color: "#c0392b", fontWeight: 600, marginTop: 8 }}>
+            🗑 Remove from Library
+          </button>
+        )}
+      </div>
+    </Modal>
+  );
+}
+
+export { SeedDetailSheet };
