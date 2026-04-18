@@ -37,16 +37,18 @@ function PlantGridCard({ plant, onTap }) {
         </div>
 
         {/* Harvest progress bar */}
-        {plant.dateStarted && plant.dtm && !isDone && (
+        {plant.dateStarted && !isDone && (
           <div style={{ marginBottom: 10 }}>
             <div style={{ height: 5, background: "#ebebeb", borderRadius: 999, overflow: "hidden" }}>
-              <div style={{
-                height: "100%",
-                width: `${Math.min(100, Math.max(2, (daysSince(plant.dateStarted) / parseInt(plant.dtm)) * 100))}%`,
-                background: daysLeft !== null && daysLeft <= 0 ? "#2d8a3f" : daysLeft !== null && daysLeft <= 14 ? "#c0392b" : "#a8e063",
-                borderRadius: 999,
-                transition: "width 0.3s ease",
-              }} />
+              {plant.dtm && (
+                <div style={{
+                  height: "100%",
+                  width: `${Math.min(100, Math.max(2, (daysSince(plant.dateStarted) / parseInt(plant.dtm)) * 100))}%`,
+                  background: daysLeft !== null && daysLeft <= 0 ? "#2d8a3f" : daysLeft !== null && daysLeft <= 14 ? "#c0392b" : "#a8e063",
+                  borderRadius: 999,
+                  transition: "width 0.3s ease",
+                }} />
+              )}
             </div>
           </div>
         )}
