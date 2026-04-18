@@ -243,39 +243,74 @@ Return ONLY the JSON, no other text.` });
           </div>
         )}
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 16 }}>
-          {SEED_FIELDS.map(field => (
-            <div key={field.key} style={{ gridColumn: field.type === "textarea" ? "1 / -1" : undefined }}>
-              <label style={lbl}>{field.label}</label>
-              {field.type === "select" ? (
-                <select value={form[field.key] || ""} onChange={e => setForm(f => ({ ...f, [field.key]: e.target.value }))} style={sel}>
-                  <option value="">Select...</option>
-                  {field.options.map(o => <option key={o}>{o}</option>)}
-                </select>
-              ) : field.type === "textarea" ? (
-                <textarea value={form[field.key] || ""} onChange={e => setForm(f => ({ ...f, [field.key]: e.target.value }))}
-                  style={{ width: "100%", padding: "9px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit", minHeight: 70, resize: "vertical" }} />
-              ) : (
-                <input type={field.type} value={form[field.key] || ""} onChange={e => setForm(f => ({ ...f, [field.key]: e.target.value }))}
-                  style={{ width: "100%", padding: "9px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" }} />
-              )}
-            </div>
-          ))}
-          {/* About field */}
-          <div style={{ gridColumn: "1 / -1" }}>
-            <label style={lbl}>About (from packet)</label>
-            <textarea value={form.about || ""} onChange={e => setForm(f => ({ ...f, about: e.target.value }))}
-              style={{ width: "100%", padding: "9px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit", minHeight: 70, resize: "vertical" }} />
-          </div>
-        </div>
+        {(() => {
+          const inp = { width: "100%", padding: "9px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" };
+          const ta = { ...inp, minHeight: 70, resize: "vertical" };
+          const field = (key, placeholder, type = "text") => (
+            <input type={type} value={form[key] || ""} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} placeholder={placeholder} style={inp} />
+          );
+          return (
+            <>
+              {/* Packet Info */}
+              <div style={{ background: "#f5f5f3", borderRadius: 14, padding: 14, marginBottom: 14 }}>
+                <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 12 }}>Packet Info</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <div style={{ gridColumn: "span 2" }}><label style={lbl}>Plant Name</label>{field("name", "e.g. Tomato")}</div>
+                  <div><label style={lbl}>Variety</label>{field("variety", "e.g. Cherokee Purple")}</div>
+                  <div><label style={lbl}>Brand / Company</label>{field("brand", "e.g. Burpee")}</div>
+                  <div><label style={lbl}>Packet Year</label>{field("year", new Date().getFullYear().toString(), "number")}</div>
+                  <div><label style={lbl}>Days to Maturity</label>{field("dtm", "e.g. 75", "number")}</div>
+                </div>
+              </div>
+
+              {/* Planting Guide */}
+              <div style={{ background: "#f5f5f3", borderRadius: 14, padding: 14, marginBottom: 14 }}>
+                <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 12 }}>Planting Guide</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <div><label style={lbl}>Planting Depth</label>{field("depth", "e.g. ¼ inch")}</div>
+                  <div><label style={lbl}>Spacing</label>{field("spacing", "e.g. 12 inches")}</div>
+                  <div><label style={lbl}>Start Indoors (wks)</label>{field("startIndoors", "wks before last frost", "number")}</div>
+                  <div><label style={lbl}>Germination Days</label>{field("germDays", "e.g. 7-14")}</div>
+                </div>
+              </div>
+
+              {/* Care */}
+              <div style={{ background: "#f5f5f3", borderRadius: 14, padding: 14, marginBottom: 14 }}>
+                <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 12 }}>Care Requirements</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <div><label style={lbl}>☀️ Sun</label>
+                    <select value={form.sun || ""} onChange={e => setForm(f => ({ ...f, sun: e.target.value }))} style={sel}>
+                      <option value="">Select...</option>
+                      {["Full Sun", "Partial Shade", "Full Shade"].map(o => <option key={o}>{o}</option>)}
+                    </select>
+                  </div>
+                  <div><label style={lbl}>💧 Water</label>
+                    <select value={form.water || ""} onChange={e => setForm(f => ({ ...f, water: e.target.value }))} style={sel}>
+                      <option value="">Select...</option>
+                      {["Low", "Moderate", "Regular", "High"].map(o => <option key={o}>{o}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div style={{ background: "#f5f5f3", borderRadius: 14, padding: 14, marginBottom: 14 }}>
+                <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 12 }}>Notes</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  <div><label style={lbl}>About (from packet)</label><textarea value={form.about || ""} onChange={e => setForm(f => ({ ...f, about: e.target.value }))} style={ta} /></div>
+                  <div><label style={lbl}>Additional Notes</label><textarea value={form.notes || ""} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} style={ta} /></div>
+                </div>
+              </div>
+            </>
+          );
+        })()}
 
         <div style={{ display: "flex", gap: 10 }}>
-          <button onClick={() => handleSave(form)}
-            style={{ flex: 1, padding: 13, background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 12, cursor: "pointer", fontSize: 15, fontWeight: 700 }}>
+          <CTAButton onClick={() => handleSave(form)} style={{ padding: "13px", fontSize: 15 }}>
             💾 Save to Seed Library
-          </button>
+          </CTAButton>
           <button onClick={() => { setView("library"); setEditingSeed(null); setScannedData(null); }}
-            style={{ padding: "13px 18px", background: "#fff", color: "#555", border: "1.5px solid #ddd", borderRadius: 12, cursor: "pointer", fontSize: 14 }}>
+            style={{ padding: "13px 18px", background: "#fff", color: "#555", border: "1.5px solid #ddd", borderRadius: 12, cursor: "pointer", fontSize: 14, flexShrink: 0 }}>
             Cancel
           </button>
         </div>

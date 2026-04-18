@@ -167,9 +167,11 @@ function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onE
       )}
 
       {/* Actions */}
-      <CTAButton onClick={() => { onAddToGarden(seed); onClose(); }} style={{ padding: "13px", fontSize: 15, marginBottom: 10 }}>
-        🌱 Add to Garden
-      </CTAButton>
+      <div style={{ marginBottom: 12 }}>
+        <CTAButton onClick={() => { onAddToGarden(seed); onClose(); }} style={{ padding: "13px", fontSize: 15 }}>
+          🌱 Add to Garden
+        </CTAButton>
+      </div>
       <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
         <button onClick={() => onUpdate({ ...seed, started: !seed.started })}
           style={{ flex: 1, padding: "10px", background: seed.started ? "#000" : "#fff", color: seed.started ? "#fff" : "#555", border: "2px solid #000", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 700 }}>
