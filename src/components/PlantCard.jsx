@@ -4,12 +4,24 @@ import { generateId, daysUntil, daysSince, formatDate, calcHarvestDate, getAutoI
 import { Modal } from "./Modal.jsx";
 import { CTAButton } from "./CTAButton.jsx";
 
+function lastWateredLabel(careLog) {
+  const entry = [...(careLog || [])].filter(e => e.type === "Watering").sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+  if (!entry) return null;
+  const d = daysSince(entry.date);
+  if (d === 0) return { label: "💧 today", color: "#2d8a3f" };
+  if (d === 1) return { label: "💧 yesterday", color: "#2d8a3f" };
+  if (d <= 3) return { label: `💧 ${d}d ago`, color: "#888" };
+  if (d <= 6) return { label: `💧 ${d}d ago`, color: "#d4820a" };
+  return { label: `💧 ${d}d ago`, color: "#c0392b" };
+}
+
 function PlantGridCard({ plant, onTap }) {
   const harvestDate = calcHarvestDate(plant.dateStarted, plant.dtm);
   const daysLeft = harvestDate ? daysUntil(harvestDate) : null;
   const isDone = plant.status === "Harvested" || plant.status === "Dead";
   const imageUrl = plant.imageUrl || getAutoIcon(plant.name)?.url || null;
   const statusObj = STATUSES.find(s => s.label === plant.status) || STATUSES[0];
+  const watered = lastWateredLabel(plant.careLog);
 
   return (
     // Offset shadow wrapper — paddingBottom gives shadow room so it doesn't bleed into next card
@@ -67,8 +79,11 @@ function PlantGridCard({ plant, onTap }) {
           <span style={{ fontWeight: 800, fontSize: 15, color: "#000", lineHeight: 1.2 }}>{plant.name}</span>
         </div>
 
-        {/* Row 4 — Variety */}
-        {plant.variety && <div style={{ fontSize: 12, color: "#666" }}>({plant.variety})</div>}
+        {/* Row 4 — Variety + last watered */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4 }}>
+          {plant.variety && <div style={{ fontSize: 12, color: "#666" }}>({plant.variety})</div>}
+          {watered && <div style={{ fontSize: 11, color: watered.color, fontWeight: 600, marginLeft: "auto" }}>{watered.label}</div>}
+        </div>
       </button>
     </div>
   );
@@ -81,6 +96,7 @@ function PlantListCard({ plant, onTap }) {
   const daysLeft = harvestDate ? daysUntil(harvestDate) : null;
   const statusObj = STATUSES.find(s => s.label === plant.status) || STATUSES[0];
   const isDone = plant.status === "Harvested" || plant.status === "Dead";
+  const watered = lastWateredLabel(plant.careLog);
 
   return (
     <button onClick={onTap} className="plant-card" style={{ background: "#fff", border: "2px solid #000", borderRadius: 14, padding: "12px 14px", cursor: "pointer", textAlign: "left", width: "100%", display: "flex", alignItems: "center", gap: 12, marginBottom: 8, opacity: isDone ? 0.5 : 1 }}>
@@ -93,11 +109,14 @@ function PlantListCard({ plant, onTap }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontWeight: 800, fontSize: 15 }}>{plant.name}</div>
         {plant.variety && <div style={{ fontSize: 12, color: "#888" }}>{plant.variety}</div>}
-        {daysLeft !== null && (
-          <div style={{ fontSize: 12, color: daysLeft <= 0 ? "#2d8a3f" : daysLeft <= 14 ? "#c0392b" : "#888", marginTop: 2, fontWeight: 600 }}>
-            {daysLeft <= 0 ? "🎉 Ready!" : `${daysLeft}d to harvest`}
-          </div>
-        )}
+        <div style={{ display: "flex", gap: 8, marginTop: 2, flexWrap: "wrap" }}>
+          {daysLeft !== null && (
+            <div style={{ fontSize: 12, color: daysLeft <= 0 ? "#2d8a3f" : daysLeft <= 14 ? "#c0392b" : "#888", fontWeight: 600 }}>
+              {daysLeft <= 0 ? "🎉 Ready!" : `${daysLeft}d to harvest`}
+            </div>
+          )}
+          {watered && <div style={{ fontSize: 12, color: watered.color, fontWeight: 600 }}>{watered.label}</div>}
+        </div>
       </div>
       <span style={{ background: STATUS_COLORS[plant.status] || "#eee", borderRadius: 12, padding: "2px 8px", fontSize: 11, fontWeight: 600, color: "#555", flexShrink: 0, whiteSpace: "nowrap" }}>
         {plant.status}
