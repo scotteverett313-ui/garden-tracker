@@ -135,7 +135,7 @@ export default function App() {
     reader.readAsText(file); e.target.value = "";
   }
 
-  function replayOnboarding() { localStorage.removeItem("onboarding_complete"); setShowOnboarding(true); setShowAuth(false); setShowSignup(false); }
+  function replayOnboarding() { localStorage.removeItem("onboarding_complete"); localStorage.removeItem("mock_user"); setUser(null); setShowOnboarding(true); setShowAuth(false); setShowSignup(false); }
   function finishOnboarding() { localStorage.setItem("onboarding_complete", "1"); setShowOnboarding(false); if (!user) setShowAuth(true); }
   function handleSignupDone({ user: u, openAdd }) {
     setUser(u); localStorage.setItem("mock_user", JSON.stringify(u));
