@@ -159,7 +159,7 @@ export function OnboardingScreen({ onDone }) {
 
   return (
     <div
-      style={{ position: "fixed", inset: 0, zIndex: 9998, background: "#fff", display: "flex", flexDirection: "column", overflow: "hidden", fontFamily: "system-ui, -apple-system, sans-serif" }}
+      style={{ position: "fixed", inset: 0, zIndex: 9998, background: "#fff", display: "flex", flexDirection: "column", overflow: "hidden", fontFamily: "'Cabin', system-ui, sans-serif" }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}

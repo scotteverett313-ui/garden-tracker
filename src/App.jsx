@@ -141,7 +141,7 @@ export default function App() {
   ];
 
   return (
-    <div style={{ fontFamily: "system-ui, -apple-system, sans-serif", maxWidth: 600, margin: "0 auto", background: "#faf6f0", minHeight: "100vh", paddingBottom: 80 }}>
+    <div style={{ fontFamily: "'Cabin', system-ui, sans-serif", maxWidth: 600, margin: "0 auto", background: "#faf6f0", minHeight: "100vh", paddingBottom: 80 }}>
       <div style={{ background: "#fff", borderBottom: "1px solid #eee", padding: "14px 16px 14px", position: "sticky", top: 0, zIndex: 50 }}>
 
         {/* Row 1 — Logo + Backup */}
