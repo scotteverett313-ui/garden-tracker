@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CTAButton } from "./CTAButton.jsx";
+import { callClaude } from "../claude.js";
 
 function SeedScanPicker({ onScanned }) {
   const [frontImg, setFrontImg] = useState(null);
@@ -24,16 +25,7 @@ function SeedScanPicker({ onScanned }) {
       if (frontImg) { content.push({ type: "image", source: { type: "base64", media_type: frontImg.type, data: await fileToBase64(frontImg) } }); content.push({ type: "text", text: "Front of seed packet." }); }
       if (backImg) { content.push({ type: "image", source: { type: "base64", media_type: backImg.type, data: await fileToBase64(backImg) } }); content.push({ type: "text", text: "Back of seed packet." }); }
       content.push({ type: "text", text: `Extract seed packet info. Return ONLY JSON: {"name":"","variety":"","brand":"","dtm":null,"depth":"","spacing":"","sun":"","water":"","startIndoors":null,"germDays":"","about":"","notes":""}` });
-      const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
-      if (!apiKey) throw new Error("No API key configured.");
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
-        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1000, messages: [{ role: "user", content }] }),
-      });
-      if (!res.ok) throw new Error(`API error ${res.status}`);
-      const data = await res.json();
-      const text = data.content?.find(b => b.type === "text")?.text || "";
+      const text = await callClaude([{ role: "user", content }]);
       const clean = text.replace(/```json|```/g, "").trim();
       const match = clean.match(/\{[\s\S]*\}/);
       onScanned(JSON.parse(match ? match[0] : clean));

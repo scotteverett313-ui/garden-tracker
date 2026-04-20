@@ -5,6 +5,7 @@ import { Modal } from "../components/Modal.jsx";
 import { CTAButton } from "../components/CTAButton.jsx";
 import { SeedScanPicker } from "../components/SeedScanPicker.jsx";
 import { SeedDetailSheet } from "../components/SeedDetailSheet.jsx";
+import { callClaude } from "../claude.js";
 
 const SEED_FIELDS = [
   { key: "name",         label: "Plant Name",                           type: "text" },
@@ -85,43 +86,18 @@ function SeedLibraryTab({ seeds, onSaveSeeds, onAddToGarden }) {
 }
 Return ONLY the JSON, no other text.` });
 
-      const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
-      if (!apiKey) throw new Error("No API key configured.");
-
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": apiKey,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true",
-        },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          messages: [{ role: "user", content }],
-        }),
-      });
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err?.error?.message || `API error ${response.status}`);
-      }
-
-      const data = await response.json();
-      const text = data.content?.find(b => b.type === "text")?.text || "";
-      setDebugText(text); // show raw response for debugging
+      const text = await callClaude([{ role: "user", content }]);
+      setDebugText(text);
       const clean = text.replace(/```json|```/g, "").trim();
       let parsed;
       try {
         parsed = JSON.parse(clean);
-      } catch (parseErr) {
-        // Try to extract JSON from the text if it's wrapped in other content
+      } catch {
         const jsonMatch = clean.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           parsed = JSON.parse(jsonMatch[0]);
         } else {
-          throw new Error(`Couldn't parse response. Raw text: ${text.slice(0, 200)}`);
+          throw new Error(`Couldn't parse response. Raw: ${text.slice(0, 200)}`);
         }
       }
       const seedData = { ...parsed, id: generateId(), addedAt: new Date().toISOString(), started: false };
