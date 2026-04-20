@@ -37,7 +37,7 @@ function FrostSection({ frostDates, onSave }) {
   );
 }
 
-function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, onSaveFrost, plants, seeds, lastBackup, daysSince, onExport, onImport, importError, importSuccess }) {
+function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, onSaveFrost, plants, seeds, lastBackup, daysSince, onExport, onImport, importError, importSuccess, user, onShowAuth, onSignOut }) {
   const [editingZone, setEditingZone] = useState(null);
   const [editName, setEditName] = useState("");
   const [newZoneName, setNewZoneName] = useState("");
@@ -91,9 +91,33 @@ function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, 
       {/* Panel slides in from right */}
       <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: "88%", maxWidth: 400, background: "#faf6f0", display: "flex", flexDirection: "column", animation: "slideInRight 0.28s cubic-bezier(0.25,0.46,0.45,0.94)" }}>
         {/* Header */}
-        <div style={{ background: "#fff", borderBottom: "2px solid #000", padding: "20px 16px 14px", display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
-          <button onClick={onClose} style={{ background: "#f0f0f0", border: "none", borderRadius: "50%", width: 34, height: 34, cursor: "pointer", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>←</button>
-          <h2 style={{ margin: 0, fontSize: 22, fontWeight: 900, letterSpacing: -0.5 }}>Settings</h2>
+        <div style={{ background: "#fff", borderBottom: "2px solid #000", padding: "20px 16px 14px", flexShrink: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+            <button onClick={onClose} style={{ background: "#f0f0f0", border: "none", borderRadius: "50%", width: 34, height: 34, cursor: "pointer", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>←</button>
+            <h2 style={{ margin: 0, fontSize: 22, fontWeight: 900, letterSpacing: -0.5 }}>Settings</h2>
+          </div>
+
+          {/* Profile card */}
+          {user ? (
+            <div style={{ display: "flex", alignItems: "center", gap: 12, background: "#faf6f0", border: "2px solid #000", borderRadius: 14, padding: "12px 14px" }}>
+              <div style={{ width: 42, height: 42, borderRadius: "50%", background: "#a8e063", border: "2px solid #000", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 16, flexShrink: 0 }}>
+                {(user.name || user.email || "?")[0].toUpperCase()}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                {user.name && <div style={{ fontWeight: 800, fontSize: 14, lineHeight: 1.2 }}>{user.name}</div>}
+                {user.email && <div style={{ fontSize: 12, color: "#888", marginTop: 1 }}>{user.email}</div>}
+                {!user.name && !user.email && <div style={{ fontSize: 13, color: "#888" }}>Signed in</div>}
+              </div>
+              <button onClick={onSignOut} style={{ background: "none", border: "1.5px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 12, color: "#888", fontWeight: 600, fontFamily: "inherit", flexShrink: 0 }}>
+                Sign out
+              </button>
+            </div>
+          ) : (
+            <button onClick={onShowAuth} style={{ width: "100%", background: "#fdf9f4", border: "2px dashed #ccc", borderRadius: 14, padding: "12px 14px", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}>
+              <div style={{ fontWeight: 800, fontSize: 14, color: "#000", marginBottom: 2 }}>💾 Save your garden</div>
+              <div style={{ fontSize: 12, color: "#888" }}>Sign up to sync across devices →</div>
+            </button>
+          )}
         </div>
 
         {/* Section tabs */}

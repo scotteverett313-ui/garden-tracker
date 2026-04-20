@@ -10,6 +10,7 @@ import { AddPlantModal } from "./components/AddPlantModal.jsx";
 import { DBSearchPicker } from "./components/DBSearchPicker.jsx";
 import { SeedScanPicker } from "./components/SeedScanPicker.jsx";
 import { SettingsPanel } from "./components/SettingsPanel.jsx";
+import { AuthScreen } from "./components/AuthScreen.jsx";
 import { WelcomeScreen } from "./components/WelcomeScreen.jsx";
 import { OnboardingScreen } from "./components/OnboardingScreen.jsx";
 import { GardenTab } from "./tabs/GardenTab.jsx";
@@ -45,6 +46,8 @@ export default function App() {
   const [syncing, setSyncing] = useState(false);
   const [welcomeDone, setWelcomeDone] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem("onboarding_complete"));
+  const [showAuth, setShowAuth] = useState(false);
+  const [user, setUser] = useState(() => { try { return JSON.parse(localStorage.getItem("mock_user") || "null"); } catch { return null; } });
 
   // Show splash until BOTH animation is done AND data is loaded
   const stillShowingWelcome = !welcomeDone || !loaded;
@@ -130,7 +133,8 @@ export default function App() {
     reader.readAsText(file); e.target.value = "";
   }
 
-  if (showOnboarding) return <OnboardingScreen onDone={() => { localStorage.setItem("onboarding_complete", "1"); setShowOnboarding(false); }} />;
+  if (showOnboarding) return <OnboardingScreen onDone={() => { localStorage.setItem("onboarding_complete", "1"); setShowOnboarding(false); if (!user) setShowAuth(true); }} />;
+  if (showAuth) return <AuthScreen onSkip={() => setShowAuth(false)} onAuth={u => { setUser(u); localStorage.setItem("mock_user", JSON.stringify(u)); setShowAuth(false); }} />;
   if (stillShowingWelcome) return <WelcomeScreen onDone={() => setWelcomeDone(true)} onReplayOnboarding={() => { localStorage.removeItem("onboarding_complete"); setShowOnboarding(true); }} />;
 
   const NAV_TABS = [
@@ -278,7 +282,10 @@ export default function App() {
           onRenameZone={(id, name) => { renameZone(id, name); toast("Zone renamed", { icon: "✏️" }); }}
           frostDates={frostDates} onSaveFrost={f => { saveFrost(f); toast("Frost dates saved", { icon: "❄️" }); }}
           plants={plants} seeds={seeds} lastBackup={lastBackup} daysSince={daysSince}
-          onExport={handleExport} onImport={handleImport} importError={importError} importSuccess={importSuccess} />
+          onExport={handleExport} onImport={handleImport} importError={importError} importSuccess={importSuccess}
+          user={user}
+          onShowAuth={() => { setShowSettings(false); setShowAuth(true); }}
+          onSignOut={() => { setUser(null); localStorage.removeItem("mock_user"); toast("Signed out", { icon: "👋" }); }} />
       )}
 
       {showBackup && (
