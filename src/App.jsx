@@ -144,7 +144,7 @@ export default function App() {
   }
 
   if (showOnboarding) return <OnboardingScreen onDone={finishOnboarding} onReplayOnboarding={replayOnboarding} />;
-  if (showAuth) return <AuthScreen onCreateAccount={() => setShowSignup(true)} onSignIn={() => setShowAuth(false)} onReplayOnboarding={replayOnboarding} />;
+  if (showAuth) return <AuthScreen onCreateAccount={() => { setShowAuth(false); setShowSignup(true); }} onSignIn={() => setShowAuth(false)} onReplayOnboarding={replayOnboarding} />;
   if (showSignup) return <SignupFlow onDone={handleSignupDone} onSaveFrostDates={saveFrost} onSelectZones={selectedIds => { const active = zones.filter(z => selectedIds.includes(z.id)); if (active.length) saveZones(active); }} />;
   if (stillShowingWelcome) return <WelcomeScreen onDone={() => setWelcomeDone(true)} onReplayOnboarding={replayOnboarding} />;
 
