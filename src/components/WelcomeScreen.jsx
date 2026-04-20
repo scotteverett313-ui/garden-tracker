@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ICONS } from "../constants.js";
 
-export function WelcomeScreen({ onDone }) {
+export function WelcomeScreen({ onDone, onReplayOnboarding }) {
   const [phase, setPhase] = useState("in"); // in | hold | out
 
   useEffect(() => {
@@ -67,6 +67,18 @@ export function WelcomeScreen({ onDone }) {
           }} />
         ))}
       </div>
+
+      {/* Subtle replay button for testing */}
+      {onReplayOnboarding && (
+        <button onClick={onReplayOnboarding} style={{
+          position: "absolute", bottom: 28, right: 24,
+          background: "none", border: "none", cursor: "pointer",
+          fontSize: 11, color: "#ccc", fontWeight: 500, padding: "8px 4px",
+          fontFamily: "inherit",
+        }}>
+          View intro
+        </button>
+      )}
     </div>
   );
 }

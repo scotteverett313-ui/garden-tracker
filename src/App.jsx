@@ -11,6 +11,7 @@ import { DBSearchPicker } from "./components/DBSearchPicker.jsx";
 import { SeedScanPicker } from "./components/SeedScanPicker.jsx";
 import { SettingsPanel } from "./components/SettingsPanel.jsx";
 import { WelcomeScreen } from "./components/WelcomeScreen.jsx";
+import { OnboardingScreen } from "./components/OnboardingScreen.jsx";
 import { GardenTab } from "./tabs/GardenTab.jsx";
 import { SeedLibraryTab } from "./tabs/SeedLibraryTab.jsx";
 import { CalendarTab } from "./tabs/CalendarTab.jsx";
@@ -43,6 +44,7 @@ export default function App() {
   const [loaded, setLoaded] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [welcomeDone, setWelcomeDone] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem("onboarding_complete"));
 
   // Show splash until BOTH animation is done AND data is loaded
   const stillShowingWelcome = !welcomeDone || !loaded;
@@ -119,7 +121,8 @@ export default function App() {
     reader.readAsText(file); e.target.value = "";
   }
 
-  if (stillShowingWelcome) return <WelcomeScreen onDone={() => setWelcomeDone(true)} />;
+  if (showOnboarding) return <OnboardingScreen onDone={() => { localStorage.setItem("onboarding_complete", "1"); setShowOnboarding(false); }} />;
+  if (stillShowingWelcome) return <WelcomeScreen onDone={() => setWelcomeDone(true)} onReplayOnboarding={() => { localStorage.removeItem("onboarding_complete"); setShowOnboarding(true); }} />;
 
   const NAV_TABS = [
     { id: "garden", label: "My Garden", icon: ICONS.garden },
