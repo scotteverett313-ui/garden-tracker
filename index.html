@@ -5,15 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="Plant Tracker" />
-    <meta name="theme-color" content="#2d6a3f" />
+    <meta name="apple-mobile-web-app-title" content="Dirt Rich" />
+    <meta name="theme-color" content="#ffffff" />
     <link rel="apple-touch-icon" href="/icon.png" />
     <link rel="manifest" href="/manifest.json" />
-    <title>Plant Tracker</title>
+    <title>Dirt Rich</title>
     <style>
-      * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-      body { margin: 0; padding: 0; background: #f8f8f6; }
-      input, select, textarea, button { font-family: inherit; }
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: #faf6f0;
+        overscroll-behavior: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+        scrollbar-width: none;
+      }
+      *::-webkit-scrollbar { display: none; }
+      input, textarea {
+        -webkit-user-select: text;
+        user-select: text;
+        -webkit-appearance: none;
+        font-family: inherit;
+      }
+      select {
+        -webkit-appearance: none;
+        font-family: inherit;
+      }
+      button { font-family: inherit; }
     </style>
   </head>
   <body>
