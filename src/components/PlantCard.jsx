@@ -15,7 +15,7 @@ function lastWateredLabel(careLog) {
   return { label: `💧 ${d}d ago`, color: "#c0392b" };
 }
 
-function PlantGridCard({ plant, onTap }) {
+function PlantGridCard({ plant, onTap, showZone }) {
   const harvestDate = calcHarvestDate(plant.dateStarted, plant.dtm);
   const daysLeft = harvestDate ? daysUntil(harvestDate) : null;
   const isDone = plant.status === "Harvested" || plant.status === "Dead";
@@ -84,6 +84,14 @@ function PlantGridCard({ plant, onTap }) {
           {plant.variety && <div style={{ fontSize: 12, color: "#666" }}>({plant.variety})</div>}
           {watered && <div style={{ fontSize: 11, color: watered.color, fontWeight: 600, marginLeft: "auto" }}>{watered.label}</div>}
         </div>
+        {/* Zone badge — shown in favorites view */}
+        {showZone && plant.zone && (
+          <div style={{ marginTop: 4 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, background: "#f0f0f0", border: "1px solid #ddd", borderRadius: 6, padding: "2px 6px", color: "#666" }}>
+              {plant.zone.replace(" Grow Station", "").replace("In-Ground Beds", "In-Ground")}
+            </span>
+          </div>
+        )}
       </button>
     </div>
   );
@@ -91,7 +99,7 @@ function PlantGridCard({ plant, onTap }) {
 
 // ─── Plant List Card (compact list view) ──────────────────────────────────────
 
-function PlantListCard({ plant, onTap }) {
+function PlantListCard({ plant, onTap, showZone }) {
   const harvestDate = calcHarvestDate(plant.dateStarted, plant.dtm);
   const daysLeft = harvestDate ? daysUntil(harvestDate) : null;
   const statusObj = STATUSES.find(s => s.label === plant.status) || STATUSES[0];
@@ -109,6 +117,11 @@ function PlantListCard({ plant, onTap }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontWeight: 800, fontSize: 15 }}>{plant.name}</div>
         {plant.variety && <div style={{ fontSize: 12, color: "#888" }}>{plant.variety}</div>}
+        {showZone && plant.zone && (
+          <span style={{ fontSize: 10, fontWeight: 700, background: "#f0f0f0", border: "1px solid #ddd", borderRadius: 6, padding: "1px 6px", color: "#666" }}>
+            {plant.zone.replace(" Grow Station", "").replace("In-Ground Beds", "In-Ground")}
+          </span>
+        )}
         <div style={{ display: "flex", gap: 8, marginTop: 2, flexWrap: "wrap" }}>
           {daysLeft !== null && (
             <div style={{ fontSize: 12, color: daysLeft <= 0 ? "#2d8a3f" : daysLeft <= 14 ? "#c0392b" : "#888", fontWeight: 600 }}>

@@ -66,14 +66,35 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
       {/* Empty state when filters return no results */}
       {showEmptyState && (
         <div style={{ textAlign: "center", padding: "48px 20px" }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>🌱</div>
-          <div style={{ fontWeight: 800, fontSize: 17, color: "#444", marginBottom: 6 }}>No plants found</div>
-          <div style={{ fontSize: 14, color: "#aaa", marginBottom: 20 }}>Try adjusting your search or filters</div>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>{favOnly ? "🤍" : "🌱"}</div>
+          <div style={{ fontWeight: 800, fontSize: 17, color: "#444", marginBottom: 6 }}>
+            {favOnly ? "No favorites yet" : "No plants found"}
+          </div>
+          <div style={{ fontSize: 14, color: "#aaa", marginBottom: 20 }}>
+            {favOnly ? "Open any plant and tap ❤️ to save it here" : "Try adjusting your search or filters"}
+          </div>
         </div>
       )}
 
-      {/* Zone sections */}
-      {!showEmptyState && zones.map(zone => {
+      {/* Favorites — flat list across all zones */}
+      {!showEmptyState && favOnly && (
+        <div>
+          <div style={{ fontWeight: 900, fontSize: 22, letterSpacing: -0.5, marginBottom: 4 }}>Your Favorites</div>
+          <div style={{ fontSize: 12, color: "#888", marginBottom: 16 }}>{filtered.length} plant{filtered.length !== 1 ? "s" : ""}</div>
+          {viewMode === "grid" ? (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              {filtered.map(p => <PlantGridCard key={p.id} plant={p} onTap={() => setSelectedPlant(p)} showZone />)}
+            </div>
+          ) : (
+            <div>
+              {filtered.map(p => <PlantListCard key={p.id} plant={p} onTap={() => setSelectedPlant(p)} showZone />)}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Zone sections — normal view */}
+      {!showEmptyState && !favOnly && zones.map(zone => {
         const zonePlants = filtered.filter(p => p.zone === zone.name);
         if (filterZone && filterZone !== zone.name) return null;
         const displayName = zone.name.replace(" Grow Station", "").replace("In-Ground Beds", "In-Ground");
