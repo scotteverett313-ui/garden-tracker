@@ -37,7 +37,7 @@ function FrostSection({ frostDates, onSave }) {
   );
 }
 
-function SettingsPanel({ onClose, zones, onSaveZones, frostDates, onSaveFrost, plants, seeds, lastBackup, daysSince, onExport, onImport, importError, importSuccess }) {
+function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, onSaveFrost, plants, seeds, lastBackup, daysSince, onExport, onImport, importError, importSuccess }) {
   const [editingZone, setEditingZone] = useState(null);
   const [editName, setEditName] = useState("");
   const [newZoneName, setNewZoneName] = useState("");
@@ -50,13 +50,14 @@ function SettingsPanel({ onClose, zones, onSaveZones, frostDates, onSaveFrost, p
   }
 
   function saveEdit(zone) {
-    if (!editName.trim() || editName === zone.name) { setEditingZone(null); return; }
-    onSaveZones(zones.map(z => z.id === zone.id ? { ...z, name: editName.trim() } : z));
+    const trimmed = editName.trim();
+    if (!trimmed || trimmed === zone.name) { setEditingZone(null); return; }
+    onRenameZone(zone.id, trimmed);
     setEditingZone(null);
   }
 
   function deleteZone(zone) {
-    const plantCount = plants.filter(p => p.zoneId === zone.id).length;
+    const plantCount = plants.filter(p => p.zone === zone.name).length;
     if (plantCount > 0) return; // can't delete zone with plants
     onSaveZones(zones.filter(z => z.id !== zone.id));
   }
@@ -115,7 +116,7 @@ function SettingsPanel({ onClose, zones, onSaveZones, frostDates, onSaveFrost, p
               <p style={{ color: "#888", fontSize: 13, margin: "0 0 16px" }}>Tap ✏️ to rename. Drag ↕ to reorder. Delete only works on empty zones.</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {zones.map((zone, idx) => {
-                  const plantCount = plants.filter(p => p.zoneId === zone.id).length;
+                  const plantCount = plants.filter(p => p.zone === zone.name).length;
                   return (
                     <div key={zone.id} style={{ position: "relative", paddingBottom: 4 }}>
                       <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 14, zIndex: 0 }} />

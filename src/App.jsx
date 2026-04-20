@@ -79,6 +79,15 @@ export default function App() {
   async function saveUserDB(db) { setUserDB(db); await saveData("user_plant_db", db); }
   async function saveSeeds(s) { setSeeds(s); localStorage.setItem("seed_library", JSON.stringify(s)); await dbSaveSeeds(s); }
   async function saveZones(z) { setZones(z); await saveData("garden_zones", z); }
+  async function renameZone(zoneId, newName) {
+    const old = zones.find(z => z.id === zoneId);
+    if (!old || old.name === newName) return;
+    const nextZones = zones.map(z => z.id === zoneId ? { ...z, name: newName } : z);
+    const migrated = plants.map(p => p.zone === old.name ? { ...p, zone: newName } : p);
+    setZones(nextZones);
+    await saveData("garden_zones", nextZones);
+    if (migrated.some((p, i) => p !== plants[i])) await savePlants(migrated);
+  }
 
   function handleAdd(plant) { savePlants([...plants, plant]); toast(`${plant.name} added`, { icon: "🌱" }); }
   function handleUpdate(updated) { savePlants(plants.map(p => p.id === updated.id ? updated : p)); }
@@ -266,6 +275,7 @@ export default function App() {
       {showSettings && (
         <SettingsPanel onClose={() => setShowSettings(false)} zones={zones}
           onSaveZones={z => { saveZones(z); toast("Zones saved", { icon: "🌱" }); }}
+          onRenameZone={(id, name) => { renameZone(id, name); toast("Zone renamed", { icon: "✏️" }); }}
           frostDates={frostDates} onSaveFrost={f => { saveFrost(f); toast("Frost dates saved", { icon: "❄️" }); }}
           plants={plants} seeds={seeds} lastBackup={lastBackup} daysSince={daysSince}
           onExport={handleExport} onImport={handleImport} importError={importError} importSuccess={importSuccess} />
