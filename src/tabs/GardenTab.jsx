@@ -1,10 +1,13 @@
-import { useState, useEffect, useRef } from "react";
-import { ICONS, STATUSES, STATUS_COLORS, CARE_TYPES, CARE_ICONS, PLANT_DB, COMPANION_DB, CALENDAR_DATA, MONTHS, ICON_LIBRARY, lbl, sel, ZONES, DEFAULT_ZONES } from "../constants.js";
-import { generateId, daysUntil, daysSince, formatDate, calcHarvestDate, getAutoIcon } from "../utils.js";
-import { Modal } from "../components/Modal.jsx";
+import { useState } from "react";
+import { ICONS, STATUSES, STATUS_COLORS, sel, ZONES } from "../constants.js";
 import { CTAButton } from "../components/CTAButton.jsx";
 import { PlantGridCard, PlantListCard } from "../components/PlantCard.jsx";
 import { PlantDetailSheet } from "../components/PlantDetailSheet.jsx";
+
+function ordinal(n) {
+  const s = ["th", "st", "nd", "rd"], v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
 
 function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, filterZone, setFilterZone, filterStatus, setFilterStatus, onAddPlant, toast, zones = ZONES.map((name, i) => ({ id: `zone_${i}`, name })), isWide = false }) {
   const [viewMode, setViewMode] = useState("grid");
@@ -22,8 +25,26 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
   const hasActiveFilters = !!(search || filterZone || filterStatus || favOnly);
   const showEmptyState = hasActiveFilters && filtered.length === 0;
 
+  const today = new Date();
+  const dateLabel = today.toLocaleDateString("en-US", { month: "long" }) + " " + ordinal(today.getDate());
+  const statusCounts = {};
+  STATUSES.forEach(s => { statusCounts[s.label] = plants.filter(p => p.status === s.label).length; });
+  const activeStatuses = STATUSES.filter(s => statusCounts[s.label] > 0);
+
   return (
     <div>
+      {/* Date + title + FAB */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
+        <div>
+          <div style={{ fontSize: 14, color: "#aaa", fontWeight: 600, marginBottom: 2 }}>{dateLabel}</div>
+          <div style={{ fontSize: 34, fontWeight: 900, letterSpacing: -1, lineHeight: 1 }}>My Garden</div>
+        </div>
+        <div style={{ position: "relative", paddingBottom: 3, flexShrink: 0 }}>
+          <div style={{ position: "absolute", inset: "3px 0 0", background: "#000", borderRadius: "50%", zIndex: 0 }} />
+          <button onClick={onAddPlant} style={{ position: "relative", zIndex: 1, width: 46, height: 46, borderRadius: "50%", background: "#a8e063", border: "2px solid #000", cursor: "pointer", fontSize: 24, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}>+</button>
+        </div>
+      </div>
+
       {/* Search row */}
       <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
         <input placeholder="Search plants..." value={search} onChange={e => setSearch(e.target.value)}
@@ -57,6 +78,22 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
           {zones.map(z => <option key={z.id} value={z.name}>{z.name.replace(" Grow Station", "").replace("In-Ground Beds", "In-Ground")}</option>)}
         </select>
       </div>
+
+      {/* Status summary bar */}
+      {plants.length > 0 && !favOnly && (
+        <div style={{ display: "flex", gap: 20, overflowX: "auto", paddingBottom: 4, marginBottom: 16, scrollbarWidth: "none", msOverflowStyle: "none" }}>
+          {activeStatuses.map(s => (
+            <button key={s.label} onClick={() => setFilterStatus(filterStatus === s.label ? "" : s.label)}
+              style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 1, flexShrink: 0, background: "none", border: "none", cursor: "pointer", padding: "0 0 2px", fontFamily: "inherit", opacity: filterStatus && filterStatus !== s.label ? 0.35 : 1, transition: "opacity 0.15s" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: STATUS_COLORS[s.label] || "#ccc", border: "1px solid rgba(0,0,0,0.12)" }} />
+                <span style={{ fontSize: 12, color: "#888", fontWeight: 600 }}>{s.label}</span>
+              </div>
+              <span style={{ fontSize: 26, fontWeight: 900, letterSpacing: -1, lineHeight: 1, color: "#000" }}>{statusCounts[s.label]}</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       {hasActiveFilters && (
         <button onClick={() => { setSearch(""); setFilterZone(""); setFilterStatus(""); setFavOnly(false); }}
@@ -106,7 +143,10 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
                 <div style={{ fontWeight: 900, fontSize: 22, letterSpacing: -0.5, lineHeight: 1 }}>{displayName}</div>
                 <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>{zonePlants.length} plant{zonePlants.length !== 1 ? "s" : ""}</div>
               </div>
-              <CTAButton onClick={onAddPlant} style={{ padding: "8px 16px", fontSize: 13, width: "auto" }}>+ Add Plant</CTAButton>
+              <div style={{ position: "relative", paddingBottom: 3 }}>
+                <div style={{ position: "absolute", inset: "3px 0 0", background: "#000", borderRadius: 999, zIndex: 0 }} />
+                <button onClick={onAddPlant} style={{ position: "relative", zIndex: 1, background: "#a8e063", border: "2px solid #000", borderRadius: 999, padding: "6px 14px", cursor: "pointer", fontSize: 13, fontWeight: 800, fontFamily: "inherit" }}>+ Add Plant</button>
+              </div>
             </div>
 
             {/* Plants */}

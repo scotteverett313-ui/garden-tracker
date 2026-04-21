@@ -7,6 +7,25 @@ import { SeedScanPicker } from "../components/SeedScanPicker.jsx";
 import { SeedDetailSheet } from "../components/SeedDetailSheet.jsx";
 import { callClaude } from "../claude.js";
 
+const CATEGORIES = [
+  { id: "flowers", label: "Flowers", color: "#e91e8c", bg: "#fce4ec",
+    keywords: ["sunflower", "zinnia", "marigold", "cosmos", "dahlia", "petunia", "pansy", "lavender", "chamomile", "nasturtium", "echinacea", "poppy", "snapdragon", "calendula"] },
+  { id: "fruits",  label: "Fruits",  color: "#e64a19", bg: "#fbe9e7",
+    keywords: ["tomato", "pepper", "cucumber", "squash", "pumpkin", "melon", "watermelon", "zucchini", "eggplant", "strawberry", "bean", "pea", "corn"] },
+  { id: "herbs",   label: "Herbs",   color: "#4caf50", bg: "#e8f5e9",
+    keywords: ["basil", "cilantro", "parsley", "dill", "oregano", "thyme", "sage", "rosemary", "mint", "chive", "fennel", "tarragon"] },
+  { id: "greens",  label: "Greens",  color: "#009688", bg: "#e0f2f1",
+    keywords: ["lettuce", "spinach", "kale", "arugula", "chard", "cabbage", "broccoli", "beet", "radish", "turnip", "kohlrabi", "collard", "mustard", "bok choy"] },
+];
+
+function getSeedCategory(seed) {
+  const name = (seed.name || "").toLowerCase();
+  for (const cat of CATEGORIES) {
+    if (cat.keywords.some(k => name.includes(k))) return cat.id;
+  }
+  return null;
+}
+
 const SEED_FIELDS = [
   { key: "name",         label: "Plant Name",                           type: "text" },
   { key: "variety",      label: "Variety",                              type: "text" },
@@ -32,6 +51,7 @@ function SeedLibraryTab({ seeds, onSaveSeeds, onAddToGarden }) {
   const [debugText, setDebugText] = useState("");
   const [editForm, setEditForm] = useState({});
   const [search, setSearch] = useState("");
+  const [filterCategory, setFilterCategory] = useState(null);
   const [frontImg, setFrontImg] = useState(null);
   const [backImg, setBackImg] = useState(null);
   const frontRef = useRef();
@@ -39,7 +59,9 @@ function SeedLibraryTab({ seeds, onSaveSeeds, onAddToGarden }) {
 
   const filtered = seeds.filter(s => {
     const q = search.toLowerCase();
-    return !q || s.name?.toLowerCase().includes(q) || s.variety?.toLowerCase().includes(q) || s.brand?.toLowerCase().includes(q);
+    const matchSearch = !q || s.name?.toLowerCase().includes(q) || s.variety?.toLowerCase().includes(q) || s.brand?.toLowerCase().includes(q);
+    const matchCat = !filterCategory || getSeedCategory(s) === filterCategory;
+    return matchSearch && matchCat;
   });
 
   // Convert file to base64
@@ -297,21 +319,42 @@ Return ONLY the JSON, no other text.` });
   // ── Library view ──
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
-        <div>
-          <h2 style={{ margin: "0 0 4px", fontSize: 22, fontWeight: 800 }}>Seed Library</h2>
-          <p style={{ color: "#888", margin: 0, fontSize: 14 }}>{seeds.length} packet{seeds.length !== 1 ? "s" : ""} in your collection.</p>
-        </div>
-        <CTAButton onClick={() => { setScanError(""); setFrontImg(null); setBackImg(null); setView("scan"); }} style={{ padding: "10px 16px", fontSize: 14 }}>
-          📷 Scan Packet
-        </CTAButton>
+      {/* Header */}
+      <div style={{ marginBottom: 18 }}>
+        <div style={{ fontSize: 34, fontWeight: 900, letterSpacing: -1, lineHeight: 1, marginBottom: 4 }}>Seed Library</div>
+        <div style={{ fontSize: 14, color: "#888" }}>{seeds.length} packet{seeds.length !== 1 ? "s" : ""} in your collection</div>
       </div>
 
+      {/* Scan Packet CTA */}
+      <div style={{ position: "relative", paddingBottom: 4, marginBottom: 16 }}>
+        <div style={{ position: "absolute", inset: "4px 0 0", background: "#000", borderRadius: 14, zIndex: 0 }} />
+        <button onClick={() => { setScanError(""); setFrontImg(null); setBackImg(null); setView("scan"); }}
+          style={{ position: "relative", zIndex: 1, width: "100%", background: "#a8e063", border: "2px solid #000", borderRadius: 14, padding: "14px", cursor: "pointer", fontSize: 16, fontWeight: 800, fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxSizing: "border-box" }}>
+          📷 Scan Packet
+        </button>
+      </div>
+
+      {/* Category chips */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 16 }}>
+        {CATEGORIES.map(cat => {
+          const count = seeds.filter(s => getSeedCategory(s) === cat.id).length;
+          const isActive = filterCategory === cat.id;
+          return (
+            <button key={cat.id} onClick={() => setFilterCategory(isActive ? null : cat.id)}
+              style={{ background: isActive ? cat.color : cat.bg, border: `2px solid ${isActive ? cat.color : "transparent"}`, borderRadius: 14, padding: "12px 14px", cursor: "pointer", textAlign: "left", fontFamily: "inherit", transition: "all 0.15s" }}>
+              <div style={{ fontSize: 22, fontWeight: 900, color: isActive ? "#fff" : cat.color }}>{count}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: isActive ? "#fff" : "#333" }}>{cat.label}</div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Search */}
       <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
         <input placeholder="Search seeds..." value={search} onChange={e => setSearch(e.target.value)}
           style={{ flex: 1, padding: "10px 14px", border: "2px solid #000", borderRadius: 50, fontSize: 14, fontFamily: "inherit", boxSizing: "border-box" }} />
-        <button onClick={() => setSearch("")}
-          style={{ display: search ? "flex" : "none", width: 40, height: 40, border: "2px solid #000", borderRadius: 10, background: "#fff", cursor: "pointer", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>×</button>
+        <button onClick={() => { setSearch(""); setFilterCategory(null); }}
+          style={{ display: (search || filterCategory) ? "flex" : "none", width: 40, height: 40, border: "2px solid #000", borderRadius: 10, background: "#fff", cursor: "pointer", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>×</button>
       </div>
 
       {seeds.length === 0 ? (
