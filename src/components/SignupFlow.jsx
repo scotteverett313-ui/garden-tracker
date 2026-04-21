@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { DEFAULT_ZONES } from "../constants.js";
 import { CTAButton } from "./CTAButton.jsx";
+import { TermsScreen } from "./TermsScreen.jsx";
 
 const TOTAL = 4;
 
@@ -33,7 +34,7 @@ function BackButton({ onBack, visible }) {
 
 // ─── Step 1: Create Account ───────────────────────────────────────────────────
 
-function StepAccount({ form, setForm, onNext }) {
+function StepAccount({ form, setForm, onNext, onShowTerms }) {
   const valid = form.name.trim() && form.email.includes("@") && form.password.length >= 6;
   const inp = (extra = {}) => ({
     width: "100%", padding: "13px 14px",
@@ -75,7 +76,7 @@ function StepAccount({ form, setForm, onNext }) {
         </CTAButton>
         <div style={{ textAlign: "center", marginTop: 14, fontSize: 12, color: "#bbb" }}>
           By continuing you agree to our{" "}
-          <span style={{ fontWeight: 700, textDecoration: "underline", cursor: "pointer", color: "#888" }}>Terms</span>
+          <span onClick={() => onShowTerms && onShowTerms("terms")} style={{ fontWeight: 700, textDecoration: "underline", cursor: "pointer", color: "#888" }}>Terms</span>
         </div>
       </div>
     </>
@@ -229,6 +230,7 @@ export function SignupFlow({ onDone, onSaveFrostDates, onSelectZones }) {
   const [selectedZones, setSelectedZones] = useState([]);
   const [spring, setSpring] = useState("");
   const [fall, setFall] = useState("");
+  const [showTerms, setShowTerms] = useState(null);
 
   function goBack() { if (step > 0) setStep(s => s - 1); }
 
@@ -256,11 +258,12 @@ export function SignupFlow({ onDone, onSaveFrostDates, onSelectZones }) {
           : "0 28px calc(env(safe-area-inset-bottom) + 32px)",
         display: "flex", flexDirection: "column",
       }}>
-        {step === 0 && <StepAccount form={form} setForm={setForm} onNext={() => setStep(1)} />}
+        {step === 0 && <StepAccount form={form} setForm={setForm} onNext={() => setStep(1)} onShowTerms={t => setShowTerms(t)} />}
         {step === 1 && <StepZones selected={selectedZones} setSelected={setSelectedZones} onNext={() => setStep(2)} />}
         {step === 2 && <StepFrost spring={spring} setSpring={setSpring} fall={fall} setFall={setFall} onNext={() => setStep(3)} onSkip={() => setStep(3)} />}
         {step === 3 && <StepAllSet onAddPlant={() => finish(true)} onExplore={() => finish(false)} />}
       </div>
+      {showTerms && <TermsScreen type={showTerms} onBack={() => setShowTerms(null)} />}
     </div>
   );
 }

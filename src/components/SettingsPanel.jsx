@@ -37,12 +37,13 @@ function FrostSection({ frostDates, onSave }) {
   );
 }
 
-function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, onSaveFrost, plants, seeds, lastBackup, daysSince, onExport, onImport, importError, importSuccess, user, onShowAuth, onSignOut }) {
+function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, onSaveFrost, plants, seeds, lastBackup, daysSince, onExport, onImport, importError, importSuccess, user, onShowAuth, onSignOut, onDeleteAccount, onShowTerms }) {
   const [editingZone, setEditingZone] = useState(null);
   const [editName, setEditName] = useState("");
   const [newZoneName, setNewZoneName] = useState("");
   const [showAddZone, setShowAddZone] = useState(false);
   const [activeSection, setActiveSection] = useState("zones");
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   function startEdit(zone) {
     setEditingZone(zone.id);
@@ -99,17 +100,22 @@ function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, 
 
           {/* Profile card */}
           {user ? (
-            <div style={{ display: "flex", alignItems: "center", gap: 12, background: "#faf6f0", border: "2px solid #000", borderRadius: 14, padding: "12px 14px" }}>
-              <div style={{ width: 42, height: 42, borderRadius: "50%", background: "#a8e063", border: "2px solid #000", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 16, flexShrink: 0 }}>
-                {(user.name || user.email || "?")[0].toUpperCase()}
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, background: "#faf6f0", border: "2px solid #000", borderRadius: 14, padding: "12px 14px" }}>
+                <div style={{ width: 42, height: 42, borderRadius: "50%", background: "#a8e063", border: "2px solid #000", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 16, flexShrink: 0 }}>
+                  {(user.name || user.email || "?")[0].toUpperCase()}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {user.name && <div style={{ fontWeight: 800, fontSize: 14, lineHeight: 1.2 }}>{user.name}</div>}
+                  {user.email && <div style={{ fontSize: 12, color: "#888", marginTop: 1 }}>{user.email}</div>}
+                  {!user.name && !user.email && <div style={{ fontSize: 13, color: "#888" }}>Signed in</div>}
+                </div>
+                <button onClick={onSignOut} style={{ background: "none", border: "1.5px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 12, color: "#888", fontWeight: 600, fontFamily: "inherit", flexShrink: 0 }}>
+                  Sign out
+                </button>
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                {user.name && <div style={{ fontWeight: 800, fontSize: 14, lineHeight: 1.2 }}>{user.name}</div>}
-                {user.email && <div style={{ fontSize: 12, color: "#888", marginTop: 1 }}>{user.email}</div>}
-                {!user.name && !user.email && <div style={{ fontSize: 13, color: "#888" }}>Signed in</div>}
-              </div>
-              <button onClick={onSignOut} style={{ background: "none", border: "1.5px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 12, color: "#888", fontWeight: 600, fontFamily: "inherit", flexShrink: 0 }}>
-                Sign out
+              <button onClick={() => setConfirmDelete(true)} style={{ background: "none", border: "none", padding: "8px 2px 0", cursor: "pointer", fontSize: 12, color: "#c0392b", fontFamily: "inherit", fontWeight: 600, textDecoration: "underline" }}>
+                Delete account
               </button>
             </div>
           ) : (
@@ -235,7 +241,40 @@ function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, 
               </div>
             </div>
           )}
+
+          {/* Terms/Privacy footer links */}
+          <div style={{ marginTop: 28, paddingTop: 16, borderTop: "1px solid #eee", display: "flex", gap: 16, justifyContent: "center" }}>
+            {onShowTerms && (
+              <>
+                <button onClick={() => onShowTerms("terms")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#aaa", fontFamily: "inherit", textDecoration: "underline" }}>Terms of Service</button>
+                <button onClick={() => onShowTerms("privacy")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#aaa", fontFamily: "inherit", textDecoration: "underline" }}>Privacy Policy</button>
+              </>
+            )}
+          </div>
         </div>
+
+        {/* Delete account confirmation overlay */}
+        {confirmDelete && (
+          <div style={{ position: "absolute", inset: 0, zIndex: 10, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "flex-end" }}>
+            <div style={{ width: "100%", background: "#fff", borderRadius: "20px 20px 0 0", padding: "28px 24px calc(env(safe-area-inset-bottom) + 28px)" }}>
+              <div style={{ fontSize: 36, marginBottom: 12, textAlign: "center" }}>⚠️</div>
+              <div style={{ fontWeight: 900, fontSize: 22, letterSpacing: -0.5, marginBottom: 8, textAlign: "center" }}>Delete account?</div>
+              <div style={{ fontSize: 14, color: "#666", lineHeight: 1.6, textAlign: "center", marginBottom: 28 }}>
+                This permanently deletes your account and all your garden data. This cannot be undone.
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <button onClick={() => { setConfirmDelete(false); onDeleteAccount && onDeleteAccount(); }}
+                  style={{ width: "100%", padding: "14px", background: "#c0392b", color: "#fff", border: "none", borderRadius: 14, cursor: "pointer", fontSize: 15, fontWeight: 800, fontFamily: "inherit" }}>
+                  Yes, delete everything
+                </button>
+                <button onClick={() => setConfirmDelete(false)}
+                  style={{ width: "100%", padding: "14px", background: "#f0f0f0", color: "#000", border: "none", borderRadius: 14, cursor: "pointer", fontSize: 15, fontWeight: 700, fontFamily: "inherit" }}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

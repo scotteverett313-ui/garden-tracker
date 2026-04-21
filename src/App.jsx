@@ -13,6 +13,8 @@ import { SeedScanPicker } from "./components/SeedScanPicker.jsx";
 import { SettingsPanel } from "./components/SettingsPanel.jsx";
 import { AuthScreen } from "./components/AuthScreen.jsx";
 import { SignupFlow } from "./components/SignupFlow.jsx";
+import { SignInScreen } from "./components/SignInScreen.jsx";
+import { TermsScreen } from "./components/TermsScreen.jsx";
 import { WelcomeScreen } from "./components/WelcomeScreen.jsx";
 import { OnboardingScreen } from "./components/OnboardingScreen.jsx";
 import { GardenTab } from "./tabs/GardenTab.jsx";
@@ -51,6 +53,8 @@ export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem("onboarding_complete"));
   const [showAuth, setShowAuth] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
+  const [showSignIn, setShowSignIn] = useState(false);
+  const [showTerms, setShowTerms] = useState(null); // "terms" | "privacy" | null
   const [user, setUser] = useState(() => { try { return JSON.parse(localStorage.getItem("mock_user") || "null"); } catch { return null; } });
 
   // Show splash until BOTH animation is done AND data is loaded
@@ -137,16 +141,29 @@ export default function App() {
     reader.readAsText(file); e.target.value = "";
   }
 
-  function replayOnboarding() { localStorage.removeItem("onboarding_complete"); localStorage.removeItem("mock_user"); setUser(null); setShowOnboarding(true); setShowAuth(false); setShowSignup(false); }
+  function replayOnboarding() { localStorage.removeItem("onboarding_complete"); localStorage.removeItem("mock_user"); setUser(null); setShowOnboarding(true); setShowAuth(false); setShowSignup(false); setShowSignIn(false); }
   function finishOnboarding() { localStorage.setItem("onboarding_complete", "1"); setShowOnboarding(false); if (!user) setShowAuth(true); }
   function handleSignupDone({ user: u, openAdd }) {
     setUser(u); localStorage.setItem("mock_user", JSON.stringify(u));
     setShowSignup(false); setShowAuth(false);
     if (openAdd) { setTimeout(() => openAddFlow(), 300); }
   }
+  function handleSignIn({ email }) {
+    const u = { email, name: email.split("@")[0] };
+    setUser(u); localStorage.setItem("mock_user", JSON.stringify(u));
+    setShowSignIn(false); setShowAuth(false);
+    toast("Welcome back!", { icon: "👋" });
+  }
+  function handleDeleteAccount() {
+    setUser(null); localStorage.removeItem("mock_user"); localStorage.removeItem("onboarding_complete");
+    setShowSettings(false);
+    setShowOnboarding(true);
+    toast("Account deleted", { type: "warning", icon: "🗑" });
+  }
 
   if (showOnboarding) return <OnboardingScreen onDone={finishOnboarding} onReplayOnboarding={replayOnboarding} />;
-  if (showAuth) return <AuthScreen onCreateAccount={() => { setShowAuth(false); setShowSignup(true); }} onSignIn={() => setShowAuth(false)} onReplayOnboarding={replayOnboarding} />;
+  if (showAuth) return <AuthScreen onCreateAccount={() => { setShowAuth(false); setShowSignup(true); }} onSignIn={() => { setShowAuth(false); setShowSignIn(true); }} onReplayOnboarding={replayOnboarding} />;
+  if (showSignIn) return <SignInScreen onBack={() => { setShowSignIn(false); setShowAuth(true); }} onSignIn={handleSignIn} />;
   if (showSignup) return <SignupFlow onDone={handleSignupDone} onSaveFrostDates={saveFrost} onSelectZones={selectedIds => { const active = zones.filter(z => selectedIds.includes(z.id)); if (active.length) saveZones(active); }} />;
   if (stillShowingWelcome) return <WelcomeScreen onDone={() => setWelcomeDone(true)} onReplayOnboarding={replayOnboarding} />;
 
@@ -357,8 +374,12 @@ export default function App() {
           onExport={handleExport} onImport={handleImport} importError={importError} importSuccess={importSuccess}
           user={user}
           onShowAuth={() => { setShowSettings(false); setShowAuth(true); }}
-          onSignOut={() => { setUser(null); localStorage.removeItem("mock_user"); toast("Signed out", { icon: "👋" }); }} />
+          onSignOut={() => { setUser(null); localStorage.removeItem("mock_user"); toast("Signed out", { icon: "👋" }); }}
+          onDeleteAccount={handleDeleteAccount}
+          onShowTerms={t => setShowTerms(t)} />
       )}
+
+      {showTerms && <TermsScreen type={showTerms} onBack={() => setShowTerms(null)} />}
 
       {showBackup && (
         <Modal onClose={() => { setShowBackup(false); setImportError(""); setImportSuccess(false); }} width={440}>
