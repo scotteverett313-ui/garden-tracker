@@ -3,6 +3,7 @@ import { dbSave, dbLoadPlants, dbSavePlants, dbLoadSeeds, dbSaveSeeds } from "./
 import { ICONS, PLANT_DB, DEFAULT_ZONES } from "./constants.js";
 import { generateId, daysSince, formatDate, loadData } from "./utils.js";
 import { useToast } from "./hooks/useToast.js";
+import { useWindowWidth } from "./hooks/useWindowWidth.js";
 import { Toast } from "./components/Toast.jsx";
 import { Modal } from "./components/Modal.jsx";
 import { CTAButton } from "./components/CTAButton.jsx";
@@ -25,6 +26,7 @@ async function saveData(key, value) {
 
 export default function App() {
   const { toasts, toast } = useToast();
+  const isWide = useWindowWidth() >= 768;
   const [plants, setPlants] = useState([]);
   const [seeds, setSeeds] = useState([]);
   const [frostDates, setFrostDates] = useState({});
@@ -155,82 +157,141 @@ export default function App() {
     { id: "harvest", label: "Harvest", icon: ICONS.harvest },
   ];
 
-  return (
-    <div style={{ fontFamily: "'Cabin', system-ui, sans-serif", maxWidth: 600, margin: "0 auto", background: "#faf6f0", minHeight: "100vh", paddingBottom: 80 }}>
-      <div style={{ background: "#fff", borderBottom: "1px solid #eee", padding: "14px 16px 14px", position: "sticky", top: 0, zIndex: 50 }}>
+  // ─── Frost bar (shared between header and sidebar) ──────────────────────────
+  const FrostBar = () => {
+    const today = new Date();
+    const spring = frostDates.lastSpring ? new Date(frostDates.lastSpring) : null;
+    const fall = frostDates.firstFall ? new Date(frostDates.firstFall) : null;
+    const totalDays = spring && fall ? (fall - spring) / (1000 * 60 * 60 * 24) : null;
+    const daysPassed = spring ? Math.max(0, (today - spring) / (1000 * 60 * 60 * 24)) : null;
+    const progress = totalDays && daysPassed !== null ? Math.min(100, Math.max(0, (daysPassed / totalDays) * 100)) : null;
 
-        {/* Row 1 — Logo + Backup */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-          <img src={ICONS.logo} alt="Dirt Rich" style={{ height: 52, objectFit: "contain" }} />
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            {syncing && <span style={{ fontSize: 11, color: "#aaa" }}>syncing...</span>}
-            <div style={{ position: "relative", paddingBottom: 3 }}>
-              <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 999, zIndex: 0 }} />
-              <button onClick={() => setShowBackup(true)} className="btn-cta"
-                style={{ position: "relative", zIndex: 1, background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 999, padding: "8px 20px", cursor: "pointer", fontWeight: 800, fontSize: 14, fontFamily: "inherit" }}>
-                {(!lastBackup || daysSince(lastBackup) >= 3) ? "⚠️ Backup" : "Backup"}
+    if (!spring || !fall) return (
+      <button onClick={() => setShowSettings(true)}
+        style={{ width: "100%", background: "#f5f5f3", border: "1.5px dashed #ccc", borderRadius: 12, padding: "10px 14px", cursor: "pointer", textAlign: "center", color: "#aaa", fontSize: 12, fontWeight: 600, fontFamily: "inherit" }}>
+        Set frost dates →
+      </button>
+    );
+
+    return (
+      <button onClick={() => setShowSettings(true)} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left", fontFamily: "inherit" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+          <span style={{ fontSize: 9, fontWeight: 800, color: "#aaa", textTransform: "uppercase", letterSpacing: 0.5 }}>Last Spring Frost</span>
+          <span style={{ fontSize: 9, fontWeight: 800, color: "#aaa", textTransform: "uppercase", letterSpacing: 0.5 }}>First Fall Frost</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 15, fontWeight: 700, color: "#000", flexShrink: 0 }}>{formatDate(frostDates.lastSpring)}</span>
+          <div style={{ flex: 1, height: 10, background: "#e8e8e8", borderRadius: 999, overflow: "hidden", border: "1.5px solid #ddd" }}>
+            <div style={{ height: "100%", width: `${progress}%`, background: "#a8e063", borderRadius: 999, transition: "width 0.3s ease" }} />
+          </div>
+          <span style={{ fontSize: 15, fontWeight: 700, color: "#000", flexShrink: 0 }}>{formatDate(frostDates.firstFall)}</span>
+          <span style={{ fontSize: 14, color: "#bbb", flexShrink: 0 }}>›</span>
+        </div>
+      </button>
+    );
+  };
+
+  return (
+    <div style={{ fontFamily: "'Cabin', system-ui, sans-serif", display: "flex", minHeight: "100vh", maxWidth: isWide ? 1140 : 600, margin: "0 auto", background: "#faf6f0" }}>
+
+      {/* ── Sidebar (tablet+) ─────────────────────────────────────── */}
+      {isWide && (
+        <div style={{ width: 240, flexShrink: 0, background: "#fff", borderRight: "1px solid #eee", position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", padding: "28px 16px 24px", overflowY: "auto" }}>
+          <img src={ICONS.logo} alt="Dirt Rich" style={{ height: 44, objectFit: "contain", marginBottom: 32, alignSelf: "flex-start" }} />
+
+          {/* Nav items */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
+            {NAV_TABS.map(t => (
+              <button key={t.id} onClick={() => setTab(t.id)} style={{
+                display: "flex", alignItems: "center", gap: 12,
+                padding: "10px 14px", borderRadius: 12, border: "none",
+                background: tab === t.id ? "#f0fbe0" : "none",
+                cursor: "pointer", textAlign: "left", fontFamily: "inherit",
+                transition: "background 0.15s ease",
+              }}>
+                <img src={t.icon} alt={t.label} style={{ width: 22, height: 22, objectFit: "contain", opacity: tab === t.id ? 1 : 0.45 }} />
+                <span style={{ fontSize: 14, fontWeight: tab === t.id ? 800 : 500, color: tab === t.id ? "#000" : "#888" }}>{t.label}</span>
+                {tab === t.id && <div style={{ width: 4, height: 16, background: "#a8e063", borderRadius: 2, marginLeft: "auto" }} />}
               </button>
+            ))}
+          </div>
+
+          {/* Bottom — frost + backup + settings */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {tab === "garden" && <FrostBar />}
+            {syncing && <div style={{ fontSize: 11, color: "#aaa", textAlign: "center" }}>syncing...</div>}
+            <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ position: "relative", paddingBottom: 3, flex: 1 }}>
+                <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 999, zIndex: 0 }} />
+                <button onClick={() => setShowBackup(true)} className="btn-cta"
+                  style={{ position: "relative", zIndex: 1, width: "100%", background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 999, padding: "7px 10px", cursor: "pointer", fontWeight: 800, fontSize: 12, fontFamily: "inherit" }}>
+                  {(!lastBackup || daysSince(lastBackup) >= 3) ? "⚠️ Backup" : "Backup"}
+                </button>
+              </div>
+              <button onClick={() => setShowSettings(true)}
+                style={{ background: "#000", border: "none", borderRadius: 10, width: 36, height: 36, cursor: "pointer", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, paddingBottom: 3 }}>⚙️</button>
             </div>
-            <button onClick={() => setShowSettings(true)}
-              style={{ background: "#000", border: "none", borderRadius: 12, width: 40, height: 40, cursor: "pointer", fontSize: 20, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>⚙️</button>
           </div>
         </div>
+      )}
 
-        {/* Row 2+3 — Frost progress bar */}
-        {tab === "garden" && (() => {
-          const today = new Date();
-          const spring = frostDates.lastSpring ? new Date(frostDates.lastSpring) : null;
-          const fall = frostDates.firstFall ? new Date(frostDates.firstFall) : null;
-          const totalDays = spring && fall ? (fall - spring) / (1000 * 60 * 60 * 24) : null;
-          const daysPassed = spring ? Math.max(0, (today - spring) / (1000 * 60 * 60 * 24)) : null;
-          const progress = totalDays && daysPassed !== null ? Math.min(100, Math.max(0, (daysPassed / totalDays) * 100)) : null;
+      {/* ── Main column ───────────────────────────────────────────── */}
+      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", paddingBottom: isWide ? 0 : 80 }}>
 
-          if (!spring || !fall) return (
-            <button onClick={() => setShowSettings(true)}
-              style={{ width: "100%", background: "#f5f5f3", border: "1.5px dashed #ccc", borderRadius: 12, padding: "12px 14px", cursor: "pointer", textAlign: "center", color: "#aaa", fontSize: 13, fontWeight: 600, marginTop: 12 }}>
-              Set frost dates to track your season →
-            </button>
-          );
-
-          return (
-            <button onClick={() => setShowSettings(true)} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left", marginTop: 12 }}>
-              {/* Labels */}
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
-                <span style={{ fontSize: 9, fontWeight: 800, color: "#aaa", textTransform: "uppercase", letterSpacing: 0.5 }}>Last Spring Frost</span>
-                <span style={{ fontSize: 9, fontWeight: 800, color: "#aaa", textTransform: "uppercase", letterSpacing: 0.5 }}>First Fall Frost</span>
-              </div>
-              {/* Date | bar | Date | toggle — all on one line */}
+        {/* Header (narrow only) */}
+        {!isWide && (
+          <div style={{ background: "#fff", borderBottom: "1px solid #eee", padding: "14px 16px", position: "sticky", top: 0, zIndex: 50 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <img src={ICONS.logo} alt="Dirt Rich" style={{ height: 52, objectFit: "contain" }} />
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 17, fontWeight: 700, color: "#000", flexShrink: 0 }}>{formatDate(frostDates.lastSpring)}</span>
-                <div style={{ flex: 1, height: 10, background: "#e8e8e8", borderRadius: 999, overflow: "hidden", border: "1.5px solid #ddd" }}>
-                  <div style={{ height: "100%", width: `${progress}%`, background: "#a8e063", borderRadius: 999, transition: "width 0.3s ease" }} />
+                {syncing && <span style={{ fontSize: 11, color: "#aaa" }}>syncing...</span>}
+                <div style={{ position: "relative", paddingBottom: 3 }}>
+                  <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 999, zIndex: 0 }} />
+                  <button onClick={() => setShowBackup(true)} className="btn-cta"
+                    style={{ position: "relative", zIndex: 1, background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 999, padding: "8px 20px", cursor: "pointer", fontWeight: 800, fontSize: 14, fontFamily: "inherit" }}>
+                    {(!lastBackup || daysSince(lastBackup) >= 3) ? "⚠️ Backup" : "Backup"}
+                  </button>
                 </div>
-                <span style={{ fontSize: 17, fontWeight: 700, color: "#000", flexShrink: 0 }}>{formatDate(frostDates.firstFall)}</span>
-                <span style={{ fontSize: 16, color: "#bbb", flexShrink: 0 }}>›</span>
+                <button onClick={() => setShowSettings(true)}
+                  style={{ background: "#000", border: "none", borderRadius: 12, width: 40, height: 40, cursor: "pointer", fontSize: 20, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>⚙️</button>
               </div>
-            </button>
-          );
-        })()}
-      </div>
+            </div>
+            {tab === "garden" && <FrostBar />}
+          </div>
+        )}
 
-      <div style={{ padding: "16px 14px" }}>
-        {tab === "garden" && <GardenTab plants={plants} frostDates={frostDates} onUpdate={handleUpdate} onDelete={handleDelete} search={search} setSearch={setSearch} filterZone={filterZone} setFilterZone={setFilterZone} filterStatus={filterStatus} setFilterStatus={setFilterStatus} onAddPlant={openAddFlow} userDB={userDB} onSaveUserDB={saveUserDB} toast={toast} zones={zones} />}
-        {tab === "seeds" && <SeedLibraryTab seeds={seeds} onSaveSeeds={saveSeeds} onAddToGarden={handleAddSeedToGarden} />}
-        {tab === "calendar" && <CalendarTab plants={plants} />}
-        {tab === "harvest" && <HarvestTab plants={plants} frostDates={frostDates} onUpdate={handleUpdate} />}
+        {/* Wide header — tab title */}
+        {isWide && (
+          <div style={{ background: "#fff", borderBottom: "1px solid #eee", padding: "18px 24px", position: "sticky", top: 0, zIndex: 50 }}>
+            <div style={{ fontWeight: 900, fontSize: 26, letterSpacing: -0.5, color: "#111" }}>
+              {NAV_TABS.find(t => t.id === tab)?.label}
+            </div>
+          </div>
+        )}
+
+        {/* Tab content */}
+        <div style={{ padding: isWide ? "20px 24px" : "16px 14px", flex: 1 }}>
+          {tab === "garden" && <GardenTab plants={plants} frostDates={frostDates} onUpdate={handleUpdate} onDelete={handleDelete} search={search} setSearch={setSearch} filterZone={filterZone} setFilterZone={setFilterZone} filterStatus={filterStatus} setFilterStatus={setFilterStatus} onAddPlant={openAddFlow} userDB={userDB} onSaveUserDB={saveUserDB} toast={toast} zones={zones} isWide={isWide} />}
+          {tab === "seeds" && <SeedLibraryTab seeds={seeds} onSaveSeeds={saveSeeds} onAddToGarden={handleAddSeedToGarden} />}
+          {tab === "calendar" && <CalendarTab plants={plants} />}
+          {tab === "harvest" && <HarvestTab plants={plants} frostDates={frostDates} onUpdate={handleUpdate} />}
+        </div>
       </div>
 
       <Toast toasts={toasts} />
 
-      <nav style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 600, background: "#fff", borderTop: "1px solid #eee", display: "flex", zIndex: 100, paddingBottom: "env(safe-area-inset-bottom)" }}>
-        {NAV_TABS.map(t => (
-          <button key={t.id} onClick={() => setTab(t.id)} className="nav-tab" style={{ flex: 1, border: "none", background: "none", cursor: "pointer", padding: "10px 4px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-            <img src={t.icon} alt={t.label} style={{ width: 24, height: 24, objectFit: "contain", opacity: tab === t.id ? 1 : 0.4 }} />
-            <span style={{ fontSize: 10, fontWeight: tab === t.id ? 700 : 500, color: tab === t.id ? "#000" : "#aaa", letterSpacing: 0.2 }}>{t.label}</span>
-            {tab === t.id && <div style={{ width: 20, height: 2, background: "#a8e063", borderRadius: 2 }} />}
-          </button>
-        ))}
-      </nav>
+      {/* Bottom nav (narrow only) */}
+      {!isWide && (
+        <nav style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 600, background: "#fff", borderTop: "1px solid #eee", display: "flex", zIndex: 100, paddingBottom: "env(safe-area-inset-bottom)" }}>
+          {NAV_TABS.map(t => (
+            <button key={t.id} onClick={() => setTab(t.id)} className="nav-tab" style={{ flex: 1, border: "none", background: "none", cursor: "pointer", padding: "10px 4px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+              <img src={t.icon} alt={t.label} style={{ width: 24, height: 24, objectFit: "contain", opacity: tab === t.id ? 1 : 0.4 }} />
+              <span style={{ fontSize: 10, fontWeight: tab === t.id ? 700 : 500, color: tab === t.id ? "#000" : "#aaa", letterSpacing: 0.2 }}>{t.label}</span>
+              {tab === t.id && <div style={{ width: 20, height: 2, background: "#a8e063", borderRadius: 2 }} />}
+            </button>
+          ))}
+        </nav>
+      )}
 
       {showAdd && addFlow === "choose" && (
         <Modal onClose={closeAdd} width={480}>

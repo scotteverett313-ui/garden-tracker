@@ -6,7 +6,7 @@ import { CTAButton } from "../components/CTAButton.jsx";
 import { PlantGridCard, PlantListCard } from "../components/PlantCard.jsx";
 import { PlantDetailSheet } from "../components/PlantDetailSheet.jsx";
 
-function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, filterZone, setFilterZone, filterStatus, setFilterStatus, onAddPlant, toast, zones = ZONES.map((name, i) => ({ id: `zone_${i}`, name })) }) {
+function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, filterZone, setFilterZone, filterStatus, setFilterStatus, onAddPlant, toast, zones = ZONES.map((name, i) => ({ id: `zone_${i}`, name })), isWide = false }) {
   const [viewMode, setViewMode] = useState("grid");
   const [selectedPlant, setSelectedPlant] = useState(null);
   const [favOnly, setFavOnly] = useState(false);
@@ -82,7 +82,7 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
           <div style={{ fontWeight: 900, fontSize: 22, letterSpacing: -0.5, marginBottom: 4 }}>Your Favorites</div>
           <div style={{ fontSize: 12, color: "#888", marginBottom: 16 }}>{filtered.length} plant{filtered.length !== 1 ? "s" : ""}</div>
           {viewMode === "grid" ? (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isWide ? "repeat(3, 1fr)" : "1fr 1fr", gap: 10 }}>
               {filtered.map(p => <PlantGridCard key={p.id} plant={p} onTap={() => setSelectedPlant(p)} showZone />)}
             </div>
           ) : (
@@ -115,7 +115,7 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
                 + Add Plant
               </button>
             ) : viewMode === "grid" ? (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              <div style={{ display: "grid", gridTemplateColumns: isWide ? "repeat(3, 1fr)" : "1fr 1fr", gap: 10 }}>
                 {zonePlants.map(p => <PlantGridCard key={p.id} plant={p} onTap={() => setSelectedPlant(p)} />)}
               </div>
             ) : (
