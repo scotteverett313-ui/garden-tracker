@@ -5,6 +5,35 @@ import { Modal } from "./Modal.jsx";
 import { CTAButton } from "./CTAButton.jsx";
 import { EditPlantModal } from "./EditPlantModal.jsx";
 
+function getNextWateringDate(plant) {
+  const log = [...(plant.careLog || [])].filter(e => e.type === "Watering").sort((a, b) => new Date(b.date) - new Date(a.date));
+  if (!log.length) return null;
+  const last = new Date(log[0].date + "T12:00:00");
+  // Auto-detect interval from last few waterings, default 3 days
+  let interval = plant.wateringReminder?.intervalDays || 3;
+  if (log.length >= 2) {
+    const diffs = [];
+    for (let i = 0; i < Math.min(log.length - 1, 3); i++) {
+      const d = (new Date(log[i].date) - new Date(log[i + 1].date)) / 86400000;
+      if (d > 0 && d < 21) diffs.push(d);
+    }
+    if (diffs.length) interval = Math.round(diffs.reduce((a, b) => a + b) / diffs.length);
+  }
+  const next = new Date(last);
+  next.setDate(next.getDate() + interval);
+  return next;
+}
+
+function nextWateringLabel(date) {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const d = new Date(date); d.setHours(0, 0, 0, 0);
+  const diff = Math.round((d - today) / 86400000);
+  if (diff < 0) return "Overdue";
+  if (diff === 0) return "Today";
+  if (diff === 1) return "Tomorrow";
+  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+}
+
 function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClose, toast }) {
   const [showCompanions, setShowCompanions] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
@@ -42,6 +71,13 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
   const hasFrostWarning = harvestDate && frostDates.firstFall && new Date(harvestDate) > new Date(frostDates.firstFall);
   const nextZoneIdx = ZONES.indexOf(plant.zone) + 1;
   const nextZone = nextZoneIdx < ZONES.length ? ZONES[nextZoneIdx] : null;
+  const wateringEnabled = plant.wateringReminder?.enabled ?? true;
+  const nextWatering = getNextWateringDate(plant);
+  const wateringTime = plant.wateringReminder?.time || "8:00 AM";
+
+  function toggleWateringReminder() {
+    onUpdate({ ...plant, wateringReminder: { ...(plant.wateringReminder || {}), enabled: !wateringEnabled } });
+  }
 
   function updateStatus(status) {
     if (status === "Harvested" || status === "Dead") {
@@ -119,6 +155,24 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
               <h2 style={{ margin: "0 0 2px", fontSize: 24, fontWeight: 900, letterSpacing: -0.5 }}>{plant.name}</h2>
               {plant.variety && <div style={{ color: "#888", fontSize: 15 }}>({plant.variety})</div>}
             </div>
+
+            {/* Next Watering card */}
+            {nextWatering && (
+              <div style={{ border: "2px solid #000", borderRadius: 14, padding: "12px 14px", marginBottom: 14, display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 48, height: 48, background: "#e8f4ff", borderRadius: 12, border: "1.5px solid #cce0ff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <img src={ICONS.water} alt="Water" style={{ width: 26, height: 26, objectFit: "contain" }} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: "#aaa", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 1 }}>Next Watering</div>
+                  <div style={{ fontSize: 22, fontWeight: 900, lineHeight: 1.1, color: wateringEnabled ? "#000" : "#aaa" }}>{nextWateringLabel(nextWatering)}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: wateringEnabled ? "#555" : "#bbb" }}>{wateringTime}</div>
+                </div>
+                <button onClick={toggleWateringReminder}
+                  style={{ flexShrink: 0, background: wateringEnabled ? "#000" : "#ddd", border: "none", borderRadius: 999, padding: "5px 12px", cursor: "pointer", fontSize: 12, fontWeight: 800, color: wateringEnabled ? "#fff" : "#999", letterSpacing: 0.5, minWidth: 44 }}>
+                  {wateringEnabled ? "ON" : "OFF"}
+                </button>
+              </div>
+            )}
 
             {/* Growing overview card */}
             <div style={{ background: "#f5f5f3", borderRadius: 14, padding: 16, marginBottom: 14 }}>
