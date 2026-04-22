@@ -32,14 +32,14 @@ function PlantGridCard({ plant, onTap, showZone }) {
       <button onClick={onTap} className="plant-card" style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: 16, padding: 12, cursor: "pointer", textAlign: "left", width: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: 0 }}>
 
         {/* Row 1 — Harvest info + menu button */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
           <div>
             <div style={{ fontWeight: 700, fontSize: 12, color: "#000" }}>
               {daysLeft !== null ? (daysLeft <= 0 ? "🎉 Ready!" : "Harvest in:") : "Started:"}
             </div>
             <div style={{ fontSize: 12, color: daysLeft !== null && daysLeft <= 14 ? "#c0392b" : "#888", fontWeight: 500 }}>
               {daysLeft !== null
-                ? (daysLeft <= 0 ? "Harvest now" : `${daysLeft} days · ${formatDate(harvestDate)}`)
+                ? (daysLeft <= 0 ? "Harvest now" : `${daysLeft} days - ${formatDate(harvestDate)}`)
                 : (plant.dateStarted ? formatDate(plant.dateStarted) : plant.status)}
             </div>
           </div>
@@ -47,7 +47,6 @@ function PlantGridCard({ plant, onTap, showZone }) {
             <img src={ICONS.menu} alt="Menu" style={{ width: 16, height: 16, objectFit: "contain" }} />
           </div>
         </div>
-
         {/* Harvest progress bar */}
         {plant.dateStarted && !isDone && (
           <div style={{ marginBottom: 10 }}>

@@ -157,14 +157,10 @@ export default function App() {
     { id: "harvest", label: "Harvest", icon: ICONS.harvest },
   ];
 
-  // ─── Frost bar (shared between header and sidebar) ──────────────────────────
   const FrostBar = () => {
     const today = new Date();
-    const spring = frostDates.lastSpring ? new Date(frostDates.lastSpring) : null;
-    const fall = frostDates.firstFall ? new Date(frostDates.firstFall) : null;
-    const totalDays = spring && fall ? (fall - spring) / (1000 * 60 * 60 * 24) : null;
-    const daysPassed = spring ? Math.max(0, (today - spring) / (1000 * 60 * 60 * 24)) : null;
-    const progress = totalDays && daysPassed !== null ? Math.min(100, Math.max(0, (daysPassed / totalDays) * 100)) : null;
+    const spring = frostDates.lastSpring ? new Date(frostDates.lastSpring + "T12:00:00") : null;
+    const fall = frostDates.firstFall ? new Date(frostDates.firstFall + "T12:00:00") : null;
 
     if (!spring || !fall) return (
       <button onClick={() => setShowSettings(true)}
@@ -173,19 +169,30 @@ export default function App() {
       </button>
     );
 
+    const totalDays = (fall - spring) / (1000 * 60 * 60 * 24);
+    const daysPassed = Math.max(0, (today - spring) / (1000 * 60 * 60 * 24));
+    const progress = Math.min(100, Math.max(0, (daysPassed / totalDays) * 100));
+    const daysToSpring = Math.ceil((spring - today) / (1000 * 60 * 60 * 24));
+    const daysToFall = Math.ceil((fall - today) / (1000 * 60 * 60 * 24));
+    const countdownText = daysToSpring > 0
+      ? `${daysToSpring} Days Until Last Frost`
+      : daysToFall > 0
+        ? `${daysToFall} Days Until First Frost`
+        : "Season Complete";
+
     return (
       <button onClick={() => setShowSettings(true)} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left", fontFamily: "inherit" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
-          <span style={{ fontSize: 9, fontWeight: 800, color: "#aaa", textTransform: "uppercase", letterSpacing: 0.5 }}>Last Spring Frost</span>
-          <span style={{ fontSize: 9, fontWeight: 800, color: "#aaa", textTransform: "uppercase", letterSpacing: 0.5 }}>First Fall Frost</span>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 1 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: "#aaa", textTransform: "uppercase", letterSpacing: 0.5 }}>Growing Season</span>
+          {frostDates.zone && <span style={{ fontSize: 10, fontWeight: 700, color: "#aaa", textTransform: "uppercase", letterSpacing: 0.5 }}>Zone {frostDates.zone}</span>}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 15, fontWeight: 700, color: "#000", flexShrink: 0 }}>{formatDate(frostDates.lastSpring)}</span>
-          <div style={{ flex: 1, height: 10, background: "#e8e8e8", borderRadius: 999, overflow: "hidden", border: "1.5px solid #ddd" }}>
+        <div style={{ fontSize: 14, fontWeight: 800, color: "#000", marginBottom: 4, letterSpacing: -0.2 }}>{countdownText}</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: "#000", flexShrink: 0 }}>{formatDate(frostDates.lastSpring)}</span>
+          <div style={{ flex: 1, height: 8, background: "#e8e8e8", borderRadius: 999, overflow: "hidden", border: "1.5px solid #ddd" }}>
             <div style={{ height: "100%", width: `${progress}%`, background: "#a8e063", borderRadius: 999, transition: "width 0.3s ease" }} />
           </div>
-          <span style={{ fontSize: 15, fontWeight: 700, color: "#000", flexShrink: 0 }}>{formatDate(frostDates.firstFall)}</span>
-          <span style={{ fontSize: 14, color: "#bbb", flexShrink: 0 }}>›</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: "#000", flexShrink: 0 }}>{formatDate(frostDates.firstFall)}</span>
         </div>
       </button>
     );
@@ -228,36 +235,49 @@ export default function App() {
                   {(!lastBackup || daysSince(lastBackup) >= 3) ? "⚠️ Backup" : "Backup"}
                 </button>
               </div>
-              <button onClick={() => setShowSettings(true)}
-                style={{ background: "#000", border: "none", borderRadius: 10, width: 36, height: 36, cursor: "pointer", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, paddingBottom: 3 }}>⚙️</button>
+              <div style={{ position: "relative", paddingBottom: 3, flexShrink: 0 }}>
+                <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 10, zIndex: 0 }} />
+                <button onClick={() => setShowSettings(true)}
+                  style={{ position: "relative", zIndex: 1, background: "#a8e063", border: "2.5px solid #000", borderRadius: 10, width: 36, height: 36, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <img src={ICONS.settings} alt="Settings" style={{ width: 18, height: 18, objectFit: "contain" }} />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* ── Main column ───────────────────────────────────────────── */}
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", paddingBottom: isWide ? 0 : 80 }}>
 
-        {/* Header (narrow only) */}
+        {/* Narrow header — logo scrolls away, frost bar sticks */}
         {!isWide && (
-          <div style={{ background: "#fff", borderBottom: "1px solid #eee", padding: "14px 16px", position: "sticky", top: 0, zIndex: 50 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-              <img src={ICONS.logo} alt="Dirt Rich" style={{ height: 52, objectFit: "contain" }} />
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                {syncing && <span style={{ fontSize: 11, color: "#aaa" }}>syncing...</span>}
-                <div style={{ position: "relative", paddingBottom: 3 }}>
-                  <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 999, zIndex: 0 }} />
-                  <button onClick={() => setShowBackup(true)} className="btn-cta"
-                    style={{ position: "relative", zIndex: 1, background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 999, padding: "8px 20px", cursor: "pointer", fontWeight: 800, fontSize: 14, fontFamily: "inherit" }}>
-                    {(!lastBackup || daysSince(lastBackup) >= 3) ? "⚠️ Backup" : "Backup"}
-                  </button>
+          <>
+            <div style={{ background: "#fff", padding: "14px 16px 0" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                <img src={ICONS.logo} alt="Dirt Rich" style={{ height: 52, objectFit: "contain" }} />
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  {syncing && <span style={{ fontSize: 11, color: "#aaa" }}>syncing...</span>}
+                  <div style={{ position: "relative", paddingBottom: 3 }}>
+                    <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 999, zIndex: 0 }} />
+                    <button onClick={() => setShowBackup(true)} className="btn-cta"
+                      style={{ position: "relative", zIndex: 1, background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 999, padding: "8px 20px", cursor: "pointer", fontWeight: 800, fontSize: 14, fontFamily: "inherit" }}>
+                      {(!lastBackup || daysSince(lastBackup) >= 3) ? "⚠️ Backup" : "Backup"}
+                    </button>
+                  </div>
+                  <div style={{ position: "relative", paddingBottom: 3, flexShrink: 0 }}>
+                    <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 12, zIndex: 0 }} />
+                    <button onClick={() => setShowSettings(true)}
+                      style={{ position: "relative", zIndex: 1, background: "#a8e063", border: "2.5px solid #000", borderRadius: 12, width: 40, height: 40, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <img src={ICONS.settings} alt="Settings" style={{ width: 20, height: 20, objectFit: "contain" }} />
+                    </button>
+                  </div>
                 </div>
-                <button onClick={() => setShowSettings(true)}
-                  style={{ background: "#000", border: "none", borderRadius: 12, width: 40, height: 40, cursor: "pointer", fontSize: 20, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>⚙️</button>
               </div>
             </div>
-            {tab === "garden" && <FrostBar />}
-          </div>
+            <div style={{ background: "#fff", borderBottom: "1px solid #eee", padding: "10px 16px 14px", position: "sticky", top: 0, zIndex: 50 }}>
+              {tab === "garden" && <FrostBar />}
+            </div>
+          </>
         )}
 
         {/* Wide header — tab title */}

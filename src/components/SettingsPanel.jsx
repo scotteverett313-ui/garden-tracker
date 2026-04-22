@@ -7,10 +7,11 @@ import { CTAButton } from "./CTAButton.jsx";
 function FrostSection({ frostDates, onSave }) {
   const [lastSpring, setLastSpring] = useState(frostDates.lastSpring || "");
   const [firstFall, setFirstFall] = useState(frostDates.firstFall || "");
+  const [zone, setZone] = useState(frostDates.zone || "");
   const [saved, setSaved] = useState(false);
 
   function handleSave() {
-    onSave({ lastSpring, firstFall });
+    onSave({ lastSpring, firstFall, zone: zone.trim() });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }
@@ -18,6 +19,12 @@ function FrostSection({ frostDates, onSave }) {
   return (
     <div>
       <p style={{ color: "#888", fontSize: 13, margin: "0 0 20px" }}>Set your local frost dates to track your growing season.</p>
+      <div style={{ marginBottom: 16 }}>
+        <label style={{ display: "block", fontWeight: 700, fontSize: 13, marginBottom: 6 }}>Hardiness Zone</label>
+        <input type="text" value={zone} onChange={e => setZone(e.target.value)} placeholder="e.g. 6b"
+          style={{ width: "100%", padding: "10px 12px", border: "2px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" }} />
+        <p style={{ color: "#aaa", fontSize: 12, marginTop: 4 }}>Your USDA hardiness zone — displayed in the header.</p>
+      </div>
       <div style={{ marginBottom: 16 }}>
         <label style={{ display: "block", fontWeight: 700, fontSize: 13, marginBottom: 6 }}>Last Spring Frost</label>
         <input type="date" value={lastSpring} onChange={e => setLastSpring(e.target.value)}

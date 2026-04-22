@@ -3,12 +3,15 @@ import { createClient } from '@supabase/supabase-js';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+export const supabase = SUPABASE_URL && SUPABASE_ANON_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
 
 // ─── Data helpers ─────────────────────────────────────────────────────────────
 const USER_ID = 'default';
 
 export async function dbLoad(key) {
+  if (!supabase) return null;
   try {
     const { data, error } = await supabase
       .from('app_data')
@@ -24,6 +27,7 @@ export async function dbLoad(key) {
 }
 
 export async function dbSave(key, value) {
+  if (!supabase) return;
   try {
     await supabase
       .from('app_data')
@@ -34,6 +38,7 @@ export async function dbSave(key, value) {
 }
 
 export async function dbLoadPlants() {
+  if (!supabase) return null;
   try {
     const { data, error } = await supabase
       .from('plants')
@@ -47,6 +52,7 @@ export async function dbLoadPlants() {
 }
 
 export async function dbSavePlants(plants) {
+  if (!supabase) return;
   try {
     // Upsert all plants
     if (plants.length > 0) {
@@ -70,6 +76,7 @@ export async function dbSavePlants(plants) {
 }
 
 export async function dbLoadSeeds() {
+  if (!supabase) return null;
   try {
     const { data, error } = await supabase
       .from('seeds')
@@ -83,6 +90,7 @@ export async function dbLoadSeeds() {
 }
 
 export async function dbSaveSeeds(seeds) {
+  if (!supabase) return;
   try {
     if (seeds.length > 0) {
       await supabase.from('seeds').upsert(

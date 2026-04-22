@@ -22,8 +22,34 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
   const hasActiveFilters = !!(search || filterZone || filterStatus || favOnly);
   const showEmptyState = hasActiveFilters && filtered.length === 0;
 
+  const today = new Date();
+  const dateLabel = today.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+
+  const statusCounts = STATUSES
+    .map(s => ({ ...s, count: plants.filter(p => p.status === s.label).length }))
+    .filter(s => s.count > 0);
+
+  const STATUS_DOT = {
+    "Seed": "#c4a265", "Germinating": "#7db87d", "Seedling": "#5a9e5a",
+    "Transplanted": "#e8a855", "Growing": "#6ab06a", "Flowering": "#c47db8",
+    "Fruiting": "#e06060", "Harvesting": "#8abe5a", "Dormant": "#aaaaaa",
+    "Harvested": "#4caf7d", "Dead": "#888888",
+  };
+
   return (
     <div>
+      {/* Date + Title + Add button */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+        <div>
+          <div style={{ fontSize: 16, fontWeight: 600, color: "#000" }}>{dateLabel}</div>
+          <div style={{ fontSize: 36, fontWeight: 900, letterSpacing: -1, lineHeight: 1.1 }}>My Garden</div>
+        </div>
+        <div style={{ position: "relative", paddingBottom: 4, flexShrink: 0 }}>
+          <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 999, zIndex: 0 }} />
+          <button onClick={onAddPlant} style={{ position: "relative", zIndex: 1, width: 48, height: 48, borderRadius: 999, background: "#a8e063", border: "2.5px solid #000", cursor: "pointer", fontSize: 28, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>+</button>
+        </div>
+      </div>
+
       {/* Search row */}
       <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
         <input placeholder="Search plants..." value={search} onChange={e => setSearch(e.target.value)}
@@ -61,6 +87,22 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, search, setSearch, 
       {hasActiveFilters && (
         <button onClick={() => { setSearch(""); setFilterZone(""); setFilterStatus(""); setFavOnly(false); }}
           style={{ background: "#f0f0f0", border: "none", borderRadius: 8, padding: "5px 14px", cursor: "pointer", fontSize: 13, marginBottom: 14 }}>× Clear</button>
+      )}
+
+      {/* Status count chips */}
+      {statusCounts.length > 0 && !favOnly && !showEmptyState && (
+        <div style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 20, paddingBottom: 2, scrollbarWidth: "none", msOverflowStyle: "none" }}>
+          {statusCounts.map(s => (
+            <button key={s.label} onClick={() => setFilterStatus(filterStatus === s.label ? "" : s.label)}
+              style={{ flexShrink: 0, background: filterStatus === s.label ? "#000" : "#fff", border: "2px solid #000", borderRadius: 14, padding: "10px 14px", cursor: "pointer", textAlign: "left", minWidth: 76 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3 }}>
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: STATUS_DOT[s.label] || "#aaa", flexShrink: 0 }} />
+                <span style={{ fontSize: 11, fontWeight: 600, color: filterStatus === s.label ? "#ccc" : "#666" }}>{s.label}</span>
+              </div>
+              <div style={{ fontSize: 26, fontWeight: 900, color: filterStatus === s.label ? "#fff" : "#000", lineHeight: 1 }}>{s.count}</div>
+            </button>
+          ))}
+        </div>
       )}
 
       {/* Empty state when filters return no results */}
