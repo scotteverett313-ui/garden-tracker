@@ -22,6 +22,34 @@ const SEED_FIELDS = [
   { key: "notes",        label: "Notes",                                type: "textarea" },
 ];
 
+const SEED_CATEGORIES = [
+  { key: "Flowers",    color: "#e05a9a", text: "#fff" },
+  { key: "Fruits",     color: "#e05840", text: "#fff" },
+  { key: "Herbs",      color: "#4aaa6a", text: "#fff" },
+  { key: "Greens",     color: "#3a9080", text: "#fff" },
+  { key: "Vegetables", color: "#7b9e50", text: "#fff" },
+  { key: "Roots",      color: "#c4965a", text: "#fff" },
+  { key: "Other",      color: "#aaaaaa", text: "#fff" },
+];
+
+const CAT_LOOKUP = {
+  Flowers:    ["sunflower","zinnia","marigold","cosmos","nasturtium","alyssum","dahlia","lavender","chamomile","petunia"],
+  Fruits:     ["tomato","pepper","cucumber","squash","zucchini","melon","watermelon","pumpkin","eggplant","tomatillo"],
+  Herbs:      ["basil","mint","cilantro","dill","parsley","sage","thyme","oregano","rosemary","chives","fennel"],
+  Greens:     ["lettuce","spinach","kale","arugula","chard","bok choy","cabbage","broccoli","collard"],
+  Vegetables: ["onion","garlic","leek","corn","bean","pea","radish","beet","turnip","cauliflower"],
+  Roots:      ["carrot","potato","parsnip","rutabaga","celery","yam"],
+};
+
+function getSeedCategory(seed) {
+  if (seed.category) return seed.category;
+  const name = (seed.name || "").toLowerCase();
+  for (const [cat, names] of Object.entries(CAT_LOOKUP)) {
+    if (names.some(n => name.includes(n))) return cat;
+  }
+  return "Other";
+}
+
 function SeedLibraryTab({ seeds, onSaveSeeds, onAddToGarden }) {
   const [view, setView] = useState("library"); // library | scan | edit
   const [selectedSeed, setSelectedSeed] = useState(null);
@@ -32,6 +60,7 @@ function SeedLibraryTab({ seeds, onSaveSeeds, onAddToGarden }) {
   const [debugText, setDebugText] = useState("");
   const [editForm, setEditForm] = useState({});
   const [search, setSearch] = useState("");
+  const [filterCategory, setFilterCategory] = useState("");
   const [frontImg, setFrontImg] = useState(null);
   const [backImg, setBackImg] = useState(null);
   const frontRef = useRef();
@@ -39,8 +68,14 @@ function SeedLibraryTab({ seeds, onSaveSeeds, onAddToGarden }) {
 
   const filtered = seeds.filter(s => {
     const q = search.toLowerCase();
-    return !q || s.name?.toLowerCase().includes(q) || s.variety?.toLowerCase().includes(q) || s.brand?.toLowerCase().includes(q);
+    const matchSearch = !q || s.name?.toLowerCase().includes(q) || s.variety?.toLowerCase().includes(q) || s.brand?.toLowerCase().includes(q);
+    const matchCat = !filterCategory || getSeedCategory(s) === filterCategory;
+    return matchSearch && matchCat;
   });
+
+  const categoryCounts = SEED_CATEGORIES
+    .map(c => ({ ...c, count: seeds.filter(s => getSeedCategory(s) === c.key).length }))
+    .filter(c => c.count > 0);
 
   // Convert file to base64
   async function fileToBase64(file) {
@@ -234,6 +269,12 @@ Return ONLY the JSON, no other text.` });
                   <div style={{ gridColumn: "span 2" }}><label style={lbl}>Plant Name</label>{field("name", "e.g. Tomato")}</div>
                   <div><label style={lbl}>Variety</label>{field("variety", "e.g. Cherokee Purple")}</div>
                   <div><label style={lbl}>Brand / Company</label>{field("brand", "e.g. Burpee")}</div>
+                  <div><label style={lbl}>Category</label>
+                    <select value={form.category || ""} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} style={sel}>
+                      <option value="">Auto-detect</option>
+                      {SEED_CATEGORIES.map(c => <option key={c.key} value={c.key}>{c.key}</option>)}
+                    </select>
+                  </div>
                   <div><label style={lbl}>Packet Year</label>{field("year", new Date().getFullYear().toString(), "number")}</div>
                   <div><label style={lbl}>Days to Maturity</label>{field("dtm", "e.g. 75", "number")}</div>
                 </div>
@@ -297,22 +338,41 @@ Return ONLY the JSON, no other text.` });
   // ── Library view ──
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
-        <div>
-          <h2 style={{ margin: "0 0 4px", fontSize: 22, fontWeight: 800 }}>Seed Library</h2>
-          <p style={{ color: "#888", margin: 0, fontSize: 14 }}>{seeds.length} packet{seeds.length !== 1 ? "s" : ""} in your collection.</p>
-        </div>
-        <CTAButton onClick={() => { setScanError(""); setFrontImg(null); setBackImg(null); setView("scan"); }} style={{ padding: "10px 16px", fontSize: 14 }}>
-          📷 Scan Packet
-        </CTAButton>
+      {/* Header */}
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 16, fontWeight: 600, color: "#000" }}>Seed Library</div>
+        <div style={{ fontSize: 36, fontWeight: 900, letterSpacing: -1, lineHeight: 1.1 }}>{seeds.length} seed{seeds.length !== 1 ? "s" : ""}</div>
       </div>
 
+      {/* Scan Packet CTA */}
+      <CTAButton onClick={() => { setScanError(""); setFrontImg(null); setBackImg(null); setView("scan"); }} style={{ marginBottom: 14, fontSize: 15 }}>
+        Scan Packet
+      </CTAButton>
+
+      {/* Search */}
       <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
         <input placeholder="Search seeds..." value={search} onChange={e => setSearch(e.target.value)}
           style={{ flex: 1, padding: "10px 14px", border: "2px solid #000", borderRadius: 50, fontSize: 14, fontFamily: "inherit", boxSizing: "border-box" }} />
-        <button onClick={() => setSearch("")}
-          style={{ display: search ? "flex" : "none", width: 40, height: 40, border: "2px solid #000", borderRadius: 10, background: "#fff", cursor: "pointer", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>×</button>
+        {search && <button onClick={() => setSearch("")}
+          style={{ width: 40, height: 40, border: "2px solid #000", borderRadius: 10, background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>×</button>}
       </div>
+
+      {/* Category chips */}
+      {categoryCounts.length > 0 && (
+        <div style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 18, paddingBottom: 2, scrollbarWidth: "none", msOverflowStyle: "none" }}>
+          {categoryCounts.map(c => (
+            <button key={c.key} onClick={() => setFilterCategory(filterCategory === c.key ? "" : c.key)}
+              style={{ flexShrink: 0, background: c.color, border: `2.5px solid ${filterCategory === c.key ? "#000" : "transparent"}`, borderRadius: 14, padding: "10px 14px", cursor: "pointer", textAlign: "center", minWidth: 70, boxShadow: filterCategory === c.key ? "0 0 0 2px #000" : "none", opacity: filterCategory && filterCategory !== c.key ? 0.5 : 1, transition: "all 0.15s" }}>
+              <div style={{ fontSize: 26, fontWeight: 900, color: "#fff", lineHeight: 1 }}>{c.count}</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.9)", marginTop: 3 }}>{c.key}</div>
+            </button>
+          ))}
+        </div>
+      )}
+      {filterCategory && (
+        <button onClick={() => setFilterCategory("")}
+          style={{ background: "#f0f0f0", border: "none", borderRadius: 8, padding: "5px 14px", cursor: "pointer", fontSize: 13, marginBottom: 14 }}>× Clear</button>
+      )}
 
       {seeds.length === 0 ? (
         <div style={{ border: "2px dashed #ccc", borderRadius: 14, padding: 48, textAlign: "center" }}>
