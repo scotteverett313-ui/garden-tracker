@@ -244,7 +244,8 @@ export default function App() {
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
       {/* ── Main column ───────────────────────────────────────────── */}
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", paddingBottom: isWide ? 0 : 80 }}>
