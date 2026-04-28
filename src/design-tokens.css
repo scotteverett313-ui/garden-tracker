@@ -178,6 +178,7 @@
   transition: transform var(--duration-fast) var(--ease-standard);
 }
 .btn-cta:active { transform: translateY(2px); }
+.btn-icon:active { transform: scale(0.88); }
 
 /* Card */
 .card {

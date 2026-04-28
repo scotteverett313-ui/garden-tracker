@@ -100,7 +100,7 @@ function PlantGridCard({ plant, onTap, showZone }) {
 
   return (
     // Offset shadow wrapper — paddingBottom gives shadow room so it doesn't bleed into next card
-    <div style={{ position: "relative", opacity: isDone ? 0.5 : 1, paddingBottom: 4 }}>
+    <div style={{ position: "relative", opacity: isDone ? 0.5 : 1, paddingBottom: 4, alignSelf: "start" }}>
       {/* Black shadow layer */}
       <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 'var(--radius-card)', zIndex: 0 }} />
       {/* Main card on top */}

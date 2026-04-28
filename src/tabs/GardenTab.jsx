@@ -56,8 +56,8 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, se
           style={{ flex: 1, minWidth: 0, padding: "10px 14px", border: "2px solid #000", borderRadius: 'var(--radius-btn)', fontSize: 14, fontFamily: "inherit", background: "#fff" }} />
         <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
           {/* Favorites toggle */}
-          <button onClick={() => setFavOnly(v => !v)}
-            style={{ width: 40, height: 40, border: `2px solid ${favOnly ? "#000" : "#ddd"}`, borderRadius: 'var(--radius-input)', background: favOnly ? "#000" : "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <button onClick={() => setFavOnly(v => !v)} className="btn-icon"
+            style={{ width: 40, height: 40, border: `2px solid ${favOnly ? "#000" : "#ddd"}`, borderRadius: 'var(--radius-input)', background: favOnly ? "#000" : "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "transform 0.1s ease" }}>
             <img src={favOnly ? ICONS.favActive : ICONS.favorite} alt="Favorites" style={{ width: 20, height: 20, objectFit: "contain", filter: favOnly ? "invert(1)" : "none" }} />
           </button>
           {/* Grid/List toggle */}
