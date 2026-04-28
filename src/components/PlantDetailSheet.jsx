@@ -164,7 +164,7 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
       <div style={{ position: "fixed", inset: 0, background: "#a8e063", zIndex: 1000 }}>
 
         {/* Plant sprite centered in green zone */}
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "30vh", display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "30vh", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "env(safe-area-inset-top, 20px)", pointerEvents: "none" }}>
           {imageUrl
             ? <img ref={imageRef} src={imageUrl} alt={plant.name} style={{ width: 110, height: 110, objectFit: "contain", imageRendering: "pixelated" }} />
             : <img ref={imageRef} src={statusObj.img} alt={statusObj.label} style={{ width: 80, height: 80, objectFit: "contain" }} />

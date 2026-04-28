@@ -345,9 +345,11 @@ Return ONLY the JSON, no other text.` });
       </div>
 
       {/* Scan Packet CTA */}
-      <CTAButton onClick={() => { setScanError(""); setFrontImg(null); setBackImg(null); setView("scan"); }} style={{ marginBottom: 20, fontSize: 15 }}>
+      <CTAButton onClick={() => { setScanError(""); setFrontImg(null); setBackImg(null); setView("scan"); }} style={{ fontSize: 15 }}>
         Scan Packet
       </CTAButton>
+
+      <div style={{ height: 32 }} />
 
       {/* Search */}
       <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
