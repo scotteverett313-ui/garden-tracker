@@ -38,7 +38,7 @@ function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onE
         </div>
         <button onClick={() => onUpdate({ ...seed, bookmarked: !seed.bookmarked })}
           style={{ background: "none", border: "none", cursor: "pointer", flexShrink: 0, padding: 0, lineHeight: 1, fontSize: 24 }}>
-          {"💩"}
+          <img src={seed.bookmarked ? ICONS.favActive : ICONS.favorite} alt="Bookmark" style={{ width: 24, height: 24, objectFit: "contain" }} />
         </button>
       </div>
 
@@ -179,7 +179,7 @@ function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onE
         </button>
         <button onClick={() => onEdit(seed)}
           style={{ flex: 1, padding: "10px", background: "#fff", border: "2px solid #000", borderRadius: 'var(--radius-icon)', cursor: "pointer", fontSize: 14, fontWeight: 700 }}>
-          💩 Edit
+          <img src={ICONS.edit} alt="" style={{ width: 16, height: 16, objectFit: "contain", marginRight: 5, verticalAlign: "middle" }} />Edit
         </button>
       </div>
 
@@ -199,7 +199,7 @@ function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onE
         ) : (
           <button onClick={() => setShowDeleteConfirm(true)}
             style={{ width: "100%", padding: "11px", background: "none", border: "1.5px solid #e0e0e0", borderRadius: 'var(--radius-icon)', cursor: "pointer", fontSize: 14, color: "#c0392b", fontWeight: 600, marginTop: 8 }}>
-            💩 Remove from Library
+            <img src={ICONS.trash} alt="" style={{ width: 16, height: 16, objectFit: "contain", marginRight: 5, verticalAlign: "middle" }} />Remove from Library
           </button>
         )}
       </div>

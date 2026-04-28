@@ -183,7 +183,7 @@ Return ONLY the JSON, no other text.` });
 
         <div style={{ background: "#fdf6ee", border: "1px solid #d4a96a", borderRadius: 'var(--radius-card-sm)', padding: 16, marginBottom: 16 }}>
           <div style={{ fontSize: 13, color: "#555", lineHeight: 1.6 }}>
-            💩 Take or upload a photo of the <strong>front and back</strong> of your seed packet. Claude will read the text and fill in the details automatically. No photos are stored.
+            <img src={ICONS.camera} alt="" style={{ width: 16, height: 16, objectFit: "contain", marginRight: 5, verticalAlign: "middle" }} />Take or upload a photo of the <strong>front and back</strong> of your seed packet. Claude will read the text and fill in the details automatically. No photos are stored.
           </div>
         </div>
 
@@ -203,7 +203,7 @@ Return ONLY the JSON, no other text.` });
                   </>
                 ) : (
                   <>
-                    <div style={{ fontSize: 28 }}>💩</div>
+                    <img src={ICONS.camera} alt="" style={{ width: 36, height: 36, objectFit: "contain" }} />
                     <div style={{ fontSize: 12, color: "#888" }}>Tap to add photo</div>
                   </>
                 )}
@@ -225,7 +225,7 @@ Return ONLY the JSON, no other text.` });
 
         <button onClick={handleScan} disabled={scanning}
           style={{ width: "100%", padding: 14, background: scanning ? "#aaa" : "#5c3d1e", color: "#fff", border: "none", borderRadius: 'var(--radius-icon)', cursor: scanning ? "not-allowed" : "pointer", fontSize: 15, fontWeight: 700, marginBottom: 10 }}>
-          {scanning ? "💩 Reading packet..." : "💩 Scan & Extract Info"}
+          {scanning ? <><img src={ICONS.camera} alt="" style={{ width: 18, height: 18, objectFit: "contain", marginRight: 6, verticalAlign: "middle" }} />Reading packet...</> : <><img src={ICONS.camera} alt="" style={{ width: 18, height: 18, objectFit: "contain", marginRight: 6, verticalAlign: "middle" }} />Scan & Extract Info</>}
         </button>
         <button onClick={() => { const blank = { id: generateId(), addedAt: new Date().toISOString() }; setScannedData(blank); setEditForm(blank); setView("edit"); }}
           style={{ width: "100%", padding: 12, background: "#fff", color: "#555", border: "1.5px solid #ddd", borderRadius: 'var(--radius-icon)', cursor: "pointer", fontSize: 14 }}>
@@ -250,7 +250,7 @@ Return ONLY the JSON, no other text.` });
 
         {scannedData && !editingSeed && (
           <div style={{ background: "#fdf6ee", border: "1px solid #d4a96a", borderRadius: 'var(--radius-input)', padding: "8px 14px", marginBottom: 16, fontSize: 13, color: "#5c3d1e" }}>
-            💩 Claude extracted this info from your packet. Review and edit anything that looks off, then save.
+            <img src={ICONS.camera} alt="" style={{ width: 14, height: 14, objectFit: "contain", marginRight: 5, verticalAlign: "middle" }} />Claude extracted this info from your packet. Review and edit anything that looks off, then save.
           </div>
         )}
 
@@ -324,7 +324,7 @@ Return ONLY the JSON, no other text.` });
 
         <div style={{ display: "flex", gap: 10 }}>
           <CTAButton onClick={() => handleSave(form)} style={{ padding: "13px", fontSize: 15 }}>
-            💩 Save to Seed Library
+            <img src={ICONS.save} alt="" style={{ width: 18, height: 18, objectFit: "contain", marginRight: 6, verticalAlign: "middle" }} />Save to Seed Library
           </CTAButton>
           <button onClick={() => { setView("library"); setEditingSeed(null); setScannedData(null); }}
             style={{ padding: "13px 18px", background: "#fff", color: "#555", border: "1.5px solid #ddd", borderRadius: 'var(--radius-icon)', cursor: "pointer", fontSize: 14, flexShrink: 0 }}>
@@ -405,7 +405,7 @@ Return ONLY the JSON, no other text.` });
                       {seed.dtm && <span style={{ fontSize: 12, fontWeight: 700, color: "#444" }}>· {seed.dtm}d</span>}
                       {seed.year && <span style={{ fontSize: 11, background: "#f0f0f0", color: "#666", padding: "1px 6px", borderRadius: 'var(--radius-sm)' }}>{seed.year}</span>}
                       {seed.started && <span style={{ fontSize: 11, background: "#a8e063", color: "#000", padding: "1px 6px", borderRadius: 'var(--radius-sm)', fontWeight: 700, border: "1px solid #000" }}>✓ Started</span>}
-                      {seed.bookmarked && <span style={{ fontSize: 14 }}>💩</span>}
+                      {seed.bookmarked && <img src={ICONS.favActive} alt="" style={{ width: 14, height: 14, objectFit: "contain" }} />}
                     </div>
                   </div>
                   <span style={{ fontSize: 16, color: "#bbb", flexShrink: 0 }}>›</span>

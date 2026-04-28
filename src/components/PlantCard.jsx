@@ -110,7 +110,7 @@ function PlantGridCard({ plant, onTap, showZone }) {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
           <div>
             <div style={{ fontWeight: 700, fontSize: 12, color: "#000" }}>
-              {daysLeft !== null ? (daysLeft <= 0 ? "💩 Ready!" : "Harvest in:") : "Started:"}
+              {daysLeft !== null ? (daysLeft <= 0 ? <><img src={ICONS.harvest} alt="" style={{ width: 14, height: 14, objectFit: "contain", marginRight: 3, verticalAlign: "middle" }} />Ready!</> : "Harvest in:") : "Started:"}
             </div>
             <div style={{ fontSize: 12, color: daysLeft !== null && daysLeft <= 14 ? "#c0392b" : "#888", fontWeight: 500 }}>
               {daysLeft !== null
@@ -210,7 +210,7 @@ function PlantListCard({ plant, onTap, showZone }) {
         <div style={{ display: "flex", gap: 8, marginTop: 2, flexWrap: "wrap" }}>
           {daysLeft !== null && (
             <div style={{ fontSize: 12, color: daysLeft <= 0 ? "#2d8a3f" : daysLeft <= 14 ? "#c0392b" : "#888", fontWeight: 600 }}>
-              {daysLeft <= 0 ? "💩 Ready!" : `${daysLeft}d to harvest`}
+              {daysLeft <= 0 ? <><img src={ICONS.harvest} alt="" style={{ width: 14, height: 14, objectFit: "contain", marginRight: 3, verticalAlign: "middle" }} />Ready!</> : `${daysLeft}d to harvest`}
             </div>
           )}
           {watered && <div style={{ fontSize: 12, color: watered.color, fontWeight: 600, display: "flex", alignItems: "center" }}><img src={ICONS.water} style={{ width: 11, height: 11, objectFit: "contain", marginRight: 3 }} alt="" />{watered.label}</div>}

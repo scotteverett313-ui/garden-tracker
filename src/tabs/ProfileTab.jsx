@@ -97,9 +97,9 @@ function ProfileTab({ plants, frostDates, user, onOpenSettings }) {
 
   const alerts = [];
   if (daysToFall !== null && daysToFall > 0 && daysToFall <= 14)
-    alerts.push({ icon: "💩", text: `First frost in ${daysToFall}d — harvest warm-season crops now`, urgent: true });
+    alerts.push({ icon: null, isImg: ICONS.harvest, text: `First frost in ${daysToFall}d — harvest warm-season crops now`, urgent: true });
   else if (daysToFall !== null && daysToFall > 14 && daysToFall <= 30)
-    alerts.push({ icon: "💩", text: `Frost in ${daysToFall} days — start protecting tender plants` });
+    alerts.push({ icon: null, isImg: ICONS.harvest, text: `Frost in ${daysToFall} days — start protecting tender plants` });
   if (daysToSpring !== null && daysToSpring > 0 && daysToSpring <= 30)
     alerts.push({ icon: null, isImg: ICONS.seedlingGreen, text: `Last frost in ${daysToSpring} days — start warm-season seedlings indoors` });
 
@@ -265,7 +265,7 @@ function ProfileTab({ plants, frostDates, user, onOpenSettings }) {
       <div style={{ position: "relative", paddingBottom: 4, marginBottom: 8 }}>
         <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: "var(--radius-card-sm)", zIndex: 0 }} />
         <div style={{ position: "relative", zIndex: 1, background: "#f5f0ff", border: "2px solid #000", borderRadius: "var(--radius-card-sm)", padding: "14px 16px", display: "flex", alignItems: "center", gap: 14 }}>
-          <span style={{ fontSize: 26, flexShrink: 0 }}>💩</span>
+          <img src={ICONS.settings} alt="" style={{ width: 26, height: 26, objectFit: "contain", flexShrink: 0 }} />
           <div>
             <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 3 }}>Join the community</div>
             <div style={{ fontSize: 13, color: "#666", lineHeight: 1.4 }}>Share harvests, swap seeds — on Discord while we build.</div>

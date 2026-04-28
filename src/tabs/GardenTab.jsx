@@ -113,7 +113,7 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, se
             {favOnly ? "No favorites yet" : "No plants found"}
           </div>
           <div style={{ fontSize: 14, color: "#aaa", marginBottom: 20 }}>
-            {favOnly ? "Open any plant and tap 💩 to save it here" : "Try adjusting your search or filters"}
+            {favOnly ? <span>Open any plant and tap <img src={ICONS.favorite} alt="favorite" style={{ width: 14, height: 14, objectFit: "contain", verticalAlign: "middle" }} /> to save it here</span> : "Try adjusting your search or filters"}
           </div>
         </div>
       )}

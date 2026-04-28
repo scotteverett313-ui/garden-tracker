@@ -86,9 +86,9 @@ function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, 
   }
 
   const sections = [
-    { id: "zones", label: "Zones", icon: ICONS.seedlingGreen, isImg: true },
-    { id: "frost", label: "Frost Dates", icon: "💩" },
-    { id: "backup", label: "Backup", icon: "💩" },
+    { id: "zones", label: "Zones", icon: ICONS.zone, isImg: true },
+    { id: "frost", label: "Frost Dates", icon: ICONS.settings, isImg: true },
+    { id: "backup", label: "Backup", icon: ICONS.backup, isImg: true },
   ];
 
   return (
@@ -121,7 +121,7 @@ function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, 
             </div>
           ) : (
             <button onClick={onShowAuth} style={{ width: "100%", background: "#fdf9f4", border: "2px dashed #ccc", borderRadius: 'var(--radius-card-sm)', padding: "12px 14px", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}>
-              <div style={{ fontWeight: 800, fontSize: 14, color: "#000", marginBottom: 2 }}>💩 Save your garden</div>
+              <div style={{ fontWeight: 800, fontSize: 14, color: "#000", marginBottom: 2, display: "flex", alignItems: "center", gap: 6 }}><img src={ICONS.save} alt="" style={{ width: 16, height: 16, objectFit: "contain" }} />Save your garden</div>
               <div style={{ fontSize: 12, color: "#888" }}>Sign up to sync across devices →</div>
             </button>
           )}
@@ -148,7 +148,7 @@ function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, 
           {/* ── Zones ── */}
           {activeSection === "zones" && (
             <div>
-              <p style={{ color: "#888", fontSize: 13, margin: "0 0 16px" }}>Tap 💩 to rename. Drag ↕ to reorder. Delete only works on empty zones.</p>
+              <p style={{ color: "#888", fontSize: 13, margin: "0 0 16px" }}>Tap the edit icon to rename. Drag ↕ to reorder. Delete only works on empty zones.</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {zones.map((zone, idx) => {
                   const plantCount = plants.filter(p => p.zone === zone.name).length;
@@ -185,9 +185,9 @@ function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, 
                             </>
                           ) : (
                             <>
-                              <button onClick={() => startEdit(zone)} style={{ background: "none", border: "1.5px solid #ddd", borderRadius: 'var(--radius-sm)', padding: "5px 10px", cursor: "pointer", fontSize: 13 }}>💩</button>
+                              <button onClick={() => startEdit(zone)} style={{ background: "none", border: "1.5px solid #ddd", borderRadius: 'var(--radius-sm)', padding: "5px 10px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><img src={ICONS.edit} alt="Edit" style={{ width: 16, height: 16, objectFit: "contain" }} /></button>
                               <button onClick={() => deleteZone(zone)} disabled={plantCount > 0}
-                                style={{ background: "none", border: "1.5px solid #ddd", borderRadius: 'var(--radius-sm)', padding: "5px 10px", cursor: plantCount > 0 ? "not-allowed" : "pointer", fontSize: 13, opacity: plantCount > 0 ? 0.3 : 1, color: "#c0392b" }}>💩</button>
+                                style={{ background: "none", border: "1.5px solid #ddd", borderRadius: 'var(--radius-sm)', padding: "5px 10px", cursor: plantCount > 0 ? "not-allowed" : "pointer", opacity: plantCount > 0 ? 0.3 : 1, color: "#c0392b", display: "flex", alignItems: "center", justifyContent: "center" }}><img src={ICONS.trash} alt="Delete" style={{ width: 16, height: 16, objectFit: "contain" }} /></button>
                             </>
                           )}
                         </div>
@@ -225,7 +225,7 @@ function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, 
               <div style={{ position: "relative", paddingBottom: 4, marginBottom: 16 }}>
                 <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 'var(--radius-card-sm)', zIndex: 0 }} />
                 <div style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: 'var(--radius-card-sm)', padding: 16 }}>
-                  <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 4 }}>💩 Export</div>
+                  <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}><img src={ICONS.save} alt="" style={{ width: 18, height: 18, objectFit: "contain" }} />Export</div>
                   <div style={{ fontSize: 13, color: "#666", marginBottom: 4 }}>{plants.length} plants · {seeds.length} seeds</div>
                   {lastBackup && <div style={{ fontSize: 12, color: "#888", marginBottom: 12 }}>Last backup: {daysSince(lastBackup) === 0 ? "today" : `${daysSince(lastBackup)} days ago`}</div>}
                   <CTAButton onClick={onExport} style={{ padding: "11px", fontSize: 14 }}>Download Backup</CTAButton>
@@ -235,12 +235,12 @@ function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, 
               <div style={{ position: "relative", paddingBottom: 4 }}>
                 <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 'var(--radius-card-sm)', zIndex: 0 }} />
                 <div style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: 'var(--radius-card-sm)', padding: 16 }}>
-                  <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 8 }}>💩 Restore</div>
+                  <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}><img src={ICONS.backup} alt="" style={{ width: 18, height: 18, objectFit: "contain" }} />Restore</div>
                   <label style={{ display: "block", width: "100%", padding: 12, background: "#f5f5f3", border: "2px dashed #ccc", borderRadius: 'var(--radius-input)', cursor: "pointer", fontSize: 14, textAlign: "center", color: "#555", boxSizing: "border-box" }}>
                     Choose Backup File
                     <input type="file" accept=".json" onChange={onImport} style={{ display: "none" }} />
                   </label>
-                  {importError && <div style={{ marginTop: 8, fontSize: 13, color: "#c0392b", background: "#fdecea", padding: "8px 12px", borderRadius: 'var(--radius-sm)' }}>💩 {importError}</div>}
+                  {importError && <div style={{ marginTop: 8, fontSize: 13, color: "#c0392b", background: "#fdecea", padding: "8px 12px", borderRadius: 'var(--radius-sm)' }}>{importError}</div>}
                   {importSuccess && <div style={{ marginTop: 8, fontSize: 13, color: "#2d8a3f", background: "#f0fdf4", padding: "8px 12px", borderRadius: 'var(--radius-sm)' }}>✓ Restored!</div>}
                 </div>
               </div>

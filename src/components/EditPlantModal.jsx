@@ -86,7 +86,7 @@ function EditPlantModal({ plant, onSave, onClose, onDelete, zones = DEFAULT_ZONE
           ) : (
             <button onClick={() => setConfirmDelete(true)}
               style={{ width: "100%", padding: "11px", background: "none", border: "1.5px solid #e0e0e0", borderRadius: 'var(--radius-icon)', cursor: "pointer", fontSize: 14, color: "#c0392b", fontWeight: 600 }}>
-              💩 Delete Plant
+              <img src={ICONS.trash} alt="" style={{ width: 16, height: 16, objectFit: "contain", marginRight: 5, verticalAlign: "middle" }} />Delete Plant
             </button>
           )}
         </div>

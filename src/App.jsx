@@ -108,7 +108,7 @@ export default function App() {
     const deleted = plants.find(p => p.id === id);
     const updated = plants.filter(p => p.id !== id);
     savePlants(updated);
-    toast("Plant removed", { type: "warning", icon: "💩", duration: 4000, action: { label: "Undo", onClick: () => savePlants([...updated, deleted]) } });
+    toast("Plant removed", { type: "warning", icon: ICONS.trash, duration: 4000, action: { label: "Undo", onClick: () => savePlants([...updated, deleted]) } });
   }
   function handleAddSeedToGarden(seed) { setPrefillPlant({ name: seed.name, variety: seed.variety, about: seed.about, water: seed.water, sun: seed.sun, dtm: seed.dtm }); setAddFlow("manual"); setShowAdd(true); }
   function openAddFlow() { setAddFlow("choose"); setShowAdd(true); setPrefillPlant(null); }
@@ -122,7 +122,7 @@ export default function App() {
     a.href = url; a.download = `dirt-rich-backup-${new Date().toISOString().split("T")[0]}.json`; a.click();
     URL.revokeObjectURL(url);
     const now = new Date().toISOString(); localStorage.setItem("last_backup_at", now); setLastBackup(now);
-    toast("Backup downloaded", { icon: "💩" });
+    toast("Backup downloaded", { icon: ICONS.backup });
   }
 
   function handleImport(e) {
@@ -161,7 +161,7 @@ export default function App() {
     { id: "seeds", label: "Seeds", icon: ICONS.seeds },
     { id: "calendar", label: "Calendar", icon: ICONS.calendar },
     { id: "harvest", label: "Harvest", icon: ICONS.harvest },
-    { id: "profile", label: "Profile", icon: ICONS.house },
+    { id: "profile", label: "Profile", icon: ICONS.profile },
   ];
 
   const FrostBar = () => {
@@ -239,7 +239,7 @@ export default function App() {
                 <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 'var(--radius-pill)', zIndex: 0 }} />
                 <button onClick={() => setShowBackup(true)} className="btn-cta"
                   style={{ position: "relative", zIndex: 1, width: "100%", background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 'var(--radius-pill)', padding: "7px 10px", cursor: "pointer", fontWeight: 800, fontSize: 12, fontFamily: "inherit" }}>
-                  {(!lastBackup || daysSince(lastBackup) >= 3) ? "💩 Backup" : "Backup"}
+                  {(!lastBackup || daysSince(lastBackup) >= 3) ? <><img src={ICONS.backup} alt="" style={{ width: 16, height: 16, objectFit: "contain", marginRight: 5, verticalAlign: "middle" }} />Backup</> : "Backup"}
                 </button>
               </div>
               <div style={{ position: "relative", paddingBottom: 3, flexShrink: 0 }}>
@@ -269,7 +269,7 @@ export default function App() {
                     <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 'var(--radius-pill)', zIndex: 0 }} />
                     <button onClick={() => setShowBackup(true)} className="btn-cta"
                       style={{ position: "relative", zIndex: 1, background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 'var(--radius-pill)', padding: "8px 20px", cursor: "pointer", fontWeight: 800, fontSize: 14, fontFamily: "inherit" }}>
-                      {(!lastBackup || daysSince(lastBackup) >= 3) ? "💩 Backup" : "Backup"}
+                      {(!lastBackup || daysSince(lastBackup) >= 3) ? <><img src={ICONS.backup} alt="" style={{ width: 16, height: 16, objectFit: "contain", marginRight: 5, verticalAlign: "middle" }} />Backup</> : "Backup"}
                     </button>
                   </div>
                   <div style={{ position: "relative", paddingBottom: 3, flexShrink: 0 }}>
@@ -328,15 +328,15 @@ export default function App() {
           <p style={{ color: "#888", fontSize: 14, marginBottom: 20 }}>How would you like to add it?</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {[
-              { flow: "db", icon: "💩", title: "Search database", desc: "Pick from 30+ plants, auto-fills everything", accent: "#f5ece0" },
-              { flow: "scan", icon: "💩", title: "Scan seed packet", desc: "Point camera at a packet, Claude reads it", accent: "#f0f8f0" },
-              { flow: "transplant", icon: "💩", title: "Bought as transplant", desc: "Already growing — quick add", accent: "#f0f4ff" },
-              { flow: "manual", icon: "💩", title: "Enter manually", desc: "Blank form, full control", accent: "#fafaf8" },
+              { flow: "db", icon: ICONS.database, title: "Search database", desc: "Pick from 30+ plants, auto-fills everything", accent: "#f5ece0" },
+              { flow: "scan", icon: ICONS.camera, title: "Scan seed packet", desc: "Point camera at a packet, Claude reads it", accent: "#f0f8f0" },
+              { flow: "transplant", icon: ICONS.transplantShop, title: "Bought as transplant", desc: "Already growing — quick add", accent: "#f0f4ff" },
+              { flow: "manual", icon: ICONS.edit, title: "Enter manually", desc: "Blank form, full control", accent: "#fafaf8" },
             ].map(opt => (
               <div key={opt.flow} style={{ position: "relative", paddingBottom: 3 }}>
                 <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 'var(--radius-card-sm)', zIndex: 0 }} />
                 <button onClick={() => setAddFlow(opt.flow)} style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: 14, padding: 16, background: opt.accent, border: "2px solid #000", borderRadius: 'var(--radius-card-sm)', cursor: "pointer", textAlign: "left", width: "100%", boxSizing: "border-box" }}>
-                  <div style={{ width: 48, height: 48, background: "#fff", border: "2px solid #000", borderRadius: 'var(--radius-icon)', display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>{opt.icon}</div>
+                  <div style={{ width: 48, height: 48, background: "#fff", border: "2px solid #000", borderRadius: 'var(--radius-icon)', display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><img src={opt.icon} alt="" style={{ width: 26, height: 26, objectFit: "contain" }} /></div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 800, fontSize: 16 }}>{opt.title}</div>
                     <div style={{ fontSize: 13, color: "#666", marginTop: 2 }}>{opt.desc}</div>
@@ -380,32 +380,32 @@ export default function App() {
       {showSettings && (
         <SettingsPanel onClose={() => setShowSettings(false)} zones={zones}
           onSaveZones={z => { saveZones(z); toast("Zones saved", { icon: ICONS.seedlingGreen }); }}
-          onRenameZone={(id, name) => { renameZone(id, name); toast("Zone renamed", { icon: "💩" }); }}
-          frostDates={frostDates} onSaveFrost={f => { saveFrost(f); toast("Frost dates saved", { icon: "💩" }); }}
+          onRenameZone={(id, name) => { renameZone(id, name); toast("Zone renamed", { icon: ICONS.zone }); }}
+          frostDates={frostDates} onSaveFrost={f => { saveFrost(f); toast("Frost dates saved", { icon: ICONS.settings }); }}
           plants={plants} seeds={seeds} lastBackup={lastBackup} daysSince={daysSince}
           onExport={handleExport} onImport={handleImport} importError={importError} importSuccess={importSuccess}
           user={user}
           onShowAuth={() => { setShowSettings(false); setShowAuth(true); }}
-          onSignOut={() => { setUser(null); localStorage.removeItem("mock_user"); toast("Signed out", { icon: "💩" }); }} />
+          onSignOut={() => { setUser(null); localStorage.removeItem("mock_user"); toast("Signed out", { icon: ICONS.exit }); }} />
       )}
 
       {showBackup && (
         <Modal onClose={() => { setShowBackup(false); setImportError(""); setImportSuccess(false); }} width={440}>
-          <h2 style={{ margin: "0 0 6px", fontSize: 20, fontWeight: 700 }}>💩 Backup & Restore</h2>
+          <h2 style={{ margin: "0 0 6px", fontSize: 20, fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}><img src={ICONS.backup} alt="" style={{ width: 22, height: 22, objectFit: "contain" }} />Backup & Restore</h2>
           <p style={{ color: "#888", fontSize: 13, marginBottom: 20, lineHeight: 1.5 }}>Export to iCloud or Google Drive to keep it safe.</p>
           <div style={{ background: "#fdf6ee", border: "1px solid #d4a96a", borderRadius: 'var(--radius-icon)', padding: 16, marginBottom: 12 }}>
-            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>💩 Export</div>
+            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}><img src={ICONS.save} alt="" style={{ width: 16, height: 16, objectFit: "contain" }} />Export</div>
             <div style={{ fontSize: 13, color: "#666", marginBottom: 4 }}>{plants.length} plants · {seeds.length} seeds</div>
             {lastBackup && <div style={{ fontSize: 12, color: "#888", marginBottom: 10 }}>Last backup: {daysSince(lastBackup) === 0 ? "today" : `${daysSince(lastBackup)} days ago`}</div>}
             <button onClick={handleExport} style={{ width: "100%", padding: 11, background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 'var(--radius-input)', cursor: "pointer", fontSize: 14, fontWeight: 600 }}>Download Backup</button>
           </div>
           <div style={{ background: "#fafaf8", border: "1px solid #e8e8e8", borderRadius: 'var(--radius-icon)', padding: 16 }}>
-            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8 }}>💩 Restore</div>
+            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}><img src={ICONS.backup} alt="" style={{ width: 16, height: 16, objectFit: "contain" }} />Restore</div>
             <label style={{ display: "block", width: "100%", padding: 11, background: "#fff", border: "1.5px dashed #ccc", borderRadius: 'var(--radius-input)', cursor: "pointer", fontSize: 14, textAlign: "center", color: "#555", boxSizing: "border-box" }}>
               Choose Backup File
               <input type="file" accept=".json" onChange={handleImport} style={{ display: "none" }} />
             </label>
-            {importError && <div style={{ marginTop: 8, fontSize: 13, color: "#c0392b", background: "#fdecea", padding: "8px 12px", borderRadius: 'var(--radius-sm)' }}>💩 {importError}</div>}
+            {importError && <div style={{ marginTop: 8, fontSize: 13, color: "#c0392b", background: "#fdecea", padding: "8px 12px", borderRadius: 'var(--radius-sm)' }}>{importError}</div>}
             {importSuccess && <div style={{ marginTop: 8, fontSize: 13, color: "#5c3d1e", background: "#f5ece0", padding: "8px 12px", borderRadius: 'var(--radius-sm)' }}>✓ Restored!</div>}
           </div>
         </Modal>

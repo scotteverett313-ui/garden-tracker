@@ -131,7 +131,7 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
     const entry = { id: generateId(), type: careType, date: careDate, notes: careNote };
     onUpdate({ ...plant, careLog: [...(plant.careLog || []), entry] });
     setCareNote("");
-    const icons = { Watering: ICONS.water, Fertilizing: "💩", Pruning: "💩", "Pest Treatment": "💩", Observation: "💩" };
+    const icons = { Watering: ICONS.water, Fertilizing: ICONS.water, Pruning: ICONS.settings, "Pest Treatment": ICONS.settings, Observation: ICONS.edit };
     toast?.(`${careType} logged`, { icon: icons[careType] || "✓" });
   }
 
@@ -291,7 +291,7 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
                   )}
                 </div>
                 {nextZone && (
-                  <button onClick={() => { onUpdate({ ...plant, zone: nextZone }); toast?.(`Moved to ${nextZone.split(" ")[0]}`, { icon: "💩" }); }}
+                  <button onClick={() => { onUpdate({ ...plant, zone: nextZone }); toast?.(`Moved to ${nextZone.split(" ")[0]}`, { icon: ICONS.zone }); }}
                     style={{ width: "100%", padding: "10px 14px", background: "#fff", border: "2px solid #000", borderRadius: "var(--radius-input)", cursor: "pointer", fontSize: 13, fontWeight: 700, textAlign: "left" }}>
                     › Move to {nextZone}
                   </button>
@@ -307,7 +307,7 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
               {/* Frost warning */}
               {hasFrostWarning && (
                 <div style={{ background: "#e8f0ff", borderRadius: "var(--radius-input)", padding: "10px 14px", fontSize: 13, color: "#3a5aaa", fontWeight: 500 }}>
-                  💩 Harvest may conflict with fall frost ({formatDate(frostDates.firstFall)})
+                  <img src={ICONS.harvest} alt="" style={{ width: 16, height: 16, objectFit: "contain", marginRight: 5, verticalAlign: "middle" }} />Harvest may conflict with fall frost ({formatDate(frostDates.firstFall)})
                 </div>
               )}
 
@@ -386,10 +386,14 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
                   <div>
                     {[...(plant.careLog || [])].reverse().map(entry => (
                       <div key={entry.id} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 0", borderBottom: "1px solid #f0f0f0" }}>
-                        <span style={{ fontSize: 16, flexShrink: 0, marginTop: 2, width: 20, textAlign: "center" }}>
+                        <span style={{ fontSize: 16, flexShrink: 0, marginTop: 2, width: 20, textAlign: "center", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
                           {entry.type === "Watering"
                             ? <img src={ICONS.water} style={{ width: 16, height: 16, objectFit: "contain" }} alt="" />
-                            : "💩"}
+                            : entry.type === "Fertilizing"
+                            ? <img src={ICONS.water} style={{ width: 16, height: 16, objectFit: "contain" }} alt="" />
+                            : entry.type === "Pruning" || entry.type === "Pest Treatment"
+                            ? <img src={ICONS.settings} style={{ width: 16, height: 16, objectFit: "contain" }} alt="" />
+                            : <img src={ICONS.edit} style={{ width: 16, height: 16, objectFit: "contain" }} alt="" />}
                         </span>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontWeight: 700, fontSize: 14 }}>
@@ -419,9 +423,9 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
       {showEdit && (
         <EditPlantModal
           plant={plant} zones={zones}
-          onSave={updated => { onUpdate(updated); toast?.(`${updated.name} updated`, { icon: "💩" }); }}
+          onSave={updated => { onUpdate(updated); toast?.(`${updated.name} updated`, { icon: ICONS.edit }); }}
           onClose={() => setShowEdit(false)}
-          onDelete={id => { onDelete(id); onClose(); toast?.("Plant removed", { type: "warning", icon: "💩" }); }}
+          onDelete={id => { onDelete(id); onClose(); toast?.("Plant removed", { type: "warning", icon: ICONS.trash }); }}
         />
       )}
       {showSplit && (
@@ -446,7 +450,7 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
                 : <><img src={ICONS.dead} style={{width:20,height:20,objectFit:"contain",marginRight:8,verticalAlign:"middle"}} alt="" />Confirm Dead</>
               } — Keep record
             </button>
-            <button onClick={() => { onDelete(plant.id); setShowEndModal(false); onClose(); toast?.(`${plant.name} removed`, { type: "warning", icon: "💩" }); }}
+            <button onClick={() => { onDelete(plant.id); setShowEndModal(false); onClose(); toast?.(`${plant.name} removed`, { type: "warning", icon: ICONS.trash }); }}
               style={{ padding: 13, background: "#fff", color: "#c0392b", border: "1.5px solid #c0392b", borderRadius: "var(--radius-icon)", cursor: "pointer", fontSize: 14, fontWeight: 600 }}>
               🗑 Remove from Garden
             </button>
