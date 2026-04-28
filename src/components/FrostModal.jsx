@@ -10,7 +10,7 @@ function FrostModal({ frostDates, onSave, onClose }) {
   return (
     <Modal onClose={onClose} width={480}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-        <span style={{ fontSize: 28 }}>❄️</span>
+        <span style={{ fontSize: 28 }}>💩</span>
         <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700 }}>Frost Dates</h2>
       </div>
       <p style={{ color: "#666", marginBottom: 24, fontSize: 14 }}>Set your local frost dates to get harvest timing warnings.</p>

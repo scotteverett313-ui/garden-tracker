@@ -97,11 +97,11 @@ function ProfileTab({ plants, frostDates, user, onOpenSettings }) {
 
   const alerts = [];
   if (daysToFall !== null && daysToFall > 0 && daysToFall <= 14)
-    alerts.push({ icon: "🧊", text: `First frost in ${daysToFall}d — harvest warm-season crops now`, urgent: true });
+    alerts.push({ icon: "💩", text: `First frost in ${daysToFall}d — harvest warm-season crops now`, urgent: true });
   else if (daysToFall !== null && daysToFall > 14 && daysToFall <= 30)
-    alerts.push({ icon: "🧣", text: `Frost in ${daysToFall} days — start protecting tender plants` });
+    alerts.push({ icon: "💩", text: `Frost in ${daysToFall} days — start protecting tender plants` });
   if (daysToSpring !== null && daysToSpring > 0 && daysToSpring <= 30)
-    alerts.push({ icon: "🌱", text: `Last frost in ${daysToSpring} days — start warm-season seedlings indoors` });
+    alerts.push({ icon: null, isImg: ICONS.seedlingGreen, text: `Last frost in ${daysToSpring} days — start warm-season seedlings indoors` });
 
   const displayName = user?.name || "Gardener";
   const initial = (user?.name || user?.email || "G")[0].toUpperCase();
@@ -194,7 +194,9 @@ function ProfileTab({ plants, frostDates, user, onOpenSettings }) {
             <div key={i} style={{ position: "relative", paddingBottom: 4, marginBottom: 8 }}>
               <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: "var(--radius-card-sm)", zIndex: 0 }} />
               <div style={{ position: "relative", zIndex: 1, background: a.urgent ? "#fdecea" : "#f0fbe0", border: `2px solid #000`, borderRadius: "var(--radius-card-sm)", padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 20, flexShrink: 0 }}>{a.icon}</span>
+                {a.isImg
+                  ? <img src={a.isImg} style={{ width: 22, height: 22, objectFit: "contain", flexShrink: 0 }} alt="" />
+                  : <span style={{ fontSize: 20, flexShrink: 0 }}>{a.icon}</span>}
                 <span style={{ fontSize: 13, fontWeight: 600, color: "#000", lineHeight: 1.4 }}>{a.text}</span>
               </div>
             </div>
@@ -263,7 +265,7 @@ function ProfileTab({ plants, frostDates, user, onOpenSettings }) {
       <div style={{ position: "relative", paddingBottom: 4, marginBottom: 8 }}>
         <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: "var(--radius-card-sm)", zIndex: 0 }} />
         <div style={{ position: "relative", zIndex: 1, background: "#f5f0ff", border: "2px solid #000", borderRadius: "var(--radius-card-sm)", padding: "14px 16px", display: "flex", alignItems: "center", gap: 14 }}>
-          <span style={{ fontSize: 26, flexShrink: 0 }}>💬</span>
+          <span style={{ fontSize: 26, flexShrink: 0 }}>💩</span>
           <div>
             <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 3 }}>Join the community</div>
             <div style={{ fontSize: 13, color: "#666", lineHeight: 1.4 }}>Share harvests, swap seeds — on Discord while we build.</div>

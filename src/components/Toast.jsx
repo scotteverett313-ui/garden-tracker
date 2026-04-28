@@ -10,7 +10,13 @@ export function Toast({ toasts }) {
           animation: "slideUp 0.25s ease",
           pointerEvents: t.action ? "auto" : "none",
         }}>
-          <span style={{ fontSize: 18 }}>{t.type === "error" ? "⚠️" : t.type === "warning" ? "⚡" : t.icon || "✓"}</span>
+          <span style={{ fontSize: 18 }}>
+            {t.type === "error" ? "💩" : t.type === "warning" ? "💩" : (
+              t.icon && t.icon.startsWith("/")
+                ? <img src={t.icon} style={{ width: 18, height: 18, objectFit: "contain", filter: "invert(1)" }} alt="" />
+                : (t.icon || "✓")
+            )}
+          </span>
           <span style={{ flex: 1 }}>{t.message}</span>
           {t.action && (
             <button

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CALENDAR_DATA, MONTHS, lbl, sel } from "../constants.js";
+import { ICONS, CALENDAR_DATA, MONTHS, lbl, sel } from "../constants.js";
 import { formatDate, getAutoIcon } from "../utils.js";
 import { Modal } from "./Modal.jsx";
 import { CTAButton } from "./CTAButton.jsx";
@@ -38,7 +38,7 @@ function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onE
         </div>
         <button onClick={() => onUpdate({ ...seed, bookmarked: !seed.bookmarked })}
           style={{ background: "none", border: "none", cursor: "pointer", flexShrink: 0, padding: 0, lineHeight: 1, fontSize: 24 }}>
-          {seed.bookmarked ? "🔖" : "🏷️"}
+          {"💩"}
         </button>
       </div>
 
@@ -69,11 +69,11 @@ function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onE
             <div style={{ fontWeight: 700, fontSize: 14 }}>{seed.dtm ? `${seed.dtm} days` : "—"}</div>
           </div>
           <div>
-            <div style={{ fontSize: 12, color: "#888" }}>☀️ Sun</div>
+            <div style={{ fontSize: 12, color: "#888", display: "flex", alignItems: "center" }}><img src={ICONS.sun} style={{width:12,height:12,objectFit:"contain",marginRight:4}} alt="" />Sun</div>
             <div style={{ fontWeight: 700, fontSize: 14 }}>{seed.sun || "—"}</div>
           </div>
           <div>
-            <div style={{ fontSize: 12, color: "#888" }}>💧 Water</div>
+            <div style={{ fontSize: 12, color: "#888", display: "flex", alignItems: "center" }}><img src={ICONS.water} style={{width:12,height:12,objectFit:"contain",marginRight:4}} alt="" />Water</div>
             <div style={{ fontWeight: 700, fontSize: 14 }}>{seed.water || "—"}</div>
           </div>
         </div>
@@ -169,7 +169,7 @@ function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onE
       {/* Actions */}
       <div style={{ marginBottom: 12 }}>
         <CTAButton onClick={() => { onAddToGarden(seed); onClose(); }} style={{ padding: "13px", fontSize: 15 }}>
-          🌱 Add to Garden
+          <img src={ICONS.seedlingGreen} style={{width:14,height:14,objectFit:"contain",marginRight:6,verticalAlign:"middle"}} alt="" />Add to Garden
         </CTAButton>
       </div>
       <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
@@ -179,7 +179,7 @@ function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onE
         </button>
         <button onClick={() => onEdit(seed)}
           style={{ flex: 1, padding: "10px", background: "#fff", border: "2px solid #000", borderRadius: 'var(--radius-icon)', cursor: "pointer", fontSize: 14, fontWeight: 700 }}>
-          ✏️ Edit
+          💩 Edit
         </button>
       </div>
 
@@ -199,7 +199,7 @@ function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onE
         ) : (
           <button onClick={() => setShowDeleteConfirm(true)}
             style={{ width: "100%", padding: "11px", background: "none", border: "1.5px solid #e0e0e0", borderRadius: 'var(--radius-icon)', cursor: "pointer", fontSize: 14, color: "#c0392b", fontWeight: 600, marginTop: 8 }}>
-            🗑 Remove from Library
+            💩 Remove from Library
           </button>
         )}
       </div>

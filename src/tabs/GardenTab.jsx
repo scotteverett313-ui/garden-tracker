@@ -108,12 +108,12 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, se
       {/* Empty state when filters return no results */}
       {showEmptyState && (
         <div style={{ textAlign: "center", padding: "48px 20px" }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>{favOnly ? "🤍" : "🌱"}</div>
+          <img src={favOnly ? ICONS.favorite : ICONS.seedlingGreen} style={{width:40,height:40,objectFit:"contain",marginBottom:12}} alt="" />
           <div style={{ fontWeight: 800, fontSize: 17, color: "#444", marginBottom: 6 }}>
             {favOnly ? "No favorites yet" : "No plants found"}
           </div>
           <div style={{ fontSize: 14, color: "#aaa", marginBottom: 20 }}>
-            {favOnly ? "Open any plant and tap ❤️ to save it here" : "Try adjusting your search or filters"}
+            {favOnly ? "Open any plant and tap 💩 to save it here" : "Try adjusting your search or filters"}
           </div>
         </div>
       )}
@@ -154,7 +154,7 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, se
             {/* Plants */}
             {zonePlants.length === 0 ? (
               <button onClick={onAddPlant} className="add-zone-btn" style={{ width: "100%", border: "2px dashed #ccc", borderRadius: 'var(--radius-card-sm)', padding: "28px 20px", textAlign: "center", color: "#aaa", background: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 28 }}>🌱</span>
+                <img src={ICONS.seedlingGreen} style={{width:28,height:28,objectFit:"contain"}} alt="" />
                 <span style={{ fontSize: 14, fontWeight: 700, color: "#bbb" }}>Nothing planted here yet</span>
                 <span style={{ fontSize: 12, color: "#ccc" }}>Tap to add your first plant</span>
               </button>

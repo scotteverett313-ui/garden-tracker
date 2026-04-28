@@ -9,11 +9,11 @@ function lastWateredLabel(careLog) {
   const entry = [...(careLog || [])].filter(e => e.type === "Watering").sort((a, b) => new Date(b.date) - new Date(a.date))[0];
   if (!entry) return null;
   const d = daysSince(entry.date);
-  if (d === 0) return { label: "💧 today", color: "#2d8a3f" };
-  if (d === 1) return { label: "💧 yesterday", color: "#2d8a3f" };
-  if (d <= 3) return { label: `💧 ${d}d ago`, color: "#888" };
-  if (d <= 6) return { label: `💧 ${d}d ago`, color: "#d4820a" };
-  return { label: `💧 ${d}d ago`, color: "#c0392b" };
+  if (d === 0) return { label: "today", color: "#2d8a3f" };
+  if (d === 1) return { label: "yesterday", color: "#2d8a3f" };
+  if (d <= 3) return { label: `${d}d ago`, color: "#888" };
+  if (d <= 6) return { label: `${d}d ago`, color: "#d4820a" };
+  return { label: `${d}d ago`, color: "#c0392b" };
 }
 
 function useSpriteAnim(status, onTap) {
@@ -110,7 +110,7 @@ function PlantGridCard({ plant, onTap, showZone }) {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
           <div>
             <div style={{ fontWeight: 700, fontSize: 12, color: "#000" }}>
-              {daysLeft !== null ? (daysLeft <= 0 ? "🎉 Ready!" : "Harvest in:") : "Started:"}
+              {daysLeft !== null ? (daysLeft <= 0 ? "💩 Ready!" : "Harvest in:") : "Started:"}
             </div>
             <div style={{ fontSize: 12, color: daysLeft !== null && daysLeft <= 14 ? "#c0392b" : "#888", fontWeight: 500 }}>
               {daysLeft !== null
@@ -159,7 +159,7 @@ function PlantGridCard({ plant, onTap, showZone }) {
         {/* Row 4 — Variety + last watered */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4 }}>
           {plant.variety && <div style={{ fontSize: 12, color: "#666" }}>({plant.variety})</div>}
-          {watered && <div style={{ fontSize: 11, color: watered.color, fontWeight: 600, marginLeft: "auto" }}>{watered.label}</div>}
+          {watered && <div style={{ fontSize: 11, color: watered.color, fontWeight: 600, marginLeft: "auto", display: "flex", alignItems: "center" }}><img src={ICONS.water} style={{ width: 11, height: 11, objectFit: "contain", marginRight: 3 }} alt="" />{watered.label}</div>}
         </div>
         {/* Zone badge — shown in favorites view */}
         {showZone && plant.zone && (
@@ -210,10 +210,10 @@ function PlantListCard({ plant, onTap, showZone }) {
         <div style={{ display: "flex", gap: 8, marginTop: 2, flexWrap: "wrap" }}>
           {daysLeft !== null && (
             <div style={{ fontSize: 12, color: daysLeft <= 0 ? "#2d8a3f" : daysLeft <= 14 ? "#c0392b" : "#888", fontWeight: 600 }}>
-              {daysLeft <= 0 ? "🎉 Ready!" : `${daysLeft}d to harvest`}
+              {daysLeft <= 0 ? "💩 Ready!" : `${daysLeft}d to harvest`}
             </div>
           )}
-          {watered && <div style={{ fontSize: 12, color: watered.color, fontWeight: 600 }}>{watered.label}</div>}
+          {watered && <div style={{ fontSize: 12, color: watered.color, fontWeight: 600, display: "flex", alignItems: "center" }}><img src={ICONS.water} style={{ width: 11, height: 11, objectFit: "contain", marginRight: 3 }} alt="" />{watered.label}</div>}
         </div>
       </div>
       <span style={{ background: STATUS_COLORS[plant.status] || "#eee", borderRadius: 'var(--radius-icon)', padding: "2px 8px", fontSize: 11, fontWeight: 600, color: "#555", flexShrink: 0, whiteSpace: "nowrap" }}>

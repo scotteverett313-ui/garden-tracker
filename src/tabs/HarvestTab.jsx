@@ -113,10 +113,10 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
                     <span style={{ fontSize: 13, fontWeight: 700, color: daysLeft <= 7 ? "#c0392b" : "#888" }}>{daysLeft}d · {formatDate(harvestDate)}</span>
                   )}
                   {(daysLeft === null || daysLeft <= 0) && plant.status === "Harvesting" && (
-                    <span style={{ fontSize: 13, fontWeight: 700, color: "#2d8a3f" }}>🎉 In harvest</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "#2d8a3f" }}>💩 In harvest</span>
                   )}
                   {daysLeft !== null && daysLeft <= 0 && plant.status !== "Harvesting" && (
-                    <span style={{ fontSize: 13, fontWeight: 700, color: "#c0392b" }}>⚡ Ready now!</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "#c0392b" }}>💩 Ready now!</span>
                   )}
                   {plant.harvestedAt && <span style={{ fontSize: 12, color: "#888", marginLeft: 4 }}>· {formatDate(plant.harvestedAt)}</span>}
                 </div>
@@ -135,7 +135,7 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
 
           <button onClick={() => setShowNextFor(showNextFor === plant.id ? null : plant.id)}
             style={{ marginTop: 10, background: showNextFor === plant.id ? "#000" : "#f5f5f3", color: showNextFor === plant.id ? "#a8e063" : "#555", border: "2px solid #000", borderRadius: 'var(--radius-sm)', padding: "5px 14px", cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
-            🌱 {showNextFor === plant.id ? "Hide suggestions" : "What to plant next?"}
+            <img src={ICONS.seedlingGreen} style={{width:14,height:14,objectFit:"contain",marginRight:4,verticalAlign:"middle"}} alt="" />{showNextFor === plant.id ? "Hide suggestions" : "What to plant next?"}
           </button>
 
           {showNextFor === plant.id && (
@@ -154,7 +154,7 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
                       <div key={s.name} style={{ background: s.isGoodCompanion ? "#f0fdf4" : "#fafaf8", border: `2px solid ${s.isGoodCompanion ? "#a8e063" : "#e0e0e0"}`, borderRadius: 'var(--radius-input)', padding: "10px 12px", display: "flex", alignItems: "center", gap: 10 }}>
                         {sIconUrl
                           ? <img src={sIconUrl} alt={s.name} style={{ width: 32, height: 32, objectFit: "contain", imageRendering: "pixelated", flexShrink: 0 }} />
-                          : <span style={{ fontSize: 20, flexShrink: 0 }}>🌱</span>}
+                          : <img src={ICONS.seedlingGreen} style={{width:20,height:20,objectFit:"contain",flexShrink:0}} alt="" />}
                         <div style={{ flex: 1 }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                             <span style={{ fontWeight: 700, fontSize: 14 }}>{s.name}</span>
@@ -193,7 +193,7 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
 
       {noHarvestData ? (
         <div style={{ border: "2px dashed #ccc", borderRadius: 'var(--radius-card)', padding: 48, textAlign: "center" }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>🧺</div>
+          <img src={ICONS.harvest} style={{width:48,height:48,objectFit:"contain",marginBottom:12}} alt="" />
           <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 4 }}>No harvest data yet</div>
           <div style={{ color: "#888", fontSize: 14 }}>Add plants with a start date and days-to-maturity to see timelines here.</div>
         </div>
@@ -231,7 +231,7 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
           )}
           {readyNow.length === 0 && comingSoon.length === 0 && (
             <div style={{ background: "#fdf0e0", border: "2px solid #000", borderRadius: 'var(--radius-card)', padding: 24, textAlign: "center" }}>
-              <div style={{ fontSize: 36, marginBottom: 8 }}>🌱</div>
+              <img src={ICONS.seedlingGreen} style={{width:36,height:36,objectFit:"contain",marginBottom:8}} alt="" />
               <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 4 }}>Still growing</div>
               <div style={{ color: "#666", fontSize: 14 }}>Nothing ready in the next {window_} days.</div>
             </div>

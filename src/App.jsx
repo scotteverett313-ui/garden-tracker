@@ -97,18 +97,18 @@ export default function App() {
     if (migrated.some((p, i) => p !== plants[i])) await savePlants(migrated);
   }
 
-  function handleAdd(plant) { savePlants([...plants, plant]); toast(`${plant.name} added`, { icon: "🌱" }); }
+  function handleAdd(plant) { savePlants([...plants, plant]); toast(`${plant.name} added`, { icon: ICONS.seedlingGreen }); }
   function handleUpdate(updated) { savePlants(plants.map(p => p.id === updated.id ? updated : p)); }
   function handleSplit(updatedOriginal, newPlants) {
     const without = plants.filter(p => p.id !== updatedOriginal.id);
     savePlants([...without, updatedOriginal, ...newPlants]);
-    toast(`${newPlants[0].name} split into ${newPlants.length} group${newPlants.length !== 1 ? "s" : ""}`, { icon: "🌿" });
+    toast(`${newPlants[0].name} split into ${newPlants.length} group${newPlants.length !== 1 ? "s" : ""}`, { icon: ICONS.growing });
   }
   function handleDelete(id) {
     const deleted = plants.find(p => p.id === id);
     const updated = plants.filter(p => p.id !== id);
     savePlants(updated);
-    toast("Plant removed", { type: "warning", icon: "🗑", duration: 4000, action: { label: "Undo", onClick: () => savePlants([...updated, deleted]) } });
+    toast("Plant removed", { type: "warning", icon: "💩", duration: 4000, action: { label: "Undo", onClick: () => savePlants([...updated, deleted]) } });
   }
   function handleAddSeedToGarden(seed) { setPrefillPlant({ name: seed.name, variety: seed.variety, about: seed.about, water: seed.water, sun: seed.sun, dtm: seed.dtm }); setAddFlow("manual"); setShowAdd(true); }
   function openAddFlow() { setAddFlow("choose"); setShowAdd(true); setPrefillPlant(null); }
@@ -122,7 +122,7 @@ export default function App() {
     a.href = url; a.download = `dirt-rich-backup-${new Date().toISOString().split("T")[0]}.json`; a.click();
     URL.revokeObjectURL(url);
     const now = new Date().toISOString(); localStorage.setItem("last_backup_at", now); setLastBackup(now);
-    toast("Backup downloaded", { icon: "💾" });
+    toast("Backup downloaded", { icon: "💩" });
   }
 
   function handleImport(e) {
@@ -239,7 +239,7 @@ export default function App() {
                 <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 'var(--radius-pill)', zIndex: 0 }} />
                 <button onClick={() => setShowBackup(true)} className="btn-cta"
                   style={{ position: "relative", zIndex: 1, width: "100%", background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 'var(--radius-pill)', padding: "7px 10px", cursor: "pointer", fontWeight: 800, fontSize: 12, fontFamily: "inherit" }}>
-                  {(!lastBackup || daysSince(lastBackup) >= 3) ? "⚠️ Backup" : "Backup"}
+                  {(!lastBackup || daysSince(lastBackup) >= 3) ? "💩 Backup" : "Backup"}
                 </button>
               </div>
               <div style={{ position: "relative", paddingBottom: 3, flexShrink: 0 }}>
@@ -269,7 +269,7 @@ export default function App() {
                     <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 'var(--radius-pill)', zIndex: 0 }} />
                     <button onClick={() => setShowBackup(true)} className="btn-cta"
                       style={{ position: "relative", zIndex: 1, background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 'var(--radius-pill)', padding: "8px 20px", cursor: "pointer", fontWeight: 800, fontSize: 14, fontFamily: "inherit" }}>
-                      {(!lastBackup || daysSince(lastBackup) >= 3) ? "⚠️ Backup" : "Backup"}
+                      {(!lastBackup || daysSince(lastBackup) >= 3) ? "💩 Backup" : "Backup"}
                     </button>
                   </div>
                   <div style={{ position: "relative", paddingBottom: 3, flexShrink: 0 }}>
@@ -328,10 +328,10 @@ export default function App() {
           <p style={{ color: "#888", fontSize: 14, marginBottom: 20 }}>How would you like to add it?</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {[
-              { flow: "db", icon: "📖", title: "Search database", desc: "Pick from 30+ plants, auto-fills everything", accent: "#f5ece0" },
-              { flow: "scan", icon: "📷", title: "Scan seed packet", desc: "Point camera at a packet, Claude reads it", accent: "#f0f8f0" },
-              { flow: "transplant", icon: "🛒", title: "Bought as transplant", desc: "Already growing — quick add", accent: "#f0f4ff" },
-              { flow: "manual", icon: "✏️", title: "Enter manually", desc: "Blank form, full control", accent: "#fafaf8" },
+              { flow: "db", icon: "💩", title: "Search database", desc: "Pick from 30+ plants, auto-fills everything", accent: "#f5ece0" },
+              { flow: "scan", icon: "💩", title: "Scan seed packet", desc: "Point camera at a packet, Claude reads it", accent: "#f0f8f0" },
+              { flow: "transplant", icon: "💩", title: "Bought as transplant", desc: "Already growing — quick add", accent: "#f0f4ff" },
+              { flow: "manual", icon: "💩", title: "Enter manually", desc: "Blank form, full control", accent: "#fafaf8" },
             ].map(opt => (
               <div key={opt.flow} style={{ position: "relative", paddingBottom: 3 }}>
                 <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 'var(--radius-card-sm)', zIndex: 0 }} />
@@ -367,7 +367,7 @@ export default function App() {
           <SeedScanPicker onScanned={data => {
             const seedEntry = { ...data, id: generateId(), addedAt: new Date().toISOString(), started: false, source: "Scanned" };
             saveSeeds([...seeds, seedEntry]);
-            toast(`${data.name || "Packet"} saved to Seed Library`, { icon: "🌰" });
+            toast(`${data.name || "Packet"} saved to Seed Library`, { icon: ICONS.seeds });
             setPrefillPlant(data); setAddFlow("manual");
           }} />
         </Modal>
@@ -379,33 +379,33 @@ export default function App() {
 
       {showSettings && (
         <SettingsPanel onClose={() => setShowSettings(false)} zones={zones}
-          onSaveZones={z => { saveZones(z); toast("Zones saved", { icon: "🌱" }); }}
-          onRenameZone={(id, name) => { renameZone(id, name); toast("Zone renamed", { icon: "✏️" }); }}
-          frostDates={frostDates} onSaveFrost={f => { saveFrost(f); toast("Frost dates saved", { icon: "❄️" }); }}
+          onSaveZones={z => { saveZones(z); toast("Zones saved", { icon: ICONS.seedlingGreen }); }}
+          onRenameZone={(id, name) => { renameZone(id, name); toast("Zone renamed", { icon: "💩" }); }}
+          frostDates={frostDates} onSaveFrost={f => { saveFrost(f); toast("Frost dates saved", { icon: "💩" }); }}
           plants={plants} seeds={seeds} lastBackup={lastBackup} daysSince={daysSince}
           onExport={handleExport} onImport={handleImport} importError={importError} importSuccess={importSuccess}
           user={user}
           onShowAuth={() => { setShowSettings(false); setShowAuth(true); }}
-          onSignOut={() => { setUser(null); localStorage.removeItem("mock_user"); toast("Signed out", { icon: "👋" }); }} />
+          onSignOut={() => { setUser(null); localStorage.removeItem("mock_user"); toast("Signed out", { icon: "💩" }); }} />
       )}
 
       {showBackup && (
         <Modal onClose={() => { setShowBackup(false); setImportError(""); setImportSuccess(false); }} width={440}>
-          <h2 style={{ margin: "0 0 6px", fontSize: 20, fontWeight: 700 }}>💾 Backup & Restore</h2>
+          <h2 style={{ margin: "0 0 6px", fontSize: 20, fontWeight: 700 }}>💩 Backup & Restore</h2>
           <p style={{ color: "#888", fontSize: 13, marginBottom: 20, lineHeight: 1.5 }}>Export to iCloud or Google Drive to keep it safe.</p>
           <div style={{ background: "#fdf6ee", border: "1px solid #d4a96a", borderRadius: 'var(--radius-icon)', padding: 16, marginBottom: 12 }}>
-            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>📤 Export</div>
+            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>💩 Export</div>
             <div style={{ fontSize: 13, color: "#666", marginBottom: 4 }}>{plants.length} plants · {seeds.length} seeds</div>
             {lastBackup && <div style={{ fontSize: 12, color: "#888", marginBottom: 10 }}>Last backup: {daysSince(lastBackup) === 0 ? "today" : `${daysSince(lastBackup)} days ago`}</div>}
             <button onClick={handleExport} style={{ width: "100%", padding: 11, background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 'var(--radius-input)', cursor: "pointer", fontSize: 14, fontWeight: 600 }}>Download Backup</button>
           </div>
           <div style={{ background: "#fafaf8", border: "1px solid #e8e8e8", borderRadius: 'var(--radius-icon)', padding: 16 }}>
-            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8 }}>📥 Restore</div>
+            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8 }}>💩 Restore</div>
             <label style={{ display: "block", width: "100%", padding: 11, background: "#fff", border: "1.5px dashed #ccc", borderRadius: 'var(--radius-input)', cursor: "pointer", fontSize: 14, textAlign: "center", color: "#555", boxSizing: "border-box" }}>
               Choose Backup File
               <input type="file" accept=".json" onChange={handleImport} style={{ display: "none" }} />
             </label>
-            {importError && <div style={{ marginTop: 8, fontSize: 13, color: "#c0392b", background: "#fdecea", padding: "8px 12px", borderRadius: 'var(--radius-sm)' }}>⚠️ {importError}</div>}
+            {importError && <div style={{ marginTop: 8, fontSize: 13, color: "#c0392b", background: "#fdecea", padding: "8px 12px", borderRadius: 'var(--radius-sm)' }}>💩 {importError}</div>}
             {importSuccess && <div style={{ marginTop: 8, fontSize: 13, color: "#5c3d1e", background: "#f5ece0", padding: "8px 12px", borderRadius: 'var(--radius-sm)' }}>✓ Restored!</div>}
           </div>
         </Modal>

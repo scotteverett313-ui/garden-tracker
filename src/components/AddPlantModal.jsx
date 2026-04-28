@@ -105,13 +105,13 @@ function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill, zones = 
           <IconPicker selected={selectedIcon} onSelect={handleIconSelect} plantName={form.name} />
         </div>
         <div style={{ gridColumn: "span 2" }}><label style={lbl}>About</label><textarea placeholder="Short description or growing tips..." value={form.about} onChange={e => setForm(f => ({ ...f, about: e.target.value }))} style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #e0e0e0", borderRadius: 'var(--radius-input)', fontSize: 14, boxSizing: "border-box", fontFamily: "inherit", minHeight: 70, resize: "vertical" }} /></div>
-        <div><label style={lbl}>💧 Water</label>
+        <div><label style={lbl}><img src={ICONS.water} style={{width:14,height:14,objectFit:"contain",marginRight:4,verticalAlign:"middle"}} alt="" />Water</label>
           <select value={form.water} onChange={e => setForm(f => ({ ...f, water: e.target.value }))} style={sel}>
             <option value="">Select...</option>
             {["Low","Moderate","Regular","High"].map(v => <option key={v}>{v}</option>)}
           </select>
         </div>
-        <div><label style={lbl}>☀️ Sun</label>
+        <div><label style={lbl}><img src={ICONS.sun} style={{width:14,height:14,objectFit:"contain",marginRight:4,verticalAlign:"middle"}} alt="" />Sun</label>
           <select value={form.sun} onChange={e => setForm(f => ({ ...f, sun: e.target.value }))} style={sel}>
             <option value="">Select...</option>
             {["Full Sun","Partial Shade","Full Shade"].map(v => <option key={v}>{v}</option>)}
