@@ -91,7 +91,7 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, se
 
       {/* Status count chips */}
       {statusCounts.length > 0 && !favOnly && !showEmptyState && (
-        <div style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 20, paddingBottom: 2, scrollbarWidth: "none", msOverflowStyle: "none" }}>
+        <div style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 12, paddingBottom: 8, paddingTop: 6, scrollbarWidth: "none", msOverflowStyle: "none" }}>
           {statusCounts.map(s => (
             <button key={s.label} onClick={() => setFilterStatus(filterStatus === s.label ? "" : s.label)}
               style={{ flexShrink: 0, background: filterStatus === s.label ? "#000" : "#fff", border: "2px solid #000", borderRadius: 'var(--radius-card-sm)', padding: "10px 14px", cursor: "pointer", textAlign: "left", minWidth: 76 }}>
@@ -153,8 +153,10 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, se
 
             {/* Plants */}
             {zonePlants.length === 0 ? (
-              <button onClick={onAddPlant} className="add-zone-btn" style={{ width: "100%", border: "2px dashed #ccc", borderRadius: 'var(--radius-card-sm)', padding: 20, textAlign: "center", color: "#aaa", fontSize: 14, background: "none", cursor: "pointer" }}>
-                + Add Plant
+              <button onClick={onAddPlant} className="add-zone-btn" style={{ width: "100%", border: "2px dashed #ccc", borderRadius: 'var(--radius-card-sm)', padding: "28px 20px", textAlign: "center", color: "#aaa", background: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 28 }}>🌱</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: "#bbb" }}>Nothing planted here yet</span>
+                <span style={{ fontSize: 12, color: "#ccc" }}>Tap to add your first plant</span>
               </button>
             ) : viewMode === "grid" ? (
               <div style={{ display: "grid", gridTemplateColumns: isWide ? "repeat(3, 1fr)" : "1fr 1fr", gap: 10 }}>

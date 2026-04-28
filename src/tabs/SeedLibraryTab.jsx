@@ -361,7 +361,7 @@ Return ONLY the JSON, no other text.` });
 
       {/* Category chips */}
       {categoryCounts.length > 0 && (
-        <div style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 18, paddingBottom: 2, scrollbarWidth: "none", msOverflowStyle: "none" }}>
+        <div style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 10, paddingBottom: 8, paddingTop: 6, scrollbarWidth: "none", msOverflowStyle: "none" }}>
           {categoryCounts.map(c => (
             <button key={c.key} onClick={() => setFilterCategory(filterCategory === c.key ? "" : c.key)}
               style={{ flexShrink: 0, background: c.color, border: `2.5px solid ${filterCategory === c.key ? "#000" : "transparent"}`, borderRadius: 'var(--radius-card-sm)', padding: "10px 14px", cursor: "pointer", textAlign: "center", minWidth: 70, boxShadow: filterCategory === c.key ? "0 0 0 2px #000" : "none", opacity: filterCategory && filterCategory !== c.key ? 0.5 : 1, transition: "all 0.15s" }}>

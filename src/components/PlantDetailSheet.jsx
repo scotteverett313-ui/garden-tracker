@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import gsap from "gsap";
-import { ICONS, STATUSES, STATUS_COLORS, CARE_TYPES, lbl, sel, ZONES } from "../constants.js";
+import { ICONS, STATUSES, STATUS_COLORS, CARE_TYPES, CARE_ICONS, lbl, sel, ZONES } from "../constants.js";
 import { generateId, daysUntil, daysSince, formatDate, calcHarvestDate, getAutoIcon } from "../utils.js";
 import { Modal } from "./Modal.jsx";
 import { CTAButton } from "./CTAButton.jsx";
@@ -35,7 +35,6 @@ function nextWateringLabel(date) {
   return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 }
 
-const CARE_EMOJI = { Watering: null, Fertilizing: "🌿", Pruning: "✂️", "Pest Treatment": "🐛", Observation: "👁" };
 
 function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClose, onSplit, toast }) {
   const [showCompanions, setShowCompanions] = useState(false);
@@ -189,11 +188,11 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
             ref={cardRef}
             style={{ minHeight: "100vh", background: "#fff", borderRadius: "20px 20px 0 0", position: "relative" }}
           >
-            {/* Drag handle */}
-            <div style={{ display: "flex", justifyContent: "center", paddingTop: 10 }}>
-              <div style={{ width: 36, height: 4, background: "#e0e0e0", borderRadius: 99 }} />
-            </div>
-
+            {/* Sticky drag handle + nav — stays pinned when scrolling */}
+            <div style={{ position: "sticky", top: 0, zIndex: 10, background: "#fff", borderRadius: "20px 20px 0 0", paddingBottom: 4 }}>
+              <div style={{ display: "flex", justifyContent: "center", paddingTop: 10 }}>
+                <div style={{ width: 36, height: 4, background: "#e0e0e0", borderRadius: 99 }} />
+              </div>
             {/* Navigation row */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 16px 4px" }}>
               <div style={{ position: "relative", paddingBottom: 3 }}>
@@ -209,6 +208,7 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
                 </button>
               </div>
             </div>
+            </div>{/* end sticky header */}
 
             {/* Plant name + variety */}
             <div style={{ textAlign: "center", padding: "8px 16px 20px" }}>
@@ -386,10 +386,7 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
                   <div>
                     {[...(plant.careLog || [])].reverse().map(entry => (
                       <div key={entry.id} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 0", borderBottom: "1px solid #f0f0f0" }}>
-                        {CARE_EMOJI[entry.type] === null
-                          ? <img src={ICONS.water} alt="" style={{ width: 18, height: 18, objectFit: "contain", flexShrink: 0, marginTop: 2 }} />
-                          : <span style={{ fontSize: 16, flexShrink: 0, marginTop: 2 }}>{CARE_EMOJI[entry.type] || "✓"}</span>
-                        }
+                        <span style={{ fontSize: 16, flexShrink: 0, marginTop: 2, width: 20, textAlign: "center" }}>{CARE_ICONS[entry.type] || "✓"}</span>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontWeight: 700, fontSize: 14 }}>
                             {entry.type} <span style={{ color: "#aaa", fontWeight: 400, fontSize: 12 }}>· {formatDate(entry.date)}</span>
