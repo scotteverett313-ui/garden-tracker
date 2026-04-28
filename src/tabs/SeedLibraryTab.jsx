@@ -181,7 +181,7 @@ Return ONLY the JSON, no other text.` });
           <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800 }}>Scan Seed Packet</h2>
         </div>
 
-        <div style={{ background: "#fdf6ee", border: "1px solid #d4a96a", borderRadius: 14, padding: 16, marginBottom: 16 }}>
+        <div style={{ background: "#fdf6ee", border: "1px solid #d4a96a", borderRadius: 'var(--radius-card-sm)', padding: 16, marginBottom: 16 }}>
           <div style={{ fontSize: 13, color: "#555", lineHeight: 1.6 }}>
             📸 Take or upload a photo of the <strong>front and back</strong> of your seed packet. Claude will read the text and fill in the details automatically. No photos are stored.
           </div>
@@ -194,7 +194,7 @@ Return ONLY the JSON, no other text.` });
           ].map(side => (
             <div key={side.key}>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, color: "#444" }}>{side.label}</div>
-              <label style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: `2px dashed ${side.img ? "#5c3d1e" : "#ccc"}`, borderRadius: 12, padding: 20, cursor: "pointer", background: side.img ? "#fdf6ee" : "#fafaf8", minHeight: 100, textAlign: "center", gap: 6 }}>
+              <label style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: `2px dashed ${side.img ? "#5c3d1e" : "#ccc"}`, borderRadius: 'var(--radius-icon)', padding: 20, cursor: "pointer", background: side.img ? "#fdf6ee" : "#fafaf8", minHeight: 100, textAlign: "center", gap: 6 }}>
                 {side.img ? (
                   <>
                     <div style={{ fontSize: 28 }}>✓</div>
@@ -214,21 +214,21 @@ Return ONLY the JSON, no other text.` });
           ))}
         </div>
 
-        {scanError && <div style={{ background: "#fdecea", color: "#c0392b", borderRadius: 10, padding: "10px 14px", fontSize: 13, marginBottom: 12 }}>⚠️ {scanError}</div>}
+        {scanError && <div style={{ background: "#fdecea", color: "#c0392b", borderRadius: 'var(--radius-input)', padding: "10px 14px", fontSize: 13, marginBottom: 12 }}>⚠️ {scanError}</div>}
 
         {debugText && !scanError && (
-          <div style={{ background: "#f5f5f0", borderRadius: 10, padding: "10px 14px", fontSize: 11, color: "#666", marginBottom: 12, wordBreak: "break-all", maxHeight: 120, overflowY: "auto" }}>
+          <div style={{ background: "#f5f5f0", borderRadius: 'var(--radius-input)', padding: "10px 14px", fontSize: 11, color: "#666", marginBottom: 12, wordBreak: "break-all", maxHeight: 120, overflowY: "auto" }}>
             <div style={{ fontWeight: 700, marginBottom: 4, fontSize: 12 }}>Raw API response (debug):</div>
             {debugText}
           </div>
         )}
 
         <button onClick={handleScan} disabled={scanning}
-          style={{ width: "100%", padding: 14, background: scanning ? "#aaa" : "#5c3d1e", color: "#fff", border: "none", borderRadius: 12, cursor: scanning ? "not-allowed" : "pointer", fontSize: 15, fontWeight: 700, marginBottom: 10 }}>
+          style={{ width: "100%", padding: 14, background: scanning ? "#aaa" : "#5c3d1e", color: "#fff", border: "none", borderRadius: 'var(--radius-icon)', cursor: scanning ? "not-allowed" : "pointer", fontSize: 15, fontWeight: 700, marginBottom: 10 }}>
           {scanning ? "📖 Reading packet..." : "✨ Scan & Extract Info"}
         </button>
         <button onClick={() => { const blank = { id: generateId(), addedAt: new Date().toISOString() }; setScannedData(blank); setEditForm(blank); setView("edit"); }}
-          style={{ width: "100%", padding: 12, background: "#fff", color: "#555", border: "1.5px solid #ddd", borderRadius: 12, cursor: "pointer", fontSize: 14 }}>
+          style={{ width: "100%", padding: 12, background: "#fff", color: "#555", border: "1.5px solid #ddd", borderRadius: 'var(--radius-icon)', cursor: "pointer", fontSize: 14 }}>
           Enter manually instead
         </button>
       </div>
@@ -249,13 +249,13 @@ Return ONLY the JSON, no other text.` });
         </div>
 
         {scannedData && !editingSeed && (
-          <div style={{ background: "#fdf6ee", border: "1px solid #d4a96a", borderRadius: 10, padding: "8px 14px", marginBottom: 16, fontSize: 13, color: "#5c3d1e" }}>
+          <div style={{ background: "#fdf6ee", border: "1px solid #d4a96a", borderRadius: 'var(--radius-input)', padding: "8px 14px", marginBottom: 16, fontSize: 13, color: "#5c3d1e" }}>
             ✨ Claude extracted this info from your packet. Review and edit anything that looks off, then save.
           </div>
         )}
 
         {(() => {
-          const inp = { width: "100%", padding: "9px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" };
+          const inp = { width: "100%", padding: "9px 12px", border: "1.5px solid #e0e0e0", borderRadius: 'var(--radius-input)', fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" };
           const ta = { ...inp, minHeight: 70, resize: "vertical" };
           const field = (key, placeholder, type = "text") => (
             <input type={type} value={form[key] || ""} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} placeholder={placeholder} style={inp} />
@@ -263,7 +263,7 @@ Return ONLY the JSON, no other text.` });
           return (
             <>
               {/* Packet Info */}
-              <div style={{ background: "#f5f5f3", borderRadius: 14, padding: 14, marginBottom: 14 }}>
+              <div style={{ background: "#f5f5f3", borderRadius: 'var(--radius-card-sm)', padding: 14, marginBottom: 14 }}>
                 <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 12 }}>Packet Info</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   <div style={{ gridColumn: "span 2" }}><label style={lbl}>Plant Name</label>{field("name", "e.g. Tomato")}</div>
@@ -281,7 +281,7 @@ Return ONLY the JSON, no other text.` });
               </div>
 
               {/* Planting Guide */}
-              <div style={{ background: "#f5f5f3", borderRadius: 14, padding: 14, marginBottom: 14 }}>
+              <div style={{ background: "#f5f5f3", borderRadius: 'var(--radius-card-sm)', padding: 14, marginBottom: 14 }}>
                 <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 12 }}>Planting Guide</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   <div><label style={lbl}>Planting Depth</label>{field("depth", "e.g. ¼ inch")}</div>
@@ -292,7 +292,7 @@ Return ONLY the JSON, no other text.` });
               </div>
 
               {/* Care */}
-              <div style={{ background: "#f5f5f3", borderRadius: 14, padding: 14, marginBottom: 14 }}>
+              <div style={{ background: "#f5f5f3", borderRadius: 'var(--radius-card-sm)', padding: 14, marginBottom: 14 }}>
                 <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 12 }}>Care Requirements</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   <div><label style={lbl}>☀️ Sun</label>
@@ -311,7 +311,7 @@ Return ONLY the JSON, no other text.` });
               </div>
 
               {/* Notes */}
-              <div style={{ background: "#f5f5f3", borderRadius: 14, padding: 14, marginBottom: 14 }}>
+              <div style={{ background: "#f5f5f3", borderRadius: 'var(--radius-card-sm)', padding: 14, marginBottom: 14 }}>
                 <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 12 }}>Notes</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   <div><label style={lbl}>About (from packet)</label><textarea value={form.about || ""} onChange={e => setForm(f => ({ ...f, about: e.target.value }))} style={ta} /></div>
@@ -327,7 +327,7 @@ Return ONLY the JSON, no other text.` });
             💾 Save to Seed Library
           </CTAButton>
           <button onClick={() => { setView("library"); setEditingSeed(null); setScannedData(null); }}
-            style={{ padding: "13px 18px", background: "#fff", color: "#555", border: "1.5px solid #ddd", borderRadius: 12, cursor: "pointer", fontSize: 14, flexShrink: 0 }}>
+            style={{ padding: "13px 18px", background: "#fff", color: "#555", border: "1.5px solid #ddd", borderRadius: 'var(--radius-icon)', cursor: "pointer", fontSize: 14, flexShrink: 0 }}>
             Cancel
           </button>
         </div>
@@ -345,16 +345,16 @@ Return ONLY the JSON, no other text.` });
       </div>
 
       {/* Scan Packet CTA */}
-      <CTAButton onClick={() => { setScanError(""); setFrontImg(null); setBackImg(null); setView("scan"); }} style={{ marginBottom: 14, fontSize: 15 }}>
+      <CTAButton onClick={() => { setScanError(""); setFrontImg(null); setBackImg(null); setView("scan"); }} style={{ marginBottom: 20, fontSize: 15 }}>
         Scan Packet
       </CTAButton>
 
       {/* Search */}
       <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
         <input placeholder="Search seeds..." value={search} onChange={e => setSearch(e.target.value)}
-          style={{ flex: 1, padding: "10px 14px", border: "2px solid #000", borderRadius: 50, fontSize: 14, fontFamily: "inherit", boxSizing: "border-box" }} />
+          style={{ flex: 1, padding: "10px 14px", border: "2px solid #000", borderRadius: 'var(--radius-btn)', fontSize: 14, fontFamily: "inherit", boxSizing: "border-box" }} />
         {search && <button onClick={() => setSearch("")}
-          style={{ width: 40, height: 40, border: "2px solid #000", borderRadius: 10, background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>×</button>}
+          style={{ width: 40, height: 40, border: "2px solid #000", borderRadius: 'var(--radius-input)', background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>×</button>}
       </div>
 
       {/* Category chips */}
@@ -362,7 +362,7 @@ Return ONLY the JSON, no other text.` });
         <div style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 18, paddingBottom: 2, scrollbarWidth: "none", msOverflowStyle: "none" }}>
           {categoryCounts.map(c => (
             <button key={c.key} onClick={() => setFilterCategory(filterCategory === c.key ? "" : c.key)}
-              style={{ flexShrink: 0, background: c.color, border: `2.5px solid ${filterCategory === c.key ? "#000" : "transparent"}`, borderRadius: 14, padding: "10px 14px", cursor: "pointer", textAlign: "center", minWidth: 70, boxShadow: filterCategory === c.key ? "0 0 0 2px #000" : "none", opacity: filterCategory && filterCategory !== c.key ? 0.5 : 1, transition: "all 0.15s" }}>
+              style={{ flexShrink: 0, background: c.color, border: `2.5px solid ${filterCategory === c.key ? "#000" : "transparent"}`, borderRadius: 'var(--radius-card-sm)', padding: "10px 14px", cursor: "pointer", textAlign: "center", minWidth: 70, boxShadow: filterCategory === c.key ? "0 0 0 2px #000" : "none", opacity: filterCategory && filterCategory !== c.key ? 0.5 : 1, transition: "all 0.15s" }}>
               <div style={{ fontSize: 26, fontWeight: 900, color: "#fff", lineHeight: 1 }}>{c.count}</div>
               <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.9)", marginTop: 3 }}>{c.key}</div>
             </button>
@@ -371,11 +371,11 @@ Return ONLY the JSON, no other text.` });
       )}
       {filterCategory && (
         <button onClick={() => setFilterCategory("")}
-          style={{ background: "#f0f0f0", border: "none", borderRadius: 8, padding: "5px 14px", cursor: "pointer", fontSize: 13, marginBottom: 14 }}>× Clear</button>
+          style={{ background: "#f0f0f0", border: "none", borderRadius: 'var(--radius-sm)', padding: "5px 14px", cursor: "pointer", fontSize: 13, marginBottom: 14 }}>× Clear</button>
       )}
 
       {seeds.length === 0 ? (
-        <div style={{ border: "2px dashed #ccc", borderRadius: 14, padding: 48, textAlign: "center" }}>
+        <div style={{ border: "2px dashed #ccc", borderRadius: 'var(--radius-card-sm)', padding: 48, textAlign: "center" }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>🌰</div>
           <div style={{ color: "#888", fontSize: 15, marginBottom: 4 }}>Your seed library is empty.</div>
           <div style={{ color: "#bbb", fontSize: 14 }}>Scan your first seed packet to get started.</div>
@@ -387,9 +387,9 @@ Return ONLY the JSON, no other text.` });
             const icon = getAutoIcon(seed.name);
             return (
               <div key={seed.id} style={{ position: "relative", marginBottom: 8, paddingBottom: 4 }}>
-                <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 14, zIndex: 0 }} />
+                <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 'var(--radius-card-sm)', zIndex: 0 }} />
                 <button onClick={() => setSelectedSeed(seed)} className="plant-card"
-                  style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: 14, padding: "14px 16px", width: "100%", textAlign: "left", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, boxSizing: "border-box" }}>
+                  style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: 'var(--radius-card-sm)', padding: "14px 16px", width: "100%", textAlign: "left", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, boxSizing: "border-box" }}>
                   {icon && (
                     <img src={icon.url} alt={seed.name} style={{ width: 44, height: 44, objectFit: "contain", imageRendering: "pixelated", flexShrink: 0 }} />
                   )}
@@ -401,8 +401,8 @@ Return ONLY the JSON, no other text.` });
                     <div style={{ display: "flex", gap: 5, flexWrap: "wrap", alignItems: "center" }}>
                       {seed.brand && <span style={{ fontSize: 12, color: "#888" }}>{seed.brand}</span>}
                       {seed.dtm && <span style={{ fontSize: 12, fontWeight: 700, color: "#444" }}>· {seed.dtm}d</span>}
-                      {seed.year && <span style={{ fontSize: 11, background: "#f0f0f0", color: "#666", padding: "1px 6px", borderRadius: 8 }}>{seed.year}</span>}
-                      {seed.started && <span style={{ fontSize: 11, background: "#a8e063", color: "#000", padding: "1px 6px", borderRadius: 8, fontWeight: 700, border: "1px solid #000" }}>✓ Started</span>}
+                      {seed.year && <span style={{ fontSize: 11, background: "#f0f0f0", color: "#666", padding: "1px 6px", borderRadius: 'var(--radius-sm)' }}>{seed.year}</span>}
+                      {seed.started && <span style={{ fontSize: 11, background: "#a8e063", color: "#000", padding: "1px 6px", borderRadius: 'var(--radius-sm)', fontWeight: 700, border: "1px solid #000" }}>✓ Started</span>}
                       {seed.bookmarked && <span style={{ fontSize: 14 }}>🔖</span>}
                     </div>
                   </div>

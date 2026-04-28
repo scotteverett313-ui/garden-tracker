@@ -93,8 +93,8 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
 
     return (
       <div style={{ position: "relative", marginBottom: 8, paddingBottom: 4 }}>
-        <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 16, zIndex: 0 }} />
-        <div style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: 16, padding: "14px 16px" }}>
+        <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 'var(--radius-card)', zIndex: 0 }} />
+        <div style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: 'var(--radius-card)', padding: "14px 16px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
               <div style={{ width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -106,7 +106,7 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
                 <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                   <span style={{ fontWeight: 800, fontSize: 16 }}>{plant.name}</span>
                   {plant.variety && <span style={{ color: "#888", fontSize: 13 }}>{plant.variety}</span>}
-                  <span style={{ fontSize: 11, background: "#f0f0f0", color: "#555", padding: "2px 7px", borderRadius: 10, fontWeight: 600 }}>{plant.zone.split(" ")[0]}</span>
+                  <span style={{ fontSize: 11, background: "#f0f0f0", color: "#555", padding: "2px 7px", borderRadius: 'var(--radius-input)', fontWeight: 600 }}>{plant.zone.split(" ")[0]}</span>
                 </div>
                 <div style={{ marginTop: 3 }}>
                   {daysLeft !== null && daysLeft > 0 && (
@@ -124,9 +124,9 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
             </div>
             {showMark && plant.status !== "Harvesting" && (
               <div style={{ position: "relative", flexShrink: 0 }}>
-                <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 50, zIndex: 0 }} />
+                <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 'var(--radius-btn)', zIndex: 0 }} />
                 <button onClick={() => markHarvested(plant)} className="btn-cta"
-                  style={{ position: "relative", zIndex: 1, background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 50, padding: "7px 14px", cursor: "pointer", fontSize: 12, fontWeight: 800 }}>
+                  style={{ position: "relative", zIndex: 1, background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 'var(--radius-btn)', padding: "7px 14px", cursor: "pointer", fontSize: 12, fontWeight: 800 }}>
                   ✓ Harvest
                 </button>
               </div>
@@ -134,7 +134,7 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
           </div>
 
           <button onClick={() => setShowNextFor(showNextFor === plant.id ? null : plant.id)}
-            style={{ marginTop: 10, background: showNextFor === plant.id ? "#000" : "#f5f5f3", color: showNextFor === plant.id ? "#a8e063" : "#555", border: "2px solid #000", borderRadius: 8, padding: "5px 14px", cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
+            style={{ marginTop: 10, background: showNextFor === plant.id ? "#000" : "#f5f5f3", color: showNextFor === plant.id ? "#a8e063" : "#555", border: "2px solid #000", borderRadius: 'var(--radius-sm)', padding: "5px 14px", cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
             🌱 {showNextFor === plant.id ? "Hide suggestions" : "What to plant next?"}
           </button>
 
@@ -151,14 +151,14 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
                     const action = isIndoor ? "Start indoors" : (s.direct?.length ? "Direct sow" : "Transplant");
                     const sIconUrl = getAutoIcon(s.name)?.url;
                     return (
-                      <div key={s.name} style={{ background: s.isGoodCompanion ? "#f0fdf4" : "#fafaf8", border: `2px solid ${s.isGoodCompanion ? "#a8e063" : "#e0e0e0"}`, borderRadius: 10, padding: "10px 12px", display: "flex", alignItems: "center", gap: 10 }}>
+                      <div key={s.name} style={{ background: s.isGoodCompanion ? "#f0fdf4" : "#fafaf8", border: `2px solid ${s.isGoodCompanion ? "#a8e063" : "#e0e0e0"}`, borderRadius: 'var(--radius-input)', padding: "10px 12px", display: "flex", alignItems: "center", gap: 10 }}>
                         {sIconUrl
                           ? <img src={sIconUrl} alt={s.name} style={{ width: 32, height: 32, objectFit: "contain", imageRendering: "pixelated", flexShrink: 0 }} />
                           : <span style={{ fontSize: 20, flexShrink: 0 }}>🌱</span>}
                         <div style={{ flex: 1 }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                             <span style={{ fontWeight: 700, fontSize: 14 }}>{s.name}</span>
-                            {s.isGoodCompanion && <span style={{ fontSize: 10, background: "#a8e063", color: "#000", padding: "1px 6px", borderRadius: 8, fontWeight: 700, border: "1px solid #000" }}>Good companion</span>}
+                            {s.isGoodCompanion && <span style={{ fontSize: 10, background: "#a8e063", color: "#000", padding: "1px 6px", borderRadius: 'var(--radius-sm)', fontWeight: 700, border: "1px solid #000" }}>Good companion</span>}
                           </div>
                           <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>{dbEntry?.dtm ? `${dbEntry.dtm} DTM · ` : ""}{action}</div>
                         </div>
@@ -184,7 +184,7 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
           <p style={{ color: "#888", margin: 0, fontSize: 13 }}>Track what's ready and what's next.</p>
         </div>
         <select value={window_} onChange={e => setWindow_(Number(e.target.value))}
-          style={{ border: "2px solid #000", borderRadius: 50, padding: "6px 12px", fontSize: 13, fontWeight: 700, background: "#fff", cursor: "pointer", fontFamily: "inherit" }}>
+          style={{ border: "2px solid #000", borderRadius: 'var(--radius-btn)', padding: "6px 12px", fontSize: 13, fontWeight: 700, background: "#fff", cursor: "pointer", fontFamily: "inherit" }}>
           <option value={7}>7 days</option>
           <option value={14}>14 days</option>
           <option value={30}>30 days</option>
@@ -192,7 +192,7 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
       </div>
 
       {noHarvestData ? (
-        <div style={{ border: "2px dashed #ccc", borderRadius: 16, padding: 48, textAlign: "center" }}>
+        <div style={{ border: "2px dashed #ccc", borderRadius: 'var(--radius-card)', padding: 48, textAlign: "center" }}>
           <div style={{ fontSize: 48, marginBottom: 12 }}>🧺</div>
           <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 4 }}>No harvest data yet</div>
           <div style={{ color: "#888", fontSize: 14 }}>Add plants with a start date and days-to-maturity to see timelines here.</div>
@@ -203,7 +203,7 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
             <div style={{ marginBottom: 28 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                 <h3 style={{ margin: 0, fontSize: 20, fontWeight: 900 }}>Ready Now</h3>
-                <span style={{ background: "#c0392b", color: "#fff", fontSize: 12, fontWeight: 800, padding: "2px 10px", borderRadius: 20, border: "1.5px solid #000" }}>{readyNow.length}</span>
+                <span style={{ background: "#c0392b", color: "#fff", fontSize: 12, fontWeight: 800, padding: "2px 10px", borderRadius: 'var(--radius-card-lg)', border: "1.5px solid #000" }}>{readyNow.length}</span>
               </div>
               {readyNow.map(p => <HarvestCard key={p.id} plant={p} />)}
             </div>
@@ -212,7 +212,7 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
             <div style={{ marginBottom: 28 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                 <h3 style={{ margin: 0, fontSize: 20, fontWeight: 900 }}>In {window_} Days</h3>
-                <span style={{ background: "#f0a500", color: "#000", fontSize: 12, fontWeight: 800, padding: "2px 10px", borderRadius: 20, border: "1.5px solid #000" }}>{comingSoon.length}</span>
+                <span style={{ background: "#f0a500", color: "#000", fontSize: 12, fontWeight: 800, padding: "2px 10px", borderRadius: 'var(--radius-card-lg)', border: "1.5px solid #000" }}>{comingSoon.length}</span>
               </div>
               {comingSoon.map(p => <HarvestCard key={p.id} plant={p} />)}
             </div>
@@ -230,7 +230,7 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
             </div>
           )}
           {readyNow.length === 0 && comingSoon.length === 0 && (
-            <div style={{ background: "#fdf0e0", border: "2px solid #000", borderRadius: 16, padding: 24, textAlign: "center" }}>
+            <div style={{ background: "#fdf0e0", border: "2px solid #000", borderRadius: 'var(--radius-card)', padding: 24, textAlign: "center" }}>
               <div style={{ fontSize: 36, marginBottom: 8 }}>🌱</div>
               <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 4 }}>Still growing</div>
               <div style={{ color: "#666", fontSize: 14 }}>Nothing ready in the next {window_} days.</div>

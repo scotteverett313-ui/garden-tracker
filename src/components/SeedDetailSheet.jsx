@@ -31,9 +31,9 @@ function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onE
           <h2 style={{ margin: "0 0 2px", fontSize: 24, fontWeight: 900, letterSpacing: -0.5 }}>{seed.name || "Unnamed"}</h2>
           {seed.variety && <div style={{ color: "#888", fontSize: 15 }}>{seed.variety}</div>}
           <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
-            {seed.brand && <span style={{ fontSize: 12, background: "#f0f0f0", borderRadius: 10, padding: "2px 9px", color: "#555" }}>{seed.brand}</span>}
-            {seed.source === "Scanned" && <span style={{ fontSize: 12, background: "#f0f8f0", borderRadius: 10, padding: "2px 9px", color: "#2d8a3f", fontWeight: 600 }}>✨ Scanned</span>}
-            {seed.started && <span style={{ fontSize: 12, background: "#a8e063", borderRadius: 10, padding: "2px 9px", color: "#000", fontWeight: 700, border: "1px solid #000" }}>✓ Started</span>}
+            {seed.brand && <span style={{ fontSize: 12, background: "#f0f0f0", borderRadius: 'var(--radius-input)', padding: "2px 9px", color: "#555" }}>{seed.brand}</span>}
+            {seed.source === "Scanned" && <span style={{ fontSize: 12, background: "#f0f8f0", borderRadius: 'var(--radius-input)', padding: "2px 9px", color: "#2d8a3f", fontWeight: 600 }}>✨ Scanned</span>}
+            {seed.started && <span style={{ fontSize: 12, background: "#a8e063", borderRadius: 'var(--radius-input)', padding: "2px 9px", color: "#000", fontWeight: 700, border: "1px solid #000" }}>✓ Started</span>}
           </div>
         </div>
         <button onClick={() => onUpdate({ ...seed, bookmarked: !seed.bookmarked })}
@@ -43,7 +43,7 @@ function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onE
       </div>
 
       {/* Packet Info */}
-      <div style={{ background: "#f5f5f3", borderRadius: 14, padding: 14, marginBottom: 14 }}>
+      <div style={{ background: "#f5f5f3", borderRadius: 'var(--radius-card-sm)', padding: 14, marginBottom: 14 }}>
         <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 10 }}>Packet Info</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           {seed.year ? (
@@ -52,7 +52,7 @@ function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onE
               <div style={{ fontWeight: 700, fontSize: 14, display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
                 {seed.year}
                 {freshness && (
-                  <span style={{ fontSize: 11, background: freshness.bg, color: freshness.color, padding: "1px 7px", borderRadius: 10, fontWeight: 700 }}>
+                  <span style={{ fontSize: 11, background: freshness.bg, color: freshness.color, padding: "1px 7px", borderRadius: 'var(--radius-input)', fontWeight: 700 }}>
                     {freshness.label}
                   </span>
                 )}
@@ -81,7 +81,7 @@ function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onE
 
       {/* Planting Guide */}
       {hasPlantingGuide && (
-        <div style={{ background: "#f5f5f3", borderRadius: 14, padding: 14, marginBottom: 14 }}>
+        <div style={{ background: "#f5f5f3", borderRadius: 'var(--radius-card-sm)', padding: 14, marginBottom: 14 }}>
           <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 10 }}>Planting Guide</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             {seed.depth && (
@@ -114,7 +114,7 @@ function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onE
 
       {/* When to Sow */}
       {calData && (
-        <div style={{ background: "#f5f5f3", borderRadius: 14, padding: 14, marginBottom: 14 }}>
+        <div style={{ background: "#f5f5f3", borderRadius: 'var(--radius-card-sm)', padding: 14, marginBottom: 14 }}>
           <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 10 }}>When to Sow</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(12, 1fr)", gap: 3, marginBottom: 10 }}>
             {MONTHS.map((m, i) => {
@@ -147,7 +147,7 @@ function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onE
 
       {/* About */}
       {seed.about && (
-        <div style={{ background: "#f5f5f3", borderRadius: 12, padding: 14, fontSize: 14, color: "#555", lineHeight: 1.55, marginBottom: 14 }}>
+        <div style={{ background: "#f5f5f3", borderRadius: 'var(--radius-icon)', padding: 14, fontSize: 14, color: "#555", lineHeight: 1.55, marginBottom: 14 }}>
           {seed.about}
         </div>
       )}
@@ -174,11 +174,11 @@ function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onE
       </div>
       <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
         <button onClick={() => onUpdate({ ...seed, started: !seed.started })}
-          style={{ flex: 1, padding: "10px", background: seed.started ? "#000" : "#fff", color: seed.started ? "#fff" : "#555", border: "2px solid #000", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 700 }}>
+          style={{ flex: 1, padding: "10px", background: seed.started ? "#000" : "#fff", color: seed.started ? "#fff" : "#555", border: "2px solid #000", borderRadius: 'var(--radius-icon)', cursor: "pointer", fontSize: 14, fontWeight: 700 }}>
           {seed.started ? "✓ Started" : "Mark Started"}
         </button>
         <button onClick={() => onEdit(seed)}
-          style={{ flex: 1, padding: "10px", background: "#fff", border: "2px solid #000", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 700 }}>
+          style={{ flex: 1, padding: "10px", background: "#fff", border: "2px solid #000", borderRadius: 'var(--radius-icon)', cursor: "pointer", fontSize: 14, fontWeight: 700 }}>
           ✏️ Edit
         </button>
       </div>
@@ -186,19 +186,19 @@ function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onE
       {/* Delete */}
       <div style={{ paddingTop: 4, borderTop: "1px solid #f0f0f0" }}>
         {showDeleteConfirm ? (
-          <div style={{ background: "#fdecea", border: "2px solid #c0392b", borderRadius: 12, padding: 14, textAlign: "center", marginTop: 12 }}>
+          <div style={{ background: "#fdecea", border: "2px solid #c0392b", borderRadius: 'var(--radius-icon)', padding: 14, textAlign: "center", marginTop: 12 }}>
             <div style={{ fontWeight: 700, fontSize: 15, color: "#c0392b", marginBottom: 6 }}>Remove {seed.name}?</div>
             <div style={{ fontSize: 13, color: "#888", marginBottom: 12 }}>This can't be undone.</div>
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => { onDelete(seed.id); onClose(); }}
-                style={{ flex: 1, padding: "10px", background: "#c0392b", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 700 }}>Delete</button>
+                style={{ flex: 1, padding: "10px", background: "#c0392b", color: "#fff", border: "none", borderRadius: 'var(--radius-input)', cursor: "pointer", fontSize: 14, fontWeight: 700 }}>Delete</button>
               <button onClick={() => setShowDeleteConfirm(false)}
-                style={{ flex: 1, padding: "10px", background: "#fff", border: "1.5px solid #ccc", borderRadius: 10, cursor: "pointer", fontSize: 14 }}>Cancel</button>
+                style={{ flex: 1, padding: "10px", background: "#fff", border: "1.5px solid #ccc", borderRadius: 'var(--radius-input)', cursor: "pointer", fontSize: 14 }}>Cancel</button>
             </div>
           </div>
         ) : (
           <button onClick={() => setShowDeleteConfirm(true)}
-            style={{ width: "100%", padding: "11px", background: "none", border: "1.5px solid #e0e0e0", borderRadius: 12, cursor: "pointer", fontSize: 14, color: "#c0392b", fontWeight: 600, marginTop: 8 }}>
+            style={{ width: "100%", padding: "11px", background: "none", border: "1.5px solid #e0e0e0", borderRadius: 'var(--radius-icon)', cursor: "pointer", fontSize: 14, color: "#c0392b", fontWeight: 600, marginTop: 8 }}>
             🗑 Remove from Library
           </button>
         )}

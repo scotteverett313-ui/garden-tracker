@@ -4,9 +4,9 @@ export function Toast({ toasts }) {
       {toasts.map(t => (
         <div key={t.id} style={{
           background: t.type === "error" ? "#c0392b" : t.type === "warning" ? "#e67e22" : "#5c3d1e",
-          color: "#fff", borderRadius: 12, padding: "12px 16px", fontSize: 14, fontWeight: 600,
+          color: "#fff", borderRadius: 'var(--radius-icon)', padding: "12px 16px", fontSize: 14, fontWeight: 600,
           display: "flex", alignItems: "center", gap: 10,
-          boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+          boxShadow: "var(--shadow-soft)",
           animation: "slideUp 0.25s ease",
           pointerEvents: t.action ? "auto" : "none",
         }}>
@@ -15,7 +15,7 @@ export function Toast({ toasts }) {
           {t.action && (
             <button
               onClick={() => { t.action.onClick(); t.action.dismiss(); }}
-              style={{ background: "rgba(255,255,255,0.25)", border: "1.5px solid rgba(255,255,255,0.6)", borderRadius: 8, padding: "4px 12px", cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#fff", flexShrink: 0 }}>
+              style={{ background: "rgba(255,255,255,0.25)", border: "1.5px solid rgba(255,255,255,0.6)", borderRadius: 'var(--radius-sm)', padding: "4px 12px", cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#fff", flexShrink: 0 }}>
               {t.action.label}
             </button>
           )}

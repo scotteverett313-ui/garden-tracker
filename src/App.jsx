@@ -98,6 +98,11 @@ export default function App() {
 
   function handleAdd(plant) { savePlants([...plants, plant]); toast(`${plant.name} added`, { icon: "🌱" }); }
   function handleUpdate(updated) { savePlants(plants.map(p => p.id === updated.id ? updated : p)); }
+  function handleSplit(updatedOriginal, newPlants) {
+    const without = plants.filter(p => p.id !== updatedOriginal.id);
+    savePlants([...without, updatedOriginal, ...newPlants]);
+    toast(`${newPlants[0].name} split into ${newPlants.length} group${newPlants.length !== 1 ? "s" : ""}`, { icon: "🌿" });
+  }
   function handleDelete(id) {
     const deleted = plants.find(p => p.id === id);
     const updated = plants.filter(p => p.id !== id);
@@ -164,7 +169,7 @@ export default function App() {
 
     if (!spring || !fall) return (
       <button onClick={() => setShowSettings(true)}
-        style={{ width: "100%", background: "#f5f5f3", border: "1.5px dashed #ccc", borderRadius: 12, padding: "10px 14px", cursor: "pointer", textAlign: "center", color: "#aaa", fontSize: 12, fontWeight: 600, fontFamily: "inherit" }}>
+        style={{ width: "100%", background: "#f5f5f3", border: "1.5px dashed #ccc", borderRadius: 'var(--radius-icon)', padding: "10px 14px", cursor: "pointer", textAlign: "center", color: "#aaa", fontSize: 12, fontWeight: 600, fontFamily: "inherit" }}>
         Set frost dates →
       </button>
     );
@@ -189,8 +194,8 @@ export default function App() {
         <div style={{ fontSize: 14, fontWeight: 800, color: "#000", marginBottom: 4, letterSpacing: -0.2 }}>{countdownText}</div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: "#000", flexShrink: 0 }}>{formatDate(frostDates.lastSpring)}</span>
-          <div style={{ flex: 1, height: 8, background: "#e8e8e8", borderRadius: 999, overflow: "hidden", border: "1.5px solid #ddd" }}>
-            <div style={{ height: "100%", width: `${progress}%`, background: "#a8e063", borderRadius: 999, transition: "width 0.3s ease" }} />
+          <div style={{ flex: 1, height: 8, background: "#e8e8e8", borderRadius: 'var(--radius-pill)', overflow: "hidden", border: "1.5px solid #ddd" }}>
+            <div style={{ height: "100%", width: `${progress}%`, background: "#a8e063", borderRadius: 'var(--radius-pill)', transition: "width 0.3s ease" }} />
           </div>
           <span style={{ fontSize: 13, fontWeight: 700, color: "#000", flexShrink: 0 }}>{formatDate(frostDates.firstFall)}</span>
         </div>
@@ -211,7 +216,7 @@ export default function App() {
             {NAV_TABS.map(t => (
               <button key={t.id} onClick={() => setTab(t.id)} style={{
                 display: "flex", alignItems: "center", gap: 12,
-                padding: "10px 14px", borderRadius: 12, border: "none",
+                padding: "10px 14px", borderRadius: 'var(--radius-icon)', border: "none",
                 background: tab === t.id ? "#f0fbe0" : "none",
                 cursor: "pointer", textAlign: "left", fontFamily: "inherit",
                 transition: "background 0.15s ease",
@@ -229,16 +234,16 @@ export default function App() {
             {syncing && <div style={{ fontSize: 11, color: "#aaa", textAlign: "center" }}>syncing...</div>}
             <div style={{ display: "flex", gap: 8 }}>
               <div style={{ position: "relative", paddingBottom: 3, flex: 1 }}>
-                <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 999, zIndex: 0 }} />
+                <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 'var(--radius-pill)', zIndex: 0 }} />
                 <button onClick={() => setShowBackup(true)} className="btn-cta"
-                  style={{ position: "relative", zIndex: 1, width: "100%", background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 999, padding: "7px 10px", cursor: "pointer", fontWeight: 800, fontSize: 12, fontFamily: "inherit" }}>
+                  style={{ position: "relative", zIndex: 1, width: "100%", background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 'var(--radius-pill)', padding: "7px 10px", cursor: "pointer", fontWeight: 800, fontSize: 12, fontFamily: "inherit" }}>
                   {(!lastBackup || daysSince(lastBackup) >= 3) ? "⚠️ Backup" : "Backup"}
                 </button>
               </div>
               <div style={{ position: "relative", paddingBottom: 3, flexShrink: 0 }}>
-                <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 10, zIndex: 0 }} />
+                <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 'var(--radius-input)', zIndex: 0 }} />
                 <button onClick={() => setShowSettings(true)}
-                  style={{ position: "relative", zIndex: 1, background: "#a8e063", border: "2.5px solid #000", borderRadius: 10, width: 36, height: 36, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  style={{ position: "relative", zIndex: 1, background: "#a8e063", border: "2.5px solid #000", borderRadius: 'var(--radius-input)', width: 36, height: 36, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <img src={ICONS.settings} alt="Settings" style={{ width: 18, height: 18, objectFit: "contain" }} />
                 </button>
               </div>
@@ -259,16 +264,16 @@ export default function App() {
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   {syncing && <span style={{ fontSize: 11, color: "#aaa" }}>syncing...</span>}
                   <div style={{ position: "relative", paddingBottom: 3 }}>
-                    <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 999, zIndex: 0 }} />
+                    <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 'var(--radius-pill)', zIndex: 0 }} />
                     <button onClick={() => setShowBackup(true)} className="btn-cta"
-                      style={{ position: "relative", zIndex: 1, background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 999, padding: "8px 20px", cursor: "pointer", fontWeight: 800, fontSize: 14, fontFamily: "inherit" }}>
+                      style={{ position: "relative", zIndex: 1, background: "#a8e063", color: "#000", border: "2.5px solid #000", borderRadius: 'var(--radius-pill)', padding: "8px 20px", cursor: "pointer", fontWeight: 800, fontSize: 14, fontFamily: "inherit" }}>
                       {(!lastBackup || daysSince(lastBackup) >= 3) ? "⚠️ Backup" : "Backup"}
                     </button>
                   </div>
                   <div style={{ position: "relative", paddingBottom: 3, flexShrink: 0 }}>
-                    <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 12, zIndex: 0 }} />
+                    <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 'var(--radius-icon)', zIndex: 0 }} />
                     <button onClick={() => setShowSettings(true)}
-                      style={{ position: "relative", zIndex: 1, background: "#a8e063", border: "2.5px solid #000", borderRadius: 12, width: 40, height: 40, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      style={{ position: "relative", zIndex: 1, background: "#a8e063", border: "2.5px solid #000", borderRadius: 'var(--radius-icon)', width: 40, height: 40, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <img src={ICONS.settings} alt="Settings" style={{ width: 20, height: 20, objectFit: "contain" }} />
                     </button>
                   </div>
@@ -292,7 +297,7 @@ export default function App() {
 
         {/* Tab content */}
         <div style={{ padding: isWide ? "20px 24px" : "16px 14px", flex: 1 }}>
-          {tab === "garden" && <GardenTab plants={plants} frostDates={frostDates} onUpdate={handleUpdate} onDelete={handleDelete} search={search} setSearch={setSearch} filterZone={filterZone} setFilterZone={setFilterZone} filterStatus={filterStatus} setFilterStatus={setFilterStatus} onAddPlant={openAddFlow} userDB={userDB} onSaveUserDB={saveUserDB} toast={toast} zones={zones} isWide={isWide} />}
+          {tab === "garden" && <GardenTab plants={plants} frostDates={frostDates} onUpdate={handleUpdate} onDelete={handleDelete} onSplit={handleSplit} search={search} setSearch={setSearch} filterZone={filterZone} setFilterZone={setFilterZone} filterStatus={filterStatus} setFilterStatus={setFilterStatus} onAddPlant={openAddFlow} userDB={userDB} onSaveUserDB={saveUserDB} toast={toast} zones={zones} isWide={isWide} />}
           {tab === "seeds" && <SeedLibraryTab seeds={seeds} onSaveSeeds={saveSeeds} onAddToGarden={handleAddSeedToGarden} />}
           {tab === "calendar" && <CalendarTab plants={plants} />}
           {tab === "harvest" && <HarvestTab plants={plants} frostDates={frostDates} onUpdate={handleUpdate} />}
@@ -326,9 +331,9 @@ export default function App() {
               { flow: "manual", icon: "✏️", title: "Enter manually", desc: "Blank form, full control", accent: "#fafaf8" },
             ].map(opt => (
               <div key={opt.flow} style={{ position: "relative", paddingBottom: 3 }}>
-                <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 14, zIndex: 0 }} />
-                <button onClick={() => setAddFlow(opt.flow)} style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: 14, padding: 16, background: opt.accent, border: "2px solid #000", borderRadius: 14, cursor: "pointer", textAlign: "left", width: "100%", boxSizing: "border-box" }}>
-                  <div style={{ width: 48, height: 48, background: "#fff", border: "2px solid #000", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>{opt.icon}</div>
+                <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: 'var(--radius-card-sm)', zIndex: 0 }} />
+                <button onClick={() => setAddFlow(opt.flow)} style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: 14, padding: 16, background: opt.accent, border: "2px solid #000", borderRadius: 'var(--radius-card-sm)', cursor: "pointer", textAlign: "left", width: "100%", boxSizing: "border-box" }}>
+                  <div style={{ width: 48, height: 48, background: "#fff", border: "2px solid #000", borderRadius: 'var(--radius-icon)', display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>{opt.icon}</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 800, fontSize: 16 }}>{opt.title}</div>
                     <div style={{ fontSize: 13, color: "#666", marginTop: 2 }}>{opt.desc}</div>
@@ -344,7 +349,7 @@ export default function App() {
       {showAdd && addFlow === "db" && (
         <Modal onClose={closeAdd} width={480}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-            <button onClick={() => setAddFlow("choose")} style={{ background: "#f0f0f0", border: "none", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 14, fontWeight: 700 }}>← Back</button>
+            <button onClick={() => setAddFlow("choose")} style={{ background: "#f0f0f0", border: "none", borderRadius: 'var(--radius-sm)', padding: "6px 12px", cursor: "pointer", fontSize: 14, fontWeight: 700 }}>← Back</button>
             <h2 style={{ margin: 0, fontSize: 20, fontWeight: 900 }}>Search Database</h2>
           </div>
           <DBSearchPicker userDB={userDB} onSelect={entry => { setPrefillPlant(entry); setAddFlow("manual"); }} />
@@ -354,7 +359,7 @@ export default function App() {
       {showAdd && addFlow === "scan" && (
         <Modal onClose={closeAdd} width={480}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-            <button onClick={() => setAddFlow("choose")} style={{ background: "#f0f0f0", border: "none", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 14, fontWeight: 700 }}>← Back</button>
+            <button onClick={() => setAddFlow("choose")} style={{ background: "#f0f0f0", border: "none", borderRadius: 'var(--radius-sm)', padding: "6px 12px", cursor: "pointer", fontSize: 14, fontWeight: 700 }}>← Back</button>
           </div>
           <SeedScanPicker onScanned={data => {
             const seedEntry = { ...data, id: generateId(), addedAt: new Date().toISOString(), started: false, source: "Scanned" };
@@ -385,20 +390,20 @@ export default function App() {
         <Modal onClose={() => { setShowBackup(false); setImportError(""); setImportSuccess(false); }} width={440}>
           <h2 style={{ margin: "0 0 6px", fontSize: 20, fontWeight: 700 }}>💾 Backup & Restore</h2>
           <p style={{ color: "#888", fontSize: 13, marginBottom: 20, lineHeight: 1.5 }}>Export to iCloud or Google Drive to keep it safe.</p>
-          <div style={{ background: "#fdf6ee", border: "1px solid #d4a96a", borderRadius: 12, padding: 16, marginBottom: 12 }}>
+          <div style={{ background: "#fdf6ee", border: "1px solid #d4a96a", borderRadius: 'var(--radius-icon)', padding: 16, marginBottom: 12 }}>
             <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>📤 Export</div>
             <div style={{ fontSize: 13, color: "#666", marginBottom: 4 }}>{plants.length} plants · {seeds.length} seeds</div>
             {lastBackup && <div style={{ fontSize: 12, color: "#888", marginBottom: 10 }}>Last backup: {daysSince(lastBackup) === 0 ? "today" : `${daysSince(lastBackup)} days ago`}</div>}
-            <button onClick={handleExport} style={{ width: "100%", padding: 11, background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>Download Backup</button>
+            <button onClick={handleExport} style={{ width: "100%", padding: 11, background: "#5c3d1e", color: "#fff", border: "none", borderRadius: 'var(--radius-input)', cursor: "pointer", fontSize: 14, fontWeight: 600 }}>Download Backup</button>
           </div>
-          <div style={{ background: "#fafaf8", border: "1px solid #e8e8e8", borderRadius: 12, padding: 16 }}>
+          <div style={{ background: "#fafaf8", border: "1px solid #e8e8e8", borderRadius: 'var(--radius-icon)', padding: 16 }}>
             <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8 }}>📥 Restore</div>
-            <label style={{ display: "block", width: "100%", padding: 11, background: "#fff", border: "1.5px dashed #ccc", borderRadius: 10, cursor: "pointer", fontSize: 14, textAlign: "center", color: "#555", boxSizing: "border-box" }}>
+            <label style={{ display: "block", width: "100%", padding: 11, background: "#fff", border: "1.5px dashed #ccc", borderRadius: 'var(--radius-input)', cursor: "pointer", fontSize: 14, textAlign: "center", color: "#555", boxSizing: "border-box" }}>
               Choose Backup File
               <input type="file" accept=".json" onChange={handleImport} style={{ display: "none" }} />
             </label>
-            {importError && <div style={{ marginTop: 8, fontSize: 13, color: "#c0392b", background: "#fdecea", padding: "8px 12px", borderRadius: 8 }}>⚠️ {importError}</div>}
-            {importSuccess && <div style={{ marginTop: 8, fontSize: 13, color: "#5c3d1e", background: "#f5ece0", padding: "8px 12px", borderRadius: 8 }}>✓ Restored!</div>}
+            {importError && <div style={{ marginTop: 8, fontSize: 13, color: "#c0392b", background: "#fdecea", padding: "8px 12px", borderRadius: 'var(--radius-sm)' }}>⚠️ {importError}</div>}
+            {importSuccess && <div style={{ marginTop: 8, fontSize: 13, color: "#5c3d1e", background: "#f5ece0", padding: "8px 12px", borderRadius: 'var(--radius-sm)' }}>✓ Restored!</div>}
           </div>
         </Modal>
       )}

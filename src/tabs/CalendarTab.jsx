@@ -34,7 +34,7 @@ function CalendarTab({ plants }) {
       <div>
         <h2 style={{ margin: "0 0 4px", fontSize: 22, fontWeight: 800 }}>Seasonal Planting Calendar</h2>
         <p style={{ color: "#888", marginBottom: 20, fontSize: 14 }}>Shows timing for plants you've started.</p>
-        <div style={{ border: "1.5px dashed #ddd", borderRadius: 14, padding: 48, textAlign: "center" }}>
+        <div style={{ border: "1.5px dashed #ddd", borderRadius: 'var(--radius-card-sm)', padding: 48, textAlign: "center" }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>📅</div>
           <div style={{ color: "#888", fontSize: 15 }}>No plants added yet.</div>
           <div style={{ color: "#bbb", fontSize: 14, marginTop: 4 }}>Add plants in My Garden and they'll appear here.</div>
@@ -54,7 +54,7 @@ function CalendarTab({ plants }) {
           { label: "Direct Sow", color: "#fef3c7", text: "#92400e" },
           { label: "Your start", color: "#fff3cd", text: "#856404" },
         ].map(b => (
-          <span key={b.label} style={{ background: b.color, color: b.text, fontSize: 12, fontWeight: 600, padding: "4px 12px", borderRadius: 20 }}>{b.label}</span>
+          <span key={b.label} style={{ background: b.color, color: b.text, fontSize: 12, fontWeight: 600, padding: "4px 12px", borderRadius: 'var(--radius-card-lg)' }}>{b.label}</span>
         ))}
       </div>
       <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>

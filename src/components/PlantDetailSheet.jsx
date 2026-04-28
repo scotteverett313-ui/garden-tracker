@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import gsap from "gsap";
 import { ICONS, STATUSES, STATUS_COLORS, CARE_TYPES, lbl, sel, ZONES } from "../constants.js";
 import { generateId, daysUntil, daysSince, formatDate, calcHarvestDate, getAutoIcon } from "../utils.js";
 import { Modal } from "./Modal.jsx";
 import { CTAButton } from "./CTAButton.jsx";
 import { EditPlantModal } from "./EditPlantModal.jsx";
+import { SplitTransplantModal, PRE_TRANSPLANT } from "./SplitTransplantModal.jsx";
 
 function getNextWateringDate(plant) {
   const log = [...(plant.careLog || [])].filter(e => e.type === "Watering").sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -34,9 +36,10 @@ function nextWateringLabel(date) {
   return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 }
 
-function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClose, toast }) {
+function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClose, onSplit, toast }) {
   const [showCompanions, setShowCompanions] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
+  const [showSplit, setShowSplit] = useState(false);
   const [showStatusPicker, setShowStatusPicker] = useState(false);
   const [showEndModal, setShowEndModal] = useState(false);
   const [pendingStatus, setPendingStatus] = useState(null);
@@ -46,10 +49,47 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
   const [careDate, setCareDate] = useState(new Date().toISOString().split("T")[0]);
   const [careNote, setCareNote] = useState("");
 
+  const sheetRef = useRef(null);
+  const imageRef = useRef(null);
+
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = prev; };
+  }, []);
+
+  // Slide-up entrance
+  useEffect(() => {
+    const el = sheetRef.current;
+    if (!el) return;
+    gsap.set(el, { y: "100%" });
+    const tl = gsap.to(el, { y: 0, duration: 0.45, ease: "power3.out", clearProps: "transform" });
+    return () => tl.kill();
+  }, []);
+
+  // Parallax fruit image on sheet scroll
+  useEffect(() => {
+    const el = sheetRef.current;
+    if (!el || !imageRef.current) return;
+
+    gsap.set(imageRef.current, { y: 0, scale: 1, opacity: 1 });
+
+    const yTo      = gsap.quickTo(imageRef.current, "y",       { duration: 0.25, ease: "power2.out" });
+    const scaleTo  = gsap.quickTo(imageRef.current, "scale",   { duration: 0.25, ease: "power2.out" });
+    const opacityTo = gsap.quickTo(imageRef.current, "opacity", { duration: 0.2,  ease: "power2.out" });
+
+    function onScroll() {
+      const s = el.scrollTop;
+      yTo(s * 0.45);
+      scaleTo(Math.max(0.7, 1 - s * 0.0015));
+      opacityTo(Math.max(0, 1 - s * 0.004));
+    }
+
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      if (imageRef.current) gsap.set(imageRef.current, { y: 0, scale: 1, opacity: 1 });
+    };
   }, []);
 
   function addCareEntry() {
@@ -110,16 +150,17 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
     <>
       {/* Backdrop */}
       <div
-        style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center" }}
+        style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.2)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center" }}
         onClick={e => e.target === e.currentTarget && onClose()}
       >
         {/* Sheet */}
         <div
+          ref={sheetRef}
           className="modal-sheet"
-          style={{ background: "#fff", borderRadius: "20px 20px 0 0", width: "100%", maxWidth: 560, maxHeight: "92vh", overflowY: "auto", position: "relative", display: "flex", flexDirection: "column" }}
+          style={{ background: "#fff", borderRadius: "20px 20px 0 0", width: "100%", maxWidth: 560, height: "100vh", overflowY: "auto", overflowX: "hidden", position: "relative" }}
         >
           {/* ── Green hero ───────────────────────────────────────────── */}
-          <div style={{ background: "#a8e063", borderRadius: "20px 20px 0 0", padding: "56px 20px 28px", position: "relative", flexShrink: 0 }}>
+          <div style={{ background: "#a8e063", borderRadius: "20px 20px 0 0", padding: "80px 20px 36px", position: "relative", flexShrink: 0 }}>
             {/* Back button */}
             <div style={{ position: "absolute", top: 14, left: 14, paddingBottom: 3 }}>
               <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: "50%", zIndex: 0 }} />
@@ -137,8 +178,8 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
             {/* Plant image */}
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
               {imageUrl
-                ? <img src={imageUrl} alt={plant.name} style={{ width: 130, height: 130, objectFit: "contain", imageRendering: "pixelated" }} />
-                : <img src={statusObj.img} alt={statusObj.label} style={{ width: 90, height: 90, objectFit: "contain" }} />
+                ? <img ref={imageRef} src={imageUrl} alt={plant.name} style={{ width: 130, height: 130, objectFit: "contain", imageRendering: "pixelated" }} />
+                : <img ref={imageRef} src={statusObj.img} alt={statusObj.label} style={{ width: 90, height: 90, objectFit: "contain" }} />
               }
             </div>
           </div>
@@ -147,7 +188,7 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
           <div style={{ padding: "0 16px 40px" }}>
             {/* Drag handle */}
             <div style={{ display: "flex", justifyContent: "center", padding: "10px 0 14px" }}>
-              <div style={{ width: 36, height: 4, background: "#e0e0e0", borderRadius: 999 }} />
+              <div style={{ width: 36, height: 4, background: "#e0e0e0", borderRadius: 'var(--radius-pill)' }} />
             </div>
 
             {/* Plant name */}
@@ -158,8 +199,8 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
 
             {/* Next Watering card */}
             {nextWatering && (
-              <div style={{ border: "2px solid #000", borderRadius: 14, padding: "12px 14px", marginBottom: 14, display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ width: 48, height: 48, background: "#e8f4ff", borderRadius: 12, border: "1.5px solid #cce0ff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <div style={{ border: "2px solid #000", borderRadius: 'var(--radius-card-sm)', padding: "12px 14px", marginBottom: 14, display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 48, height: 48, background: "#e8f4ff", borderRadius: 'var(--radius-icon)', border: "1.5px solid #cce0ff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <img src={ICONS.water} alt="Water" style={{ width: 26, height: 26, objectFit: "contain" }} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -168,22 +209,22 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
                   <div style={{ fontSize: 14, fontWeight: 600, color: wateringEnabled ? "#555" : "#bbb" }}>{wateringTime}</div>
                 </div>
                 <button onClick={toggleWateringReminder}
-                  style={{ flexShrink: 0, background: wateringEnabled ? "#000" : "#ddd", border: "none", borderRadius: 999, padding: "5px 12px", cursor: "pointer", fontSize: 12, fontWeight: 800, color: wateringEnabled ? "#fff" : "#999", letterSpacing: 0.5, minWidth: 44 }}>
+                  style={{ flexShrink: 0, background: wateringEnabled ? "#000" : "#ddd", border: "none", borderRadius: 'var(--radius-pill)', padding: "5px 12px", cursor: "pointer", fontSize: 12, fontWeight: 800, color: wateringEnabled ? "#fff" : "#999", letterSpacing: 0.5, minWidth: 44 }}>
                   {wateringEnabled ? "ON" : "OFF"}
                 </button>
               </div>
             )}
 
             {/* Growing overview card */}
-            <div style={{ background: "#f5f5f3", borderRadius: 14, padding: 16, marginBottom: 14 }}>
+            <div style={{ background: "#f5f5f3", borderRadius: 'var(--radius-card-sm)', padding: 16, marginBottom: 14 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                 <span style={{ fontWeight: 800, fontSize: 15 }}>Growing Overview</span>
                 {plant.dateStarted && <span style={{ fontSize: 13, color: "#888" }}>Started {formatDate(plant.dateStarted)}</span>}
               </div>
               {/* Water + sun badges */}
               <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-                {plant.water && <span style={{ border: "1px solid #ccc", borderRadius: 20, padding: "3px 10px", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><img src={ICONS.water} alt="water" style={{ width: 14, height: 14, objectFit: "contain" }} /> {plant.water}</span>}
-                {plant.sun && <span style={{ border: "1px solid #ccc", borderRadius: 20, padding: "3px 10px", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><img src={ICONS.sun} alt="sun" style={{ width: 14, height: 14, objectFit: "contain" }} /> {plant.sun}</span>}
+                {plant.water && <span style={{ border: "1px solid #ccc", borderRadius: 'var(--radius-card-lg)', padding: "3px 10px", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><img src={ICONS.water} alt="water" style={{ width: 14, height: 14, objectFit: "contain" }} /> {plant.water}</span>}
+                {plant.sun && <span style={{ border: "1px solid #ccc", borderRadius: 'var(--radius-card-lg)', padding: "3px 10px", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><img src={ICONS.sun} alt="sun" style={{ width: 14, height: 14, objectFit: "contain" }} /> {plant.sun}</span>}
               </div>
               {/* 2x2 grid */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -201,14 +242,14 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
               </div>
               <div style={{ marginTop: 12, borderTop: "1px solid #e0e0e0", paddingTop: 12 }}>
                 <button onClick={() => setShowStatusPicker(v => !v)} className="status-pill"
-                  style={{ display: "inline-flex", alignItems: "center", gap: 6, background: STATUS_COLORS[plant.status] || "#eee", border: "none", borderRadius: 20, padding: "5px 12px", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6, background: STATUS_COLORS[plant.status] || "#eee", border: "none", borderRadius: 'var(--radius-card-lg)', padding: "5px 12px", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
                   <img src={statusObj.img} alt={statusObj.label} style={{ width: 16, height: 16, objectFit: "contain" }} /> {plant.status} <span style={{ fontSize: 10, opacity: 0.6 }}>▾</span>
                 </button>
                 {showStatusPicker && (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8, animation: "popIn 0.2s ease" }}>
                     {STATUSES.map(s => (
                       <button key={s.label} onClick={() => updateStatus(s.label)} className="status-pill"
-                        style={{ background: s.label === plant.status ? STATUS_COLORS[s.label] : "#fff", border: `1px solid ${s.label === plant.status ? "#bbb" : "#e0e0e0"}`, borderRadius: 20, padding: "4px 10px", cursor: "pointer", fontSize: 12, fontWeight: s.label === plant.status ? 700 : 400 }}>
+                        style={{ background: s.label === plant.status ? STATUS_COLORS[s.label] : "#fff", border: `1px solid ${s.label === plant.status ? "#bbb" : "#e0e0e0"}`, borderRadius: 'var(--radius-card-lg)', padding: "4px 10px", cursor: "pointer", fontSize: 12, fontWeight: s.label === plant.status ? 700 : 400 }}>
                         <img src={s.img} alt={s.label} style={{ width: 14, height: 14, objectFit: "contain", verticalAlign: "middle" }} /> {s.label}
                       </button>
                     ))}
@@ -218,22 +259,29 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
               {/* Zone move */}
               {nextZone && (
                 <button onClick={() => { onUpdate({ ...plant, zone: nextZone }); toast && toast(`Moved to ${nextZone.split(" ")[0]}`, { icon: "📍" }); }}
-                  style={{ marginTop: 10, width: "100%", padding: "8px", background: "#fff", border: "1.5px solid #e0e0e0", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+                  style={{ marginTop: 10, width: "100%", padding: "8px", background: "#fff", border: "1.5px solid #e0e0e0", borderRadius: 'var(--radius-input)', cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
                   ⟫ Move to {nextZone}
+                </button>
+              )}
+              {/* Split & Transplant — shown when batch has multiple plants and is pre-transplant */}
+              {PRE_TRANSPLANT.includes(plant.status) && parseInt(plant.quantity) > 1 && (
+                <button onClick={() => setShowSplit(true)}
+                  style={{ marginTop: 10, width: "100%", padding: "10px", background: "#edffe5", border: "2px solid #000", borderRadius: 'var(--radius-input)', cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#000" }}>
+                  🌿 Split & Transplant ({plant.quantity} plants)
                 </button>
               )}
             </div>
 
             {/* Frost warning */}
             {hasFrostWarning && (
-              <div style={{ background: "#e8f0ff", borderRadius: 10, padding: "8px 12px", fontSize: 13, color: "#3a5aaa", marginBottom: 12 }}>
+              <div style={{ background: "#e8f0ff", borderRadius: 'var(--radius-input)', padding: "8px 12px", fontSize: 13, color: "#3a5aaa", marginBottom: 12 }}>
                 ❄️ Harvest may conflict with fall frost ({formatDate(frostDates.firstFall)})
               </div>
             )}
 
             {/* About */}
             {plant.about && (
-              <div style={{ background: "#f5f5f3", borderRadius: 12, padding: 14, fontSize: 14, color: "#555", lineHeight: 1.5, marginBottom: 14 }}>
+              <div style={{ background: "#f5f5f3", borderRadius: 'var(--radius-icon)', padding: 14, fontSize: 14, color: "#555", lineHeight: 1.5, marginBottom: 14 }}>
                 {plant.about}
               </div>
             )}
@@ -241,7 +289,7 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
 
             {/* Companions */}
             <button onClick={() => setShowCompanions(v => !v)}
-              style={{ width: "100%", background: "#f5f5f3", border: "none", borderRadius: 12, padding: "12px 14px", cursor: "pointer", fontSize: 14, fontWeight: 600, textAlign: "left", marginBottom: showCompanions ? 0 : 14, display: "flex", justifyContent: "space-between" }}>
+              style={{ width: "100%", background: "#f5f5f3", border: "none", borderRadius: 'var(--radius-icon)', padding: "12px 14px", cursor: "pointer", fontSize: 14, fontWeight: 600, textAlign: "left", marginBottom: showCompanions ? 0 : 14, display: "flex", justifyContent: "space-between" }}>
               <span>🌿 Companion Plants {(plant.companions?.good?.length || 0) + (plant.companions?.bad?.length || 0) > 0 ? `(${(plant.companions?.good?.length || 0) + (plant.companions?.bad?.length || 0)})` : ""}</span>
               <span style={{ color: "#888" }}>{showCompanions ? "▲" : "▼"}</span>
             </button>
@@ -254,7 +302,7 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
                     </div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 6 }}>
                       {(plant.companions?.[type] || []).map(c => (
-                        <span key={c} style={{ background: type === "good" ? "#f5ece0" : "#fdecea", color: type === "good" ? "#5c3d1e" : "#c0392b", fontSize: 12, padding: "3px 8px", borderRadius: 12, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                        <span key={c} style={{ background: type === "good" ? "#f5ece0" : "#fdecea", color: type === "good" ? "#5c3d1e" : "#c0392b", fontSize: 12, padding: "3px 8px", borderRadius: 'var(--radius-icon)', display: "inline-flex", alignItems: "center", gap: 4 }}>
                           {c}<button onClick={() => removeCompanion(type, c)} style={{ background: "none", border: "none", cursor: "pointer", color: "inherit", fontSize: 13, lineHeight: 1, padding: 0, marginLeft: 2 }}>×</button>
                         </span>
                       ))}
@@ -265,9 +313,9 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
                         onChange={e => type === "good" ? setNewGood(e.target.value) : setNewBad(e.target.value)}
                         onKeyDown={e => e.key === "Enter" && addCompanion(type)}
                         placeholder={type === "good" ? "Add companion..." : "Add to avoid..."}
-                        style={{ flex: 1, padding: "6px 10px", border: "1px solid #ccc", borderRadius: 8, fontSize: 13, fontFamily: "inherit" }} />
+                        style={{ flex: 1, padding: "6px 10px", border: "1px solid #ccc", borderRadius: 'var(--radius-sm)', fontSize: 13, fontFamily: "inherit" }} />
                       <button onClick={() => addCompanion(type)}
-                        style={{ background: type === "good" ? "#5c3d1e" : "#c0392b", color: "#fff", border: "none", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 14, fontWeight: 600 }}>+</button>
+                        style={{ background: type === "good" ? "#5c3d1e" : "#c0392b", color: "#fff", border: "none", borderRadius: 'var(--radius-sm)', padding: "6px 12px", cursor: "pointer", fontSize: 14, fontWeight: 600 }}>+</button>
                     </div>
                   </div>
                 ))}
@@ -277,22 +325,22 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
             {/* Care Log */}
             <div style={{ marginBottom: 24 }}>
               <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 12 }}>Care Log</div>
-              <div style={{ background: "#f5f5f3", borderRadius: 14, padding: 14, marginBottom: 12 }}>
+              <div style={{ background: "#f5f5f3", borderRadius: 'var(--radius-card-sm)', padding: 14, marginBottom: 12 }}>
                 <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
                   <div style={{ flex: 1 }}>
                     <label style={lbl}>Type</label>
-                    <select value={careType} onChange={e => setCareType(e.target.value)} style={{ ...sel, borderRadius: 10 }}>
+                    <select value={careType} onChange={e => setCareType(e.target.value)} style={{ ...sel, borderRadius: 'var(--radius-input)' }}>
                       {CARE_TYPES.map(t => <option key={t}>{t}</option>)}
                     </select>
                   </div>
                   <div style={{ flex: 1 }}>
                     <label style={lbl}>Date</label>
                     <input type="date" value={careDate} onChange={e => setCareDate(e.target.value)}
-                      style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" }} />
+                      style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #e0e0e0", borderRadius: 'var(--radius-input)', fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" }} />
                   </div>
                 </div>
                 <textarea placeholder="Notes (optional)..." value={careNote} onChange={e => setCareNote(e.target.value)}
-                  style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit", minHeight: 60, resize: "vertical", marginBottom: 10 }} />
+                  style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #e0e0e0", borderRadius: 'var(--radius-input)', fontSize: 14, boxSizing: "border-box", fontFamily: "inherit", minHeight: 60, resize: "vertical", marginBottom: 10 }} />
                 <CTAButton onClick={addCareEntry} style={{ padding: "11px", fontSize: 15 }}>+ Log Care</CTAButton>
               </div>
               {(!plant.careLog || plant.careLog.length === 0) ? (
@@ -320,12 +368,21 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
 
             {/* Edit button */}
             <button onClick={() => setShowEdit(true)}
-              style={{ width: "100%", padding: "12px", background: "#fff", border: "2px solid #000", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 700 }}>✏️ Edit Plant</button>
+              style={{ width: "100%", padding: "12px", background: "#fff", border: "2px solid #000", borderRadius: 'var(--radius-icon)', cursor: "pointer", fontSize: 14, fontWeight: 700 }}>✏️ Edit Plant</button>
           </div>
         </div>
       </div>
 
       {showEdit && <EditPlantModal plant={plant} zones={zones} onSave={updated => { onUpdate(updated); toast && toast(`${updated.name} updated`, { icon: "✏️" }); }} onClose={() => setShowEdit(false)} onDelete={id => { onDelete(id); onClose(); toast && toast("Plant removed", { type: "warning", icon: "🗑" }); }} />}
+
+      {showSplit && (
+        <SplitTransplantModal
+          plant={plant}
+          zones={zones}
+          onSplit={(updatedOriginal, newPlants) => { onSplit(updatedOriginal, newPlants); setShowSplit(false); onClose(); }}
+          onClose={() => setShowSplit(false)}
+        />
+      )}
 
       {showEndModal && (
         <Modal onClose={() => setShowEndModal(false)} width={420}>
@@ -336,11 +393,11 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <button onClick={() => { onUpdate({ ...plant, status: pendingStatus, harvestedAt: new Date().toISOString() }); setShowEndModal(false); onClose(); toast && toast(`${plant.name} marked as ${pendingStatus}`, { icon: pendingStatus === "Harvested" ? "✅" : "🪦" }); }}
-              className="btn-cta" style={{ padding: 13, background: "#a8e063", color: "#000", border: "2px solid #000", borderRadius: 50, cursor: "pointer", fontSize: 15, fontWeight: 700 }}>
+              className="btn-cta" style={{ padding: 13, background: "#a8e063", color: "#000", border: "2px solid #000", borderRadius: 'var(--radius-btn)', cursor: "pointer", fontSize: 15, fontWeight: 700 }}>
               {pendingStatus === "Harvested" ? "✅ Confirm Harvested" : "🪦 Confirm Dead"} — Keep record
             </button>
             <button onClick={() => { onDelete(plant.id); setShowEndModal(false); onClose(); toast && toast(`${plant.name} removed`, { type: "warning", icon: "🗑" }); }}
-              style={{ padding: 13, background: "#fff", color: "#c0392b", border: "1.5px solid #c0392b", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>
+              style={{ padding: 13, background: "#fff", color: "#c0392b", border: "1.5px solid #c0392b", borderRadius: 'var(--radius-icon)', cursor: "pointer", fontSize: 14, fontWeight: 600 }}>
               🗑 Remove from Garden
             </button>
             <button onClick={() => setShowEndModal(false)} style={{ padding: 11, background: "none", color: "#888", border: "none", cursor: "pointer", fontSize: 14 }}>Cancel</button>

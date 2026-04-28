@@ -1,0 +1,223 @@
+/* ═══════════════════════════════════════════════════════════════
+   Dirt Rich — Design System Tokens (v2)
+   Source of truth: dirt-rich-design-system/project/colors_and_type.css
+   To update: run /sync-design-tokens after re-exporting from Claude Design
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+
+  /* ── Brand Colors ─────────────────────────────────────────── */
+  --color-green:        #a8e163;   /* Primary brand green — CTA fills, active dot */
+  --color-green-lime:   #abf989;   /* Brighter accent — "Good Companion" chip, some CTAs */
+  --color-green-zing:   #99e24b;   /* Progress fill accent */
+  --color-green-started:#97e34b;   /* "Started" status chip */
+  --color-green-dark:   #2d8a3f;   /* Ready-to-harvest / success */
+  --color-green-bg:     #edffe5;   /* Soft green card surface (seed detail) */
+  --color-pink:         #ff9bc6;   /* Flowers category chip */
+  --color-pink-soft:    #fba19d;   /* Secondary pink accent */
+  --color-brown:        #5c3d1e;   /* Warm accent, backup/export surfaces */
+  --color-amber:        #d4a96a;   /* Warning borders */
+  --color-red:          #c0392b;   /* Urgent / overdue / error */
+  --color-red-alert:    #e94e44;   /* Brighter alert accent */
+
+  /* ── Neutrals ─────────────────────────────────────────────── */
+  --color-black:        #000000;
+  --color-ink:          #1e1e1e;   /* Offset shadow block color */
+  --color-ink-2:        #292d32;   /* Dark text in dense UI */
+  --color-white:        #ffffff;
+  --color-bg:           #fbf6ef;   /* App background — warm cream */
+  --color-bg-alt:       #faf6f0;   /* Legacy cream */
+  --color-surface:      #ffffff;   /* Cards, modals, sticky header */
+  --color-surface-alt:  #f5f5f3;   /* Icon bg, muted surface */
+  --color-surface-warm: #fdf6ee;   /* Warm tinted surface */
+  --color-pill-grey:    #dedede;   /* Year pill */
+  --color-divider:      #eeeeee;   /* 1px section dividers */
+  --color-track:        #e5e5e5;   /* Progress bar track */
+  --color-border-card:  #000000;   /* 2px solid — all card/button borders */
+  --color-border-input: #e0e0e0;   /* 1.5px — form inputs */
+  --color-border-empty: #cccccc;   /* 1.5px dashed — empty/placeholder states */
+
+  /* ── Foreground (Text) ────────────────────────────────────── */
+  --color-fg1:          #000000;   /* Headings, card names, primary text */
+  --color-fg2:          #414042;   /* Body text in dense UI */
+  --color-fg3:          #666666;   /* Secondary descriptions */
+  --color-fg4:          #a6a6a6;   /* Meta info, plant counts */
+  --color-fg5:          #aaaaaa;   /* Disabled, placeholder, inactive nav */
+
+  /* ── Status Colors (pastel chips) ────────────────────────── */
+  --status-seed:         #f5e6c8;
+  --status-germinating:  #e8f0d8;
+  --status-seedling:     #d6e8d0;
+  --status-transplanted: #fde8c8;
+  --status-growing:      #d8ecd8;
+  --status-flowering:    #f0d8e8;
+  --status-fruiting:     #fcd8d8;
+  --status-harvesting:   #d8e8c8;
+  --status-dormant:      #e8e8e8;
+  --status-harvested:    #d4edda;
+  --status-dead:         #e8e8e8;
+
+  /* ── Typography ───────────────────────────────────────────── */
+  --font-sans:            'Cabin', system-ui, -apple-system, sans-serif;
+  --font-sans-condensed:  'Cabin SemiCondensed', 'Cabin', system-ui, sans-serif;
+  --font-sans-xc:         'Cabin Condensed', 'Cabin', system-ui, sans-serif;
+  --font-ui:              'Inter', 'Cabin', system-ui, -apple-system, sans-serif;
+
+  --font-weight-light:      300;
+  --font-weight-regular:    400;
+  --font-weight-medium:     500;
+  --font-weight-semibold:   600;
+  --font-weight-bold:       700;
+  --font-weight-extrabold:  800;
+  --font-weight-black:      900;
+
+  --text-micro:    9px;    /* ALL CAPS labels with letter-spacing */
+  --text-chip:     10px;   /* Inter Bold — tiny chip labels */
+  --text-badge:    11px;
+  --text-meta:     12px;   /* Timestamps, body copy in cards */
+  --text-label:    13px;
+  --text-body:     14px;   /* Body copy, card plant names, tab labels */
+  --text-card:     15px;   /* CTA button text */
+  --text-option:   16px;   /* Section titles, search placeholder */
+  --text-value:    17px;
+  --text-tagline:  18px;   /* Section headers */
+  --text-title-sm: 20px;   /* Seed detail name */
+  --text-title:    24px;   /* Zone headers, sub-page titles */
+  --text-stat:     30px;   /* Stat tile numbers */
+  --text-hero:     48px;   /* Page hero numerals */
+
+  --leading-tight:  1.0;
+  --leading-snug:   1.2;
+  --leading-normal: 1.5;
+
+  --tracking-micro: 0.5px;
+  --tracking-nav:   0.2px;
+
+  /* ── Spacing ──────────────────────────────────────────────── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  14px;
+  --space-5:  16px;
+  --space-6:  20px;
+  --space-7:  24px;
+  --space-8:  32px;
+  --space-9:  40px;
+  --space-10: 52px;
+  --space-11: 80px;
+
+  /* ── Border Radius ────────────────────────────────────────── */
+  --radius-pill:      999px;   /* CTA buttons, progress bars */
+  --radius-card:      16px;    /* Plant cards, stat tiles */
+  --radius-card-lg:   20px;    /* Detail cards */
+  --radius-card-sm:   14px;    /* Small list cards, modals */
+  --radius-chip:      20px;    /* Chips / badges */
+  --radius-btn:       30px;    /* Rounded-rectangle buttons, search field */
+  --radius-btn-sm:    27px;    /* Inner pill (with offset shadow) */
+  --radius-pill-year: 7px;     /* Tight year pill */
+  --radius-icon:      12px;
+  --radius-input:     10px;
+  --radius-sm:         8px;
+
+  /* ── Shadows ──────────────────────────────────────────────── */
+  --shadow-offset-color: #1e1e1e;
+  --shadow-offset:    0 4px 0 0 var(--shadow-offset-color);
+  --shadow-offset-sm: 0 3px 0 0 var(--shadow-offset-color);
+  --shadow-soft:      0 4px 14px rgba(0, 0, 0, 0.13);   /* hero card */
+  --shadow-soft-sm:   0 2px 6px  rgba(0, 0, 0, 0.08);
+
+  /* ── Layout ───────────────────────────────────────────────── */
+  --max-width:      600px;
+  --page-padding-x: 14px;
+  --page-padding-y: 16px;
+  --header-height:  198px;
+  --nav-height:     60px;
+
+  /* ── Transitions ──────────────────────────────────────────── */
+  --ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-standard: ease;
+  --duration-fast: 0.08s;
+  --duration-base: 0.3s;
+  --duration-slow: 0.5s;
+  --duration-exit: 0.6s;
+}
+
+/* ─── Typography Utility Classes ─────────────────────────────── */
+
+.h-hero    { font-family: var(--font-sans); font-size: var(--text-hero);    font-weight: var(--font-weight-bold);   line-height: var(--leading-tight); letter-spacing: -1px; }
+.h-display { font-family: var(--font-sans); font-size: var(--text-title);   font-weight: var(--font-weight-bold);   line-height: var(--leading-tight); }
+.h-section { font-family: var(--font-ui);   font-size: var(--text-tagline); font-weight: var(--font-weight-bold);   line-height: var(--leading-tight); }
+.h-title   { font-family: var(--font-sans); font-size: var(--text-title-sm);font-weight: var(--font-weight-bold);   line-height: var(--leading-tight); }
+.h-card    { font-family: var(--font-ui);   font-size: var(--text-body);    font-weight: var(--font-weight-bold);   line-height: var(--leading-snug); }
+.h-stat    { font-family: var(--font-ui);   font-size: var(--text-stat);    font-weight: var(--font-weight-bold);   line-height: var(--leading-tight); }
+
+.text-body  { font-family: var(--font-ui);   font-size: var(--text-body);  color: var(--color-fg1); }
+.text-light { font-family: var(--font-ui);   font-size: var(--text-meta);  font-weight: var(--font-weight-light); color: var(--color-fg1); }
+.text-meta  { font-family: var(--font-sans); font-size: var(--text-meta);  color: var(--color-fg4); }
+.text-micro { font-family: var(--font-ui);   font-size: var(--text-micro); font-weight: var(--font-weight-extrabold); text-transform: uppercase; letter-spacing: var(--tracking-micro); color: var(--color-fg5); }
+
+/* ─── Component Utility Classes ──────────────────────────────── */
+
+/* CTA Button — green pill with dark offset shadow.
+   Note: the shadow is implemented as a sibling <div> in CTAButton.jsx,
+   not via ::before, so this class only sets visual token values. */
+.btn-cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-green);
+  color: var(--color-black);
+  border: 2px solid var(--color-black);
+  border-radius: var(--radius-btn);
+  font-family: var(--font-ui);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--text-card);
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+.btn-cta:active { transform: translateY(2px); }
+
+/* Card */
+.card {
+  background: var(--color-surface);
+  border: 2px solid var(--color-border-card);
+  border-radius: var(--radius-card);
+  padding: var(--space-3);
+}
+.card--elevated {
+  box-shadow: var(--shadow-soft);
+  border: none;
+}
+
+/* Chip / Badge */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-chip);
+  background: var(--color-black);
+  color: var(--color-white);
+  font-family: var(--font-ui);
+  font-size: var(--text-chip);
+  font-weight: var(--font-weight-bold);
+}
+.chip--green   { background: var(--color-green-lime);    color: var(--color-black); border: 1px solid var(--color-black); }
+.chip--started { background: var(--color-green-started); color: var(--color-black); border: 1px solid var(--color-black); }
+
+/* Progress bar */
+.progress-track {
+  height: 5px;
+  background: var(--color-track);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--color-green-zing);
+  border-radius: var(--radius-pill);
+  transition: width var(--duration-base) var(--ease-standard);
+}
+.progress-fill--urgent { background: var(--color-red); }
+.progress-fill--done   { background: var(--color-green-dark); }

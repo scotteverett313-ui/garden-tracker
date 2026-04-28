@@ -25,10 +25,10 @@ function GardenIllustration({ active }) {
     <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, padding: "0 28px", width: "100%", boxSizing: "border-box" }}>
       {plants.map((p, i) => (
         <div key={p.name} style={{
-          background: "#fff", border: "1.5px solid #e8e8e8", borderRadius: 16, padding: 14,
+          background: "#fff", border: "1.5px solid #e8e8e8", borderRadius: 'var(--radius-card)', padding: 14,
           display: "flex", alignItems: "center", justifyContent: "center", aspectRatio: "1",
           animation: active ? `obPop 0.4s cubic-bezier(0.34,1.56,0.64,1) ${i * 0.05}s both` : "none",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+          boxShadow: "var(--shadow-soft-sm)",
         }}>
           <img src={p.url} alt={p.name} style={{ width: 38, height: 38, objectFit: "contain", imageRendering: "pixelated" }} />
         </div>
@@ -41,13 +41,13 @@ function ScanIllustration({ active }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 20 }}>
       <div style={{ position: "relative", width: 160 }}>
-        <div style={{ background: "#fff", border: "1.5px solid #e8e8e8", borderRadius: 20, padding: "22px 18px 18px", boxShadow: "0 4px 20px rgba(0,0,0,0.08)", textAlign: "center" }}>
+        <div style={{ background: "#fff", border: "1.5px solid #e8e8e8", borderRadius: 'var(--radius-card-lg)', padding: "22px 18px 18px", boxShadow: "var(--shadow-soft)", textAlign: "center" }}>
           <span style={{ fontSize: 40, display: "block", marginBottom: 10 }}>🌱</span>
           <div style={{ fontWeight: 800, fontSize: 13, lineHeight: 1.2 }}>Cherry Tomato</div>
           <div style={{ fontSize: 11, color: "#888", marginTop: 3 }}>Heirloom · 65 DTM</div>
           <div style={{ display: "flex", gap: 4, marginTop: 10, justifyContent: "center" }}>
             {["💧 Regular", "☀️ Full Sun"].map(b => (
-              <span key={b} style={{ fontSize: 9, background: "#f5f5f3", borderRadius: 8, padding: "3px 6px", color: "#666" }}>{b}</span>
+              <span key={b} style={{ fontSize: 9, background: "#f5f5f3", borderRadius: 'var(--radius-sm)', padding: "3px 6px", color: "#666" }}>{b}</span>
             ))}
           </div>
         </div>
@@ -60,7 +60,7 @@ function ScanIllustration({ active }) {
           }} />
         )}
       </div>
-      <div style={{ fontSize: 13, color: "#555", fontWeight: 600, background: "#fff", border: "1.5px solid #e8e8e8", borderRadius: 20, padding: "7px 16px", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+      <div style={{ fontSize: 13, color: "#555", fontWeight: 600, background: "#fff", border: "1.5px solid #e8e8e8", borderRadius: 'var(--radius-card-lg)', padding: "7px 16px", boxShadow: "var(--shadow-soft-sm)" }}>
         ✨ Claude reads it automatically
       </div>
     </div>
@@ -180,7 +180,7 @@ export function OnboardingScreen({ onDone, onReplayOnboarding }) {
             <div style={{
               flex: "0 0 54%", display: "flex", alignItems: "center", justifyContent: "center",
               background: "#fafaf8", borderRadius: "0 0 40px 40px",
-              boxShadow: "0 2px 20px rgba(0,0,0,0.06)", overflow: "hidden",
+              boxShadow: "var(--shadow-soft-sm)", overflow: "hidden",
             }}>
               {i === 0 && <WelcomeIllustration />}
               {i === 1 && <GardenIllustration active={current === 1} />}
@@ -207,7 +207,7 @@ export function OnboardingScreen({ onDone, onReplayOnboarding }) {
         <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
           {CARDS.map((_, i) => (
             <button key={i} onClick={() => goTo(i)} style={{
-              height: 6, width: i === current ? 24 : 6, borderRadius: 999,
+              height: 6, width: i === current ? 24 : 6, borderRadius: 'var(--radius-pill)',
               background: i === current ? "#a8e063" : "#ddd",
               border: "none", cursor: "pointer", padding: 0,
               transition: "width 0.3s ease, background 0.3s ease",
@@ -217,11 +217,11 @@ export function OnboardingScreen({ onDone, onReplayOnboarding }) {
 
         {/* Next / Let's grow */}
         <div style={{ position: "relative", paddingBottom: 4 }}>
-          <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 999, zIndex: 0 }} />
+          <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 'var(--radius-pill)', zIndex: 0 }} />
           <button onClick={next} className="btn-cta" style={{
             position: "relative", zIndex: 1,
             background: "#a8e063", color: "#000", border: "2.5px solid #000",
-            borderRadius: 999, padding: "12px 28px",
+            borderRadius: 'var(--radius-pill)', padding: "12px 28px",
             cursor: "pointer", fontWeight: 800, fontSize: 15, fontFamily: "inherit",
           }}>
             {current === total - 1 ? "Let's grow →" : "Next →"}

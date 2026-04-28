@@ -35,11 +35,11 @@ export function AuthScreen({ onCreateAccount, onSignIn, onReplayOnboarding }) {
       <div style={{ width: "100%", padding: "0 28px calc(env(safe-area-inset-bottom) + 40px)", display: "flex", flexDirection: "column", gap: 12, animation: "authFade 0.4s ease 0.55s both" }}>
         {/* Create free account */}
         <div style={{ position: "relative", paddingBottom: 4 }}>
-          <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 999, zIndex: 0 }} />
+          <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 'var(--radius-pill)', zIndex: 0 }} />
           <button onClick={onCreateAccount} style={{
             position: "relative", zIndex: 1, width: "100%",
             background: "#a8e063", color: "#000", border: "2.5px solid #000",
-            borderRadius: 999, padding: "15px 28px",
+            borderRadius: 'var(--radius-pill)', padding: "15px 28px",
             cursor: "pointer", fontWeight: 800, fontSize: 16, fontFamily: "inherit",
           }}>
             Create free account
@@ -49,7 +49,7 @@ export function AuthScreen({ onCreateAccount, onSignIn, onReplayOnboarding }) {
         {/* Sign in */}
         <button onClick={onSignIn} style={{
           width: "100%", background: "#fff", color: "#000",
-          border: "2.5px solid #000", borderRadius: 999, padding: "14px 28px",
+          border: "2.5px solid #000", borderRadius: 'var(--radius-pill)', padding: "14px 28px",
           cursor: "pointer", fontWeight: 700, fontSize: 16, fontFamily: "inherit",
         }}>
           Sign in

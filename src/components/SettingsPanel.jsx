@@ -22,19 +22,19 @@ function FrostSection({ frostDates, onSave }) {
       <div style={{ marginBottom: 16 }}>
         <label style={{ display: "block", fontWeight: 700, fontSize: 13, marginBottom: 6 }}>Hardiness Zone</label>
         <input type="text" value={zone} onChange={e => setZone(e.target.value)} placeholder="e.g. 6b"
-          style={{ width: "100%", padding: "10px 12px", border: "2px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" }} />
+          style={{ width: "100%", padding: "10px 12px", border: "2px solid #e0e0e0", borderRadius: 'var(--radius-input)', fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" }} />
         <p style={{ color: "#aaa", fontSize: 12, marginTop: 4 }}>Your USDA hardiness zone — displayed in the header.</p>
       </div>
       <div style={{ marginBottom: 16 }}>
         <label style={{ display: "block", fontWeight: 700, fontSize: 13, marginBottom: 6 }}>Last Spring Frost</label>
         <input type="date" value={lastSpring} onChange={e => setLastSpring(e.target.value)}
-          style={{ width: "100%", padding: "10px 12px", border: "2px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" }} />
+          style={{ width: "100%", padding: "10px 12px", border: "2px solid #e0e0e0", borderRadius: 'var(--radius-input)', fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" }} />
         <p style={{ color: "#aaa", fontSize: 12, marginTop: 4 }}>The last date frost typically occurs in spring.</p>
       </div>
       <div style={{ marginBottom: 24 }}>
         <label style={{ display: "block", fontWeight: 700, fontSize: 13, marginBottom: 6 }}>First Fall Frost</label>
         <input type="date" value={firstFall} onChange={e => setFirstFall(e.target.value)}
-          style={{ width: "100%", padding: "10px 12px", border: "2px solid #e0e0e0", borderRadius: 10, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" }} />
+          style={{ width: "100%", padding: "10px 12px", border: "2px solid #e0e0e0", borderRadius: 'var(--radius-input)', fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" }} />
         <p style={{ color: "#aaa", fontSize: 12, marginTop: 4 }}>The first date frost typically occurs in fall.</p>
       </div>
       <CTAButton onClick={handleSave} style={{ padding: "11px", fontSize: 14 }}>
@@ -106,7 +106,7 @@ function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, 
 
           {/* Profile card */}
           {user ? (
-            <div style={{ display: "flex", alignItems: "center", gap: 12, background: "#faf6f0", border: "2px solid #000", borderRadius: 14, padding: "12px 14px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, background: "#faf6f0", border: "2px solid #000", borderRadius: 'var(--radius-card-sm)', padding: "12px 14px" }}>
               <div style={{ width: 42, height: 42, borderRadius: "50%", background: "#a8e063", border: "2px solid #000", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 16, flexShrink: 0 }}>
                 {(user.name || user.email || "?")[0].toUpperCase()}
               </div>
@@ -115,12 +115,12 @@ function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, 
                 {user.email && <div style={{ fontSize: 12, color: "#888", marginTop: 1 }}>{user.email}</div>}
                 {!user.name && !user.email && <div style={{ fontSize: 13, color: "#888" }}>Signed in</div>}
               </div>
-              <button onClick={onSignOut} style={{ background: "none", border: "1.5px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 12, color: "#888", fontWeight: 600, fontFamily: "inherit", flexShrink: 0 }}>
+              <button onClick={onSignOut} style={{ background: "none", border: "1.5px solid #ddd", borderRadius: 'var(--radius-sm)', padding: "5px 10px", cursor: "pointer", fontSize: 12, color: "#888", fontWeight: 600, fontFamily: "inherit", flexShrink: 0 }}>
                 Sign out
               </button>
             </div>
           ) : (
-            <button onClick={onShowAuth} style={{ width: "100%", background: "#fdf9f4", border: "2px dashed #ccc", borderRadius: 14, padding: "12px 14px", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}>
+            <button onClick={onShowAuth} style={{ width: "100%", background: "#fdf9f4", border: "2px dashed #ccc", borderRadius: 'var(--radius-card-sm)', padding: "12px 14px", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}>
               <div style={{ fontWeight: 800, fontSize: 14, color: "#000", marginBottom: 2 }}>💾 Save your garden</div>
               <div style={{ fontSize: 12, color: "#888" }}>Sign up to sync across devices →</div>
             </button>
@@ -150,8 +150,8 @@ function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, 
                   const plantCount = plants.filter(p => p.zone === zone.name).length;
                   return (
                     <div key={zone.id} style={{ position: "relative", paddingBottom: 4 }}>
-                      <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 14, zIndex: 0 }} />
-                      <div style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: 14, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+                      <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 'var(--radius-card-sm)', zIndex: 0 }} />
+                      <div style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: 'var(--radius-card-sm)', padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
                         {/* Reorder */}
                         <div style={{ display: "flex", flexDirection: "column", gap: 2, flexShrink: 0 }}>
                           <button onClick={() => moveZone(idx, -1)} disabled={idx === 0}
@@ -164,7 +164,7 @@ function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, 
                           {editingZone === zone.id ? (
                             <input autoFocus value={editName} onChange={e => setEditName(e.target.value)}
                               onKeyDown={e => { if (e.key === "Enter") saveEdit(zone); if (e.key === "Escape") setEditingZone(null); }}
-                              style={{ width: "100%", fontSize: 15, fontWeight: 700, border: "2px solid #a8e063", borderRadius: 8, padding: "4px 8px", fontFamily: "inherit", boxSizing: "border-box" }} />
+                              style={{ width: "100%", fontSize: 15, fontWeight: 700, border: "2px solid #a8e063", borderRadius: 'var(--radius-sm)', padding: "4px 8px", fontFamily: "inherit", boxSizing: "border-box" }} />
                           ) : (
                             <div>
                               <div style={{ fontWeight: 700, fontSize: 15 }}>{zone.name}</div>
@@ -176,14 +176,14 @@ function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, 
                         <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
                           {editingZone === zone.id ? (
                             <>
-                              <button onClick={() => saveEdit(zone)} style={{ background: "#a8e063", border: "2px solid #000", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 13, fontWeight: 700 }}>✓</button>
-                              <button onClick={() => setEditingZone(null)} style={{ background: "#f0f0f0", border: "none", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 13 }}>✕</button>
+                              <button onClick={() => saveEdit(zone)} style={{ background: "#a8e063", border: "2px solid #000", borderRadius: 'var(--radius-sm)', padding: "5px 10px", cursor: "pointer", fontSize: 13, fontWeight: 700 }}>✓</button>
+                              <button onClick={() => setEditingZone(null)} style={{ background: "#f0f0f0", border: "none", borderRadius: 'var(--radius-sm)', padding: "5px 10px", cursor: "pointer", fontSize: 13 }}>✕</button>
                             </>
                           ) : (
                             <>
-                              <button onClick={() => startEdit(zone)} style={{ background: "none", border: "1.5px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 13 }}>✏️</button>
+                              <button onClick={() => startEdit(zone)} style={{ background: "none", border: "1.5px solid #ddd", borderRadius: 'var(--radius-sm)', padding: "5px 10px", cursor: "pointer", fontSize: 13 }}>✏️</button>
                               <button onClick={() => deleteZone(zone)} disabled={plantCount > 0}
-                                style={{ background: "none", border: "1.5px solid #ddd", borderRadius: 8, padding: "5px 10px", cursor: plantCount > 0 ? "not-allowed" : "pointer", fontSize: 13, opacity: plantCount > 0 ? 0.3 : 1, color: "#c0392b" }}>🗑</button>
+                                style={{ background: "none", border: "1.5px solid #ddd", borderRadius: 'var(--radius-sm)', padding: "5px 10px", cursor: plantCount > 0 ? "not-allowed" : "pointer", fontSize: 13, opacity: plantCount > 0 ? 0.3 : 1, color: "#c0392b" }}>🗑</button>
                             </>
                           )}
                         </div>
@@ -198,9 +198,9 @@ function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, 
                 <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
                   <input autoFocus placeholder="Zone name..." value={newZoneName} onChange={e => setNewZoneName(e.target.value)}
                     onKeyDown={e => { if (e.key === "Enter") addZone(); if (e.key === "Escape") setShowAddZone(false); }}
-                    style={{ flex: 1, padding: "10px 12px", border: "2px solid #000", borderRadius: 10, fontSize: 14, fontFamily: "inherit" }} />
-                  <button onClick={addZone} style={{ background: "#a8e063", border: "2px solid #000", borderRadius: 10, padding: "10px 14px", cursor: "pointer", fontSize: 14, fontWeight: 800 }}>+ Add</button>
-                  <button onClick={() => setShowAddZone(false)} style={{ background: "#f0f0f0", border: "none", borderRadius: 10, padding: "10px 12px", cursor: "pointer", fontSize: 14 }}>✕</button>
+                    style={{ flex: 1, padding: "10px 12px", border: "2px solid #000", borderRadius: 'var(--radius-input)', fontSize: 14, fontFamily: "inherit" }} />
+                  <button onClick={addZone} style={{ background: "#a8e063", border: "2px solid #000", borderRadius: 'var(--radius-input)', padding: "10px 14px", cursor: "pointer", fontSize: 14, fontWeight: 800 }}>+ Add</button>
+                  <button onClick={() => setShowAddZone(false)} style={{ background: "#f0f0f0", border: "none", borderRadius: 'var(--radius-input)', padding: "10px 12px", cursor: "pointer", fontSize: 14 }}>✕</button>
                 </div>
               ) : (
                 <div style={{ marginTop: 12 }}>
@@ -219,8 +219,8 @@ function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, 
           {activeSection === "backup" && (
             <div>
               <div style={{ position: "relative", paddingBottom: 4, marginBottom: 16 }}>
-                <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 14, zIndex: 0 }} />
-                <div style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: 14, padding: 16 }}>
+                <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 'var(--radius-card-sm)', zIndex: 0 }} />
+                <div style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: 'var(--radius-card-sm)', padding: 16 }}>
                   <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 4 }}>📤 Export</div>
                   <div style={{ fontSize: 13, color: "#666", marginBottom: 4 }}>{plants.length} plants · {seeds.length} seeds</div>
                   {lastBackup && <div style={{ fontSize: 12, color: "#888", marginBottom: 12 }}>Last backup: {daysSince(lastBackup) === 0 ? "today" : `${daysSince(lastBackup)} days ago`}</div>}
@@ -229,15 +229,15 @@ function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, 
               </div>
 
               <div style={{ position: "relative", paddingBottom: 4 }}>
-                <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 14, zIndex: 0 }} />
-                <div style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: 14, padding: 16 }}>
+                <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 'var(--radius-card-sm)', zIndex: 0 }} />
+                <div style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: 'var(--radius-card-sm)', padding: 16 }}>
                   <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 8 }}>📥 Restore</div>
-                  <label style={{ display: "block", width: "100%", padding: 12, background: "#f5f5f3", border: "2px dashed #ccc", borderRadius: 10, cursor: "pointer", fontSize: 14, textAlign: "center", color: "#555", boxSizing: "border-box" }}>
+                  <label style={{ display: "block", width: "100%", padding: 12, background: "#f5f5f3", border: "2px dashed #ccc", borderRadius: 'var(--radius-input)', cursor: "pointer", fontSize: 14, textAlign: "center", color: "#555", boxSizing: "border-box" }}>
                     Choose Backup File
                     <input type="file" accept=".json" onChange={onImport} style={{ display: "none" }} />
                   </label>
-                  {importError && <div style={{ marginTop: 8, fontSize: 13, color: "#c0392b", background: "#fdecea", padding: "8px 12px", borderRadius: 8 }}>⚠️ {importError}</div>}
-                  {importSuccess && <div style={{ marginTop: 8, fontSize: 13, color: "#2d8a3f", background: "#f0fdf4", padding: "8px 12px", borderRadius: 8 }}>✓ Restored!</div>}
+                  {importError && <div style={{ marginTop: 8, fontSize: 13, color: "#c0392b", background: "#fdecea", padding: "8px 12px", borderRadius: 'var(--radius-sm)' }}>⚠️ {importError}</div>}
+                  {importSuccess && <div style={{ marginTop: 8, fontSize: 13, color: "#2d8a3f", background: "#f0fdf4", padding: "8px 12px", borderRadius: 'var(--radius-sm)' }}>✓ Restored!</div>}
                 </div>
               </div>
             </div>

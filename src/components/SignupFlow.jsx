@@ -9,7 +9,7 @@ function ProgressDots({ step }) {
     <div style={{ display: "flex", gap: 6, marginBottom: 32 }}>
       {Array.from({ length: TOTAL }, (_, i) => (
         <div key={i} style={{
-          height: 4, borderRadius: 999,
+          height: 4, borderRadius: 'var(--radius-pill)',
           flex: i === step ? 2 : 1,
           background: i <= step ? "#a8e063" : "#e8e8e8",
           transition: "flex 0.3s ease, background 0.3s ease",
@@ -37,7 +37,7 @@ function StepAccount({ form, setForm, onNext }) {
   const valid = form.name.trim() && form.email.includes("@") && form.password.length >= 6;
   const inp = (extra = {}) => ({
     width: "100%", padding: "13px 14px",
-    border: "1.5px solid #e0e0e0", borderRadius: 12,
+    border: "1.5px solid #e0e0e0", borderRadius: 'var(--radius-icon)',
     fontSize: 15, fontFamily: "inherit", boxSizing: "border-box",
     outline: "none", ...extra,
   });
@@ -111,7 +111,7 @@ function StepZones({ selected, setSelected, onNext }) {
               padding: "14px 16px",
               background: on ? "#f0fbe0" : "#fff",
               border: `2px solid ${on ? "#a8e063" : "#e8e8e8"}`,
-              borderRadius: 16, cursor: "pointer", textAlign: "left", fontFamily: "inherit",
+              borderRadius: 'var(--radius-card)', cursor: "pointer", textAlign: "left", fontFamily: "inherit",
               transition: "all 0.15s ease",
             }}>
               <div style={{
@@ -123,7 +123,7 @@ function StepZones({ selected, setSelected, onNext }) {
               }}>
                 {on ? "✓" : ""}
               </div>
-              <div style={{ width: 38, height: 38, background: "#f5f5f3", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>
+              <div style={{ width: 38, height: 38, background: "#f5f5f3", borderRadius: 'var(--radius-input)', display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>
                 {zone.icon}
               </div>
               <div>
@@ -148,7 +148,7 @@ function StepZones({ selected, setSelected, onNext }) {
 
 function StepFrost({ spring, setSpring, fall, setFall, onNext, onSkip }) {
   const showPreview = spring && fall;
-  const inp = { width: "100%", padding: "13px 14px", border: "1.5px solid #e0e0e0", borderRadius: 12, fontSize: 15, fontFamily: "inherit", boxSizing: "border-box" };
+  const inp = { width: "100%", padding: "13px 14px", border: "1.5px solid #e0e0e0", borderRadius: 'var(--radius-icon)', fontSize: 15, fontFamily: "inherit", boxSizing: "border-box" };
   const fmt = d => d ? new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—";
 
   return (
@@ -158,7 +158,7 @@ function StepFrost({ spring, setSpring, fall, setFall, onNext, onSkip }) {
       <ProgressDots step={2} />
 
       {showPreview && (
-        <div style={{ background: "#f5f5f3", border: "1.5px solid #e8e8e8", borderRadius: 14, padding: "14px 16px", marginBottom: 24 }}>
+        <div style={{ background: "#f5f5f3", border: "1.5px solid #e8e8e8", borderRadius: 'var(--radius-card-sm)', padding: "14px 16px", marginBottom: 24 }}>
           <div style={{ fontSize: 10, fontWeight: 800, color: "#aaa", letterSpacing: 1, marginBottom: 10, textTransform: "uppercase" }}>Season Preview</div>
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#aaa", marginBottom: 4 }}>
             <span>LAST SPRING FROST</span><span>FIRST FALL FROST</span>
@@ -166,8 +166,8 @@ function StepFrost({ spring, setSpring, fall, setFall, onNext, onSkip }) {
           <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 900, fontSize: 20, letterSpacing: -0.5, marginBottom: 10 }}>
             <span>{fmt(spring)}</span><span>{fmt(fall)}</span>
           </div>
-          <div style={{ height: 6, background: "#e0e0e0", borderRadius: 999, overflow: "hidden" }}>
-            <div style={{ height: "100%", background: "#a8e063", borderRadius: 999, width: "58%" }} />
+          <div style={{ height: 6, background: "#e0e0e0", borderRadius: 'var(--radius-pill)', overflow: "hidden" }}>
+            <div style={{ height: "100%", background: "#a8e063", borderRadius: 'var(--radius-pill)', width: "58%" }} />
           </div>
         </div>
       )}

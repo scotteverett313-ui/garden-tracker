@@ -14,7 +14,7 @@ function IconPicker({ selected, onSelect, plantName }) {
       <label style={lbl}>Plant Icon</label>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         {/* Current icon preview */}
-        <div style={{ width: 64, height: 64, background: "#f5f5f3", border: "2px solid #000", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flexShrink: 0 }}>
+        <div style={{ width: 64, height: 64, background: "#f5f5f3", border: "2px solid #000", borderRadius: 'var(--radius-icon)', display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flexShrink: 0 }}>
           {effectiveIcon
             ? <img src={effectiveIcon.url} alt={effectiveIcon.name} style={{ width: "100%", height: "100%", objectFit: "contain", imageRendering: "pixelated" }} />
             : <span style={{ fontSize: 28 }}>🌱</span>
@@ -27,12 +27,12 @@ function IconPicker({ selected, onSelect, plantName }) {
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             <button onClick={() => setShowPicker(v => !v)}
-              style={{ padding: "6px 14px", background: "#a8e063", color: "#000", border: "2px solid #000", borderRadius: 50, cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
+              style={{ padding: "6px 14px", background: "#a8e063", color: "#000", border: "2px solid #000", borderRadius: 'var(--radius-btn)', cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
               {showPicker ? "Close" : "Choose Icon"}
             </button>
             {selected && (
               <button onClick={() => onSelect(null)}
-                style={{ padding: "6px 12px", background: "#fff", border: "1.5px solid #ccc", borderRadius: 50, cursor: "pointer", fontSize: 12, color: "#888" }}>
+                style={{ padding: "6px 12px", background: "#fff", border: "1.5px solid #ccc", borderRadius: 'var(--radius-btn)', cursor: "pointer", fontSize: 12, color: "#888" }}>
                 Clear
               </button>
             )}
@@ -42,14 +42,14 @@ function IconPicker({ selected, onSelect, plantName }) {
 
       {/* Icon grid */}
       {showPicker && (
-        <div style={{ marginTop: 12, background: "#f5f5f3", borderRadius: 14, padding: 14 }}>
+        <div style={{ marginTop: 12, background: "#f5f5f3", borderRadius: 'var(--radius-card-sm)', padding: 14 }}>
           <div style={{ fontSize: 12, color: "#888", marginBottom: 10, fontWeight: 600 }}>
             {ICON_LIBRARY.length} icons available — more coming as you add pixel art
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(72px, 1fr))", gap: 10 }}>
             {ICON_LIBRARY.map(icon => (
               <button key={icon.name} onClick={() => { onSelect(icon); setShowPicker(false); }} className="icon-btn"
-                style={{ background: selected?.name === icon.name ? "#a8e063" : "#fff", border: `2px solid ${selected?.name === icon.name ? "#000" : "#e0e0e0"}`, borderRadius: 12, padding: 8, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                style={{ background: selected?.name === icon.name ? "#a8e063" : "#fff", border: `2px solid ${selected?.name === icon.name ? "#000" : "#e0e0e0"}`, borderRadius: 'var(--radius-icon)', padding: 8, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                 <div style={{ width: 48, height: 48, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <img src={icon.url} alt={icon.name} style={{ width: "100%", height: "100%", objectFit: "contain", imageRendering: "pixelated" }}
                     onError={e => e.target.style.display = "none"} />
