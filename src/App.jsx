@@ -19,6 +19,7 @@ import { GardenTab } from "./tabs/GardenTab.jsx";
 import { SeedLibraryTab } from "./tabs/SeedLibraryTab.jsx";
 import { CalendarTab } from "./tabs/CalendarTab.jsx";
 import { HarvestTab } from "./tabs/HarvestTab.jsx";
+import { ProfileTab } from "./tabs/ProfileTab.jsx";
 
 async function saveData(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); await dbSave(key, value); } catch {}
@@ -160,6 +161,7 @@ export default function App() {
     { id: "seeds", label: "Seeds", icon: ICONS.seeds },
     { id: "calendar", label: "Calendar", icon: ICONS.calendar },
     { id: "harvest", label: "Harvest", icon: ICONS.harvest },
+    { id: "profile", label: "Profile", icon: ICONS.house },
   ];
 
   const FrostBar = () => {
@@ -301,6 +303,7 @@ export default function App() {
           {tab === "seeds" && <SeedLibraryTab seeds={seeds} onSaveSeeds={saveSeeds} onAddToGarden={handleAddSeedToGarden} />}
           {tab === "calendar" && <CalendarTab plants={plants} />}
           {tab === "harvest" && <HarvestTab plants={plants} frostDates={frostDates} onUpdate={handleUpdate} />}
+          {tab === "profile" && <ProfileTab plants={plants} frostDates={frostDates} user={user} onOpenSettings={() => setShowSettings(true)} />}
         </div>
       </div>
 
