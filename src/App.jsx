@@ -166,8 +166,15 @@ export default function App() {
 
   const FrostBar = () => {
     const today = new Date();
-    const spring = frostDates.lastSpring ? new Date(frostDates.lastSpring + "T12:00:00") : null;
-    const fall = frostDates.firstFall ? new Date(frostDates.firstFall + "T12:00:00") : null;
+    // Frost dates are seasonal — always use current year so stale stored years don't break the bar
+    function toThisYear(dateStr) {
+      if (!dateStr) return null;
+      const d = new Date(dateStr + "T12:00:00");
+      if (isNaN(d)) return null;
+      return new Date(today.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0);
+    }
+    const spring = toThisYear(frostDates.lastSpring);
+    const fall = toThisYear(frostDates.firstFall);
 
     if (!spring || !fall) return (
       <button onClick={() => setShowSettings(true)}
