@@ -45,7 +45,3 @@ export async function loadData(key) {
     return val ? JSON.parse(val) : null;
   } catch { return null; }
 }
-
-export async function saveLocalData(key, value) {
-  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
-}
