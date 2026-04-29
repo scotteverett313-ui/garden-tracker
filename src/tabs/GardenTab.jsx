@@ -59,7 +59,7 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, se
     if (!cards.length) return;
     gsap.fromTo(cards,
       { y: 18, opacity: 0 },
-      { y: 0, opacity: 1, stagger: 0.045, duration: 0.35, ease: "back.out(1.4)", clearProps: "all" }
+      { y: 0, opacity: 1, stagger: 0.045, duration: 0.35, ease: "back.out(1.4)" }
     );
   }, [filtered.length, filterZone, filterStatus, search, favOnly]);
 
