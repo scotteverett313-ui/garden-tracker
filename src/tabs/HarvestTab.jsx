@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+gsap.registerPlugin(ScrollTrigger);
 import { ICONS, STATUSES, STATUS_COLORS, CARE_TYPES, CARE_ICONS, PLANT_DB, COMPANION_DB, CALENDAR_DATA, MONTHS, ICON_LIBRARY, lbl, sel, ZONES, DEFAULT_ZONES } from "../constants.js";
 import { generateId, daysUntil, daysSince, formatDate, calcHarvestDate, getAutoIcon } from "../utils.js";
 import { Modal } from "../components/Modal.jsx";
@@ -92,7 +95,7 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
       : [];
 
     return (
-      <div style={{ position: "relative", marginBottom: 8, paddingBottom: 4 }}>
+      <div className="harvest-row" style={{ position: "relative", marginBottom: 8, paddingBottom: 4 }}>
         <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 'var(--radius-card)', zIndex: 0 }} />
         <div style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: 'var(--radius-card)', padding: "14px 16px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
@@ -176,8 +179,29 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
 
   const noHarvestData = plants.filter(p => calcHarvestDate(p.dateStarted, p.dtm)).length === 0;
 
+  const harvestRef = useRef(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.utils.toArray(".harvest-row").forEach((el) => {
+        gsap.from(el, {
+          x: -20,
+          opacity: 0,
+          duration: 0.4,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 92%",
+            toggleActions: "play none none none",
+          },
+        });
+      });
+    }, harvestRef);
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <div>
+    <div ref={harvestRef}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
         <div>
           <h2 style={{ margin: "0 0 2px", fontSize: 28, fontWeight: 900, letterSpacing: -0.5 }}>Harvest</h2>

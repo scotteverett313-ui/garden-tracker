@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+gsap.registerPlugin(ScrollTrigger);
 import { ICONS, STATUSES, STATUS_COLORS, CARE_TYPES, CARE_ICONS, PLANT_DB, ICON_LIBRARY, sel, ZONES, DEFAULT_ZONES } from "../constants.js";
 import { generateId, daysUntil, daysSince, formatDate, calcHarvestDate, getAutoIcon } from "../utils.js";
 import { Modal } from "../components/Modal.jsx";
@@ -62,6 +64,25 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, se
       { y: 0, opacity: 1, stagger: 0.045, duration: 0.35, ease: "back.out(1.4)" }
     );
   }, [filtered.length, filterZone, filterStatus, search, favOnly]);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.utils.toArray(".zone-section").forEach((section) => {
+        gsap.from(section, {
+          y: 40,
+          opacity: 0,
+          duration: 0.5,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: section,
+            start: "top 88%",
+            toggleActions: "play none none none",
+          },
+        });
+      });
+    }, gridRef);
+    return () => ctx.revert();
+  }, [zones]);
 
   const today = new Date();
   const dateLabel = today.toLocaleDateString("en-US", { month: "long", day: "numeric" });
@@ -182,7 +203,7 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, se
         if (filterZone && filterZone !== zone.name) return null;
         const displayName = zone.name.replace(" Grow Station", "").replace("In-Ground Beds", "In-Ground");
         return (
-          <div key={zone.id} style={{ marginBottom: 28 }}>
+          <div key={zone.id} className="zone-section" style={{ marginBottom: 28 }}>
             {/* Zone header */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 12 }}>
               <div>

@@ -1,5 +1,9 @@
+import { useRef, useEffect } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ICONS, STATUSES, CARE_ICONS } from "../constants.js";
 import { daysSince, formatDate, getAutoIcon } from "../utils.js";
+gsap.registerPlugin(ScrollTrigger);
 
 // ── Sparkline ─────────────────────────────────────────────────────────────────
 function ActivitySparkline({ plants }) {
@@ -106,11 +110,32 @@ function ProfileTab({ plants, frostDates, user, onOpenSettings }) {
   const displayName = user?.name || "Gardener";
   const initial = (user?.name || user?.email || "G")[0].toUpperCase();
 
+  const profileRef = useRef(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.utils.toArray(".profile-section").forEach((el) => {
+        gsap.from(el, {
+          y: 32,
+          opacity: 0,
+          duration: 0.45,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 90%",
+            toggleActions: "play none none none",
+          },
+        });
+      });
+    }, profileRef);
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <div>
+    <div ref={profileRef}>
 
       {/* ── Floating portfolio card ───────────────────────── */}
-      <div style={{ position: "relative", paddingBottom: 5, marginBottom: 20 }}>
+      <div className="profile-section" style={{ position: "relative", paddingBottom: 5, marginBottom: 20 }}>
         <div style={{ position: "absolute", left: 0, right: 0, top: 5, bottom: 0, background: "#000", borderRadius: "var(--radius-card)", zIndex: 0 }} />
         <div style={{
           position: "relative", zIndex: 1,
@@ -170,7 +195,7 @@ function ProfileTab({ plants, frostDates, user, onOpenSettings }) {
       </div>
 
       {/* ── Stat pills ───────────────────────────────────── */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto", scrollbarWidth: "none", paddingTop: 2, paddingBottom: 6 }}>
+      <div className="profile-section" style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto", scrollbarWidth: "none", paddingTop: 2, paddingBottom: 6 }}>
         {[
           { label: "Active", value: activePlants.length, color: "#2d8a3f" },
           { label: `${currentYear} Yield`, value: harvestedThisYear.length, color: "#4caf7d" },
@@ -205,7 +230,7 @@ function ProfileTab({ plants, frostDates, user, onOpenSettings }) {
       )}
 
       {/* ── Activity chart ───────────────────────────────── */}
-      <div style={{ position: "relative", paddingBottom: 4, marginBottom: 16 }}>
+      <div className="profile-section" style={{ position: "relative", paddingBottom: 4, marginBottom: 16 }}>
         <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: "var(--radius-card-sm)", zIndex: 0 }} />
         <div style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: "var(--radius-card-sm)", padding: "14px 16px 10px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
@@ -221,7 +246,7 @@ function ProfileTab({ plants, frostDates, user, onOpenSettings }) {
 
       {/* ── Holdings ─────────────────────────────────────── */}
       {holdingGroups.length > 0 && (
-        <div style={{ position: "relative", paddingBottom: 4, marginBottom: 16 }}>
+        <div className="profile-section" style={{ position: "relative", paddingBottom: 4, marginBottom: 16 }}>
           <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: "var(--radius-card-sm)", zIndex: 0 }} />
           <div style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: "var(--radius-card-sm)", padding: "14px 16px 4px" }}>
             <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 4 }}>Holdings</div>
@@ -234,7 +259,7 @@ function ProfileTab({ plants, frostDates, user, onOpenSettings }) {
 
       {/* ── Recent activity ──────────────────────────────── */}
       {recentActivity.length > 0 && (
-        <div style={{ position: "relative", paddingBottom: 4, marginBottom: 16 }}>
+        <div className="profile-section" style={{ position: "relative", paddingBottom: 4, marginBottom: 16 }}>
           <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: "var(--radius-card-sm)", zIndex: 0 }} />
           <div style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: "var(--radius-card-sm)", overflow: "hidden" }}>
             <div style={{ fontWeight: 800, fontSize: 15, padding: "14px 16px 4px" }}>Recent Activity</div>
