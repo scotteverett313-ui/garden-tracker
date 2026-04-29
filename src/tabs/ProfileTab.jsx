@@ -140,33 +140,30 @@ function ProfileTab({ plants, frostDates, user, onOpenSettings }) {
         <div style={{
           position: "relative", zIndex: 1,
           borderRadius: "var(--radius-card)", border: "2px solid #000", overflow: "hidden",
-          background: "linear-gradient(135deg, #e8f9c8 0%, #a8e063 55%, #7acc40 100%)",
+          background: "#fff",
           padding: "22px 20px 20px",
         }}>
-          {/* Glow blobs */}
-          <div style={{ position: "absolute", top: -40, right: -20, width: 180, height: 180, borderRadius: "50%", background: "rgba(255,255,255,0.25)", filter: "blur(56px)", pointerEvents: "none" }} />
-          <div style={{ position: "absolute", bottom: -30, left: -10, width: 140, height: 140, borderRadius: "50%", background: "rgba(0,0,0,0.08)", filter: "blur(40px)", pointerEvents: "none" }} />
 
           {/* Header row */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.7)", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>Garden Portfolio</div>
-              <div style={{ fontSize: 52, fontWeight: 900, color: "#fff", letterSpacing: -2, lineHeight: 1 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>Garden Portfolio</div>
+              <div style={{ fontSize: 52, fontWeight: 900, color: "#000", letterSpacing: -2, lineHeight: 1 }}>
                 {activePlants.length}
-                <span style={{ fontSize: 18, fontWeight: 600, color: "rgba(255,255,255,0.7)", letterSpacing: 0, marginLeft: 8 }}>growing</span>
+                <span style={{ fontSize: 18, fontWeight: 600, color: "#888", letterSpacing: 0, marginLeft: 8 }}>growing</span>
               </div>
-              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", marginTop: 6, fontWeight: 500 }}>
+              <div style={{ fontSize: 13, color: "#888", marginTop: 6, fontWeight: 500 }}>
                 {harvestedThisYear.length} harvested · {totalCareActions} care actions
               </div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
               {frostDates.zone && (
-                <div style={{ background: "rgba(0,0,0,0.18)", borderRadius: 99, padding: "4px 12px" }}>
-                  <span style={{ fontSize: 11, fontWeight: 800, color: "#fff", letterSpacing: 0.5 }}>Zone {frostDates.zone}</span>
+                <div style={{ background: "#f0f0f0", border: "1px solid #ddd", borderRadius: 99, padding: "4px 12px" }}>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: "#444", letterSpacing: 0.5 }}>Zone {frostDates.zone}</span>
                 </div>
               )}
-              <button onClick={onOpenSettings} style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.25)", border: "1.5px solid rgba(255,255,255,0.5)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <img src={ICONS.settings} alt="Settings" style={{ width: 16, height: 16, objectFit: "contain", filter: "invert(1)", opacity: 0.9 }} />
+              <button onClick={onOpenSettings} style={{ width: 36, height: 36, borderRadius: "50%", background: "#fff", border: "2px solid #000", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <img src={ICONS.settings} alt="Settings" style={{ width: 16, height: 16, objectFit: "contain" }} />
               </button>
             </div>
           </div>
@@ -178,9 +175,9 @@ function ProfileTab({ plants, frostDates, user, onOpenSettings }) {
               { label: `${currentYear} Yield`, value: harvestedThisYear.length },
               { label: "Day", value: daysInSeason !== null ? daysInSeason : "—" },
             ].map(s => (
-              <div key={s.label} style={{ flex: 1, background: "rgba(0,0,0,0.18)", borderRadius: 10, padding: "8px 10px", textAlign: "center" }}>
-                <div style={{ fontSize: 20, fontWeight: 900, color: "#fff", lineHeight: 1 }}>{s.value}</div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.65)", marginTop: 3, textTransform: "uppercase", letterSpacing: 0.5 }}>{s.label}</div>
+              <div key={s.label} style={{ flex: 1, background: "#f5f5f3", border: "1.5px solid #e8e8e8", borderRadius: 10, padding: "8px 10px", textAlign: "center" }}>
+                <div style={{ fontSize: 20, fontWeight: 900, color: "#000", lineHeight: 1 }}>{s.value}</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#888", marginTop: 3, textTransform: "uppercase", letterSpacing: 0.5 }}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -189,19 +186,19 @@ function ProfileTab({ plants, frostDates, user, onOpenSettings }) {
           {seasonPct !== null ? (
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.7)", textTransform: "uppercase", letterSpacing: 0.5 }}>Growing Season</span>
-                <span style={{ fontSize: 11, fontWeight: 800, color: "#fff" }}>{Math.round(seasonPct)}%</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: 0.5 }}>Growing Season</span>
+                <span style={{ fontSize: 11, fontWeight: 800, color: "#000" }}>{Math.round(seasonPct)}%</span>
               </div>
-              <div style={{ height: 8, background: "rgba(0,0,0,0.2)", borderRadius: 99, overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${seasonPct}%`, background: "#fff", borderRadius: 99 }} />
+              <div style={{ height: 8, background: "#e8e8e8", borderRadius: 99, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${seasonPct}%`, background: "#a8e063", borderRadius: 99 }} />
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", marginTop: 5 }}>
-                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.6)", fontWeight: 600 }}>{formatDate(frostDates.lastSpring)}</span>
-                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.6)", fontWeight: 600 }}>{formatDate(frostDates.firstFall)}</span>
+                <span style={{ fontSize: 10, color: "#aaa", fontWeight: 600 }}>{formatDate(frostDates.lastSpring)}</span>
+                <span style={{ fontSize: 10, color: "#aaa", fontWeight: 600 }}>{formatDate(frostDates.firstFall)}</span>
               </div>
             </div>
           ) : (
-            <button onClick={onOpenSettings} style={{ background: "rgba(0,0,0,0.15)", border: "1.5px dashed rgba(255,255,255,0.4)", borderRadius: 10, padding: "8px 14px", cursor: "pointer", fontSize: 12, fontWeight: 700, color: "#fff", fontFamily: "inherit" }}>
+            <button onClick={onOpenSettings} style={{ background: "#f5f5f3", border: "2px dashed #ccc", borderRadius: 10, padding: "8px 14px", cursor: "pointer", fontSize: 12, fontWeight: 700, color: "#666", fontFamily: "inherit" }}>
               Set frost dates →
             </button>
           )}

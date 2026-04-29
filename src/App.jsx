@@ -279,7 +279,9 @@ export default function App() {
           <>
             <div style={{ background: "#fff", padding: "14px 16px 0" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                <img src={ICONS.logo} alt="Dirt Rich" style={{ height: 52, objectFit: "contain" }} />
+                <button onClick={() => setTab("garden")} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", display: "flex", alignItems: "center" }}>
+                  <img src={ICONS.logo} alt="Dirt Rich" style={{ height: 52, objectFit: "contain" }} />
+                </button>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   {syncing && <span style={{ fontSize: 11, color: "#aaa" }}>syncing...</span>}
                   <div style={{ position: "relative", paddingBottom: 3 }}>
