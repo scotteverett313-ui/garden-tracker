@@ -7,9 +7,14 @@ function WelcomeIllustration() {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 28 }}>
       <div style={{ display: "flex", gap: 20, alignItems: "flex-end" }}>
-        <span style={{ fontSize: 52, animation: "obPop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.05s both", filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.08))" }}>🌿</span>
-        <span style={{ fontSize: 68, animation: "obPop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.15s both", filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.1))" }}>🍅</span>
-        <span style={{ fontSize: 52, animation: "obPop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.1s both", filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.08))" }}>🥕</span>
+        {[ICON_LIBRARY[0], ICON_LIBRARY[1], ICON_LIBRARY[2]].map((p, i) => (
+          <img key={i} src={p.url} alt={p.name} style={{
+            width: i === 1 ? 80 : 60, height: i === 1 ? 80 : 60,
+            objectFit: "contain", imageRendering: "pixelated",
+            animation: `obPop 0.5s cubic-bezier(0.34,1.56,0.64,1) ${i * 0.08 + 0.05}s both`,
+            filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.1))"
+          }} />
+        ))}
       </div>
       <div style={{ textAlign: "center", animation: "obFade 0.4s ease 0.4s both" }}>
         <img src={ICONS.logo} alt="Dirt Rich" style={{ height: 48, objectFit: "contain", marginBottom: 8, display: "block", margin: "0 auto 8px" }} />
@@ -42,7 +47,7 @@ function ScanIllustration({ active }) {
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 20 }}>
       <div style={{ position: "relative", width: 160 }}>
         <div style={{ background: "#fff", border: "1.5px solid #e8e8e8", borderRadius: 'var(--radius-card-lg)', padding: "22px 18px 18px", boxShadow: "var(--shadow-soft)", textAlign: "center" }}>
-          <span style={{ fontSize: 40, display: "block", marginBottom: 10 }}>🌱</span>
+          <img src={ICONS.garden} style={{ width: 44, height: 44, objectFit: "contain", display: "block", margin: "0 auto 10px" }} />
           <div style={{ fontWeight: 800, fontSize: 13, lineHeight: 1.2 }}>Cherry Tomato</div>
           <div style={{ fontSize: 11, color: "#888", marginTop: 3 }}>Heirloom · 65 DTM</div>
           <div style={{ display: "flex", gap: 4, marginTop: 10, justifyContent: "center" }}>

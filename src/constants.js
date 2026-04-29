@@ -49,10 +49,10 @@ export const sel = { width: "100%", padding: "10px 12px", border: "1.5px solid #
 // ─── Zones ────────────────────────────────────────────────────────────────────
 export const ZONES = ["Basement Grow Station", "Greenhouse", "Raised Beds", "In-Ground Beds"];
 export const DEFAULT_ZONES = [
-  { id: "zone_basement",   name: "Basement Grow Station", icon: "💡" },
-  { id: "zone_greenhouse", name: "Greenhouse",            icon: "🏠" },
-  { id: "zone_raised",     name: "Raised Beds",           icon: "🟫" },
-  { id: "zone_inground",   name: "In-Ground Beds",        icon: "🌱" },
+  { id: "zone_basement",   name: "Basement Grow Station", icon: "💡", img: ASSET("Icon-Sun.png") },
+  { id: "zone_greenhouse", name: "Greenhouse",            icon: "🏠", img: ASSET("Icon-House.png") },
+  { id: "zone_raised",     name: "Raised Beds",           icon: "🟫", img: ASSET("Icon-Zone.png") },
+  { id: "zone_inground",   name: "In-Ground Beds",        icon: "🌱", img: ASSET("Icon-seedling.png") },
 ];
 
 // ─── Statuses ─────────────────────────────────────────────────────────────────

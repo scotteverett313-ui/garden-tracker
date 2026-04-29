@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { DEFAULT_ZONES } from "../constants.js";
+import { DEFAULT_ZONES, ICONS, ICON_LIBRARY } from "../constants.js";
 import { CTAButton } from "./CTAButton.jsx";
 
 const TOTAL = 4;
@@ -123,8 +123,8 @@ function StepZones({ selected, setSelected, onNext }) {
               }}>
                 {on ? "✓" : ""}
               </div>
-              <div style={{ width: 38, height: 38, background: "#f5f5f3", borderRadius: 'var(--radius-input)', display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>
-                {zone.icon}
+              <div style={{ width: 38, height: 38, background: "#f5f5f3", borderRadius: 'var(--radius-input)', display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <img src={zone.img} alt={zone.name} style={{ width: 26, height: 26, objectFit: "contain" }} />
               </div>
               <div>
                 <div style={{ fontWeight: 700, fontSize: 15, color: "#000" }}>{zone.name}</div>
@@ -201,18 +201,20 @@ function StepAllSet({ onAddPlant, onExplore }) {
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
       <ProgressDots step={3} />
-      <div style={{ width: 96, height: 96, background: "#000", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 28, fontSize: 46 }}>
-        🌱
+      <div style={{ width: 96, height: 96, background: "#000", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 28 }}>
+        <img src={ICONS.seedlingGreen} alt="" style={{ width: 52, height: 52, objectFit: "contain" }} />
       </div>
       <div style={{ fontWeight: 900, fontSize: 30, letterSpacing: -0.8, marginBottom: 10 }}>You're all set!</div>
       <div style={{ fontSize: 15, color: "#777", lineHeight: 1.65, marginBottom: 36, maxWidth: 260 }}>
         Your garden is ready. Start by adding your first plant.
       </div>
-      <div style={{ display: "flex", gap: 18, marginBottom: 44, fontSize: 38 }}>
-        <span>🍅</span><span>🌿</span><span>🥕</span><span>🌻</span>
+      <div style={{ display: "flex", gap: 14, marginBottom: 44 }}>
+        {ICON_LIBRARY.slice(0, 4).map((p, i) => (
+          <img key={i} src={p.url} alt={p.name} style={{ width: 44, height: 44, objectFit: "contain", imageRendering: "pixelated" }} />
+        ))}
       </div>
       <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 12 }}>
-        <CTAButton onClick={onAddPlant} style={{ padding: "14px", fontSize: 16 }}>Add my first plant 🌱</CTAButton>
+        <CTAButton onClick={onAddPlant} style={{ padding: "14px", fontSize: 16 }}>Add my first plant →</CTAButton>
         <button onClick={onExplore} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 14, color: "#bbb", fontWeight: 600, fontFamily: "inherit", padding: 8 }}>
           Explore first
         </button>
