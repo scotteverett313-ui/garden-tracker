@@ -144,72 +144,68 @@ function ProfileTab({ plants, frostDates, user, onOpenSettings }) {
           padding: "22px 20px 20px",
         }}>
           {/* Glow blobs */}
-          <div style={{ position: "absolute", top: -40, right: -20, width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,0.35)", filter: "blur(48px)", pointerEvents: "none" }} />
-          <div style={{ position: "absolute", bottom: -20, left: 0, width: 120, height: 120, borderRadius: "50%", background: "rgba(100,200,40,0.25)", filter: "blur(36px)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", top: -40, right: -20, width: 180, height: 180, borderRadius: "50%", background: "rgba(255,255,255,0.25)", filter: "blur(56px)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", bottom: -30, left: -10, width: 140, height: 140, borderRadius: "50%", background: "rgba(0,0,0,0.08)", filter: "blur(40px)", pointerEvents: "none" }} />
 
           {/* Header row */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(0,0,0,0.4)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Garden Portfolio</div>
-              <div style={{ fontSize: 40, fontWeight: 900, color: "#000", letterSpacing: -1.5, lineHeight: 1 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.7)", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>Garden Portfolio</div>
+              <div style={{ fontSize: 52, fontWeight: 900, color: "#fff", letterSpacing: -2, lineHeight: 1 }}>
                 {activePlants.length}
-                <span style={{ fontSize: 17, fontWeight: 600, color: "rgba(0,0,0,0.4)", letterSpacing: 0, marginLeft: 6 }}>growing</span>
+                <span style={{ fontSize: 18, fontWeight: 600, color: "rgba(255,255,255,0.7)", letterSpacing: 0, marginLeft: 8 }}>growing</span>
               </div>
-              <div style={{ fontSize: 13, color: "rgba(0,0,0,0.4)", marginTop: 4 }}>
+              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", marginTop: 6, fontWeight: 500 }}>
                 {harvestedThisYear.length} harvested · {totalCareActions} care actions
               </div>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
               {frostDates.zone && (
-                <div style={{ background: "rgba(0,0,0,0.1)", borderRadius: 99, padding: "3px 10px" }}>
-                  <span style={{ fontSize: 11, fontWeight: 800, color: "rgba(0,0,0,0.55)" }}>Zone {frostDates.zone}</span>
+                <div style={{ background: "rgba(0,0,0,0.18)", borderRadius: 99, padding: "4px 12px" }}>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: "#fff", letterSpacing: 0.5 }}>Zone {frostDates.zone}</span>
                 </div>
               )}
-              <button onClick={onOpenSettings} style={{ width: 34, height: 34, borderRadius: "50%", background: "rgba(255,255,255,0.55)", border: "1.5px solid rgba(0,0,0,0.15)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <img src={ICONS.settings} alt="Settings" style={{ width: 16, height: 16, objectFit: "contain", opacity: 0.6 }} />
+              <button onClick={onOpenSettings} style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.25)", border: "1.5px solid rgba(255,255,255,0.5)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <img src={ICONS.settings} alt="Settings" style={{ width: 16, height: 16, objectFit: "contain", filter: "invert(1)", opacity: 0.9 }} />
               </button>
             </div>
+          </div>
+
+          {/* Quick stats row */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+            {[
+              { label: "Active", value: activePlants.length },
+              { label: `${currentYear} Yield`, value: harvestedThisYear.length },
+              { label: "Day", value: daysInSeason !== null ? daysInSeason : "—" },
+            ].map(s => (
+              <div key={s.label} style={{ flex: 1, background: "rgba(0,0,0,0.18)", borderRadius: 10, padding: "8px 10px", textAlign: "center" }}>
+                <div style={{ fontSize: 20, fontWeight: 900, color: "#fff", lineHeight: 1 }}>{s.value}</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.65)", marginTop: 3, textTransform: "uppercase", letterSpacing: 0.5 }}>{s.label}</div>
+              </div>
+            ))}
           </div>
 
           {/* Season progress */}
           {seasonPct !== null ? (
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(0,0,0,0.4)", textTransform: "uppercase", letterSpacing: 0.5 }}>Growing Season</span>
-                <span style={{ fontSize: 11, fontWeight: 800, color: "rgba(0,0,0,0.5)" }}>{Math.round(seasonPct)}%</span>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.7)", textTransform: "uppercase", letterSpacing: 0.5 }}>Growing Season</span>
+                <span style={{ fontSize: 11, fontWeight: 800, color: "#fff" }}>{Math.round(seasonPct)}%</span>
               </div>
-              <div style={{ height: 7, background: "rgba(0,0,0,0.1)", borderRadius: 99, overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${seasonPct}%`, background: "rgba(0,0,0,0.3)", borderRadius: 99 }} />
+              <div style={{ height: 8, background: "rgba(0,0,0,0.2)", borderRadius: 99, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${seasonPct}%`, background: "#fff", borderRadius: 99 }} />
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
-                <span style={{ fontSize: 10, color: "rgba(0,0,0,0.35)" }}>{formatDate(frostDates.lastSpring)}</span>
-                <span style={{ fontSize: 10, color: "rgba(0,0,0,0.35)" }}>{formatDate(frostDates.firstFall)}</span>
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 5 }}>
+                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.6)", fontWeight: 600 }}>{formatDate(frostDates.lastSpring)}</span>
+                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.6)", fontWeight: 600 }}>{formatDate(frostDates.firstFall)}</span>
               </div>
             </div>
           ) : (
-            <button onClick={onOpenSettings} style={{ background: "rgba(0,0,0,0.07)", border: "1.5px dashed rgba(0,0,0,0.2)", borderRadius: 10, padding: "8px 14px", cursor: "pointer", fontSize: 12, fontWeight: 700, color: "rgba(0,0,0,0.4)", fontFamily: "inherit" }}>
+            <button onClick={onOpenSettings} style={{ background: "rgba(0,0,0,0.15)", border: "1.5px dashed rgba(255,255,255,0.4)", borderRadius: 10, padding: "8px 14px", cursor: "pointer", fontSize: 12, fontWeight: 700, color: "#fff", fontFamily: "inherit" }}>
               Set frost dates →
             </button>
           )}
         </div>
-      </div>
-
-      {/* ── Stat pills ───────────────────────────────────── */}
-      <div className="profile-section" style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto", scrollbarWidth: "none", paddingTop: 2, paddingBottom: 6 }}>
-        {[
-          { label: "Active", value: activePlants.length, color: "#2d8a3f" },
-          { label: `${currentYear} Yield`, value: harvestedThisYear.length, color: "#4caf7d" },
-          { label: "Care Logs", value: totalCareActions, color: "#c47db8" },
-          { label: "Season Day", value: daysInSeason !== null ? daysInSeason : "—", color: "#e8a855" },
-        ].map(s => (
-          <div key={s.label} style={{ position: "relative", paddingBottom: 4, flexShrink: 0 }}>
-            <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: "var(--radius-card-sm)", zIndex: 0 }} />
-            <div style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: "var(--radius-card-sm)", padding: "10px 14px", textAlign: "center", minWidth: 72 }}>
-              <div style={{ fontSize: 24, fontWeight: 900, color: s.color, lineHeight: 1, letterSpacing: -0.5 }}>{s.value}</div>
-              <div style={{ fontSize: 10, fontWeight: 700, color: "#aaa", marginTop: 3, textTransform: "uppercase", letterSpacing: 0.5 }}>{s.label}</div>
-            </div>
-          </div>
-        ))}
       </div>
 
       {/* ── Alerts ───────────────────────────────────────── */}
