@@ -140,12 +140,12 @@ function ProfileTab({ plants, frostDates, user, onOpenSettings }) {
         <div style={{
           position: "relative", zIndex: 1,
           borderRadius: "var(--radius-card)", border: "2px solid #000", overflow: "hidden",
-          background: "linear-gradient(135deg, #fce4f3 0%, #d8eaff 50%, #c8faf0 100%)",
+          background: "linear-gradient(135deg, #e8f9c8 0%, #a8e063 55%, #7acc40 100%)",
           padding: "22px 20px 20px",
         }}>
           {/* Glow blobs */}
-          <div style={{ position: "absolute", top: -40, right: -20, width: 160, height: 160, borderRadius: "50%", background: "rgba(180,100,255,0.2)", filter: "blur(48px)", pointerEvents: "none" }} />
-          <div style={{ position: "absolute", bottom: -20, left: 0, width: 120, height: 120, borderRadius: "50%", background: "rgba(0,180,220,0.18)", filter: "blur(36px)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", top: -40, right: -20, width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,0.35)", filter: "blur(48px)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", bottom: -20, left: 0, width: 120, height: 120, borderRadius: "50%", background: "rgba(100,200,40,0.25)", filter: "blur(36px)", pointerEvents: "none" }} />
 
           {/* Header row */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
