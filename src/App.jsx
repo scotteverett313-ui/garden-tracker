@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import gsap from "gsap";
 import { dbSave, dbLoadPlants, dbSavePlants, dbLoadSeeds, dbSaveSeeds } from "./supabase.js";
 import { ICONS, PLANT_DB, DEFAULT_ZONES } from "./constants.js";
 import { generateId, daysSince, formatDate, loadData } from "./utils.js";
@@ -28,6 +29,7 @@ async function saveData(key, value) {
 export default function App() {
   const { toasts, toast } = useToast();
   const isWide = useWindowWidth() >= 768;
+  const tabContentRef = useRef(null);
   const [plants, setPlants] = useState([]);
   const [seeds, setSeeds] = useState([]);
   const [frostDates, setFrostDates] = useState({});
@@ -81,6 +83,14 @@ export default function App() {
     }
     loadAll();
   }, []);
+
+  useEffect(() => {
+    if (!tabContentRef.current) return;
+    gsap.fromTo(tabContentRef.current,
+      { y: 10 },
+      { y: 0, duration: 0.3, ease: "power2.out", clearProps: "transform" }
+    );
+  }, [tab]);
 
   async function savePlants(p) { setPlants(p); localStorage.setItem("garden_plants", JSON.stringify(p)); await dbSavePlants(p); }
   async function saveFrost(f) { setFrostDates(f); await saveData("frost_dates", f); }
@@ -305,7 +315,7 @@ export default function App() {
         )}
 
         {/* Tab content */}
-        <div style={{ padding: isWide ? "20px 24px" : "16px 14px", flex: 1 }}>
+        <div ref={tabContentRef} style={{ padding: isWide ? "20px 24px" : "16px 14px", flex: 1 }}>
           {tab === "garden" && <GardenTab plants={plants} frostDates={frostDates} onUpdate={handleUpdate} onDelete={handleDelete} onSplit={handleSplit} search={search} setSearch={setSearch} filterZone={filterZone} setFilterZone={setFilterZone} filterStatus={filterStatus} setFilterStatus={setFilterStatus} onAddPlant={openAddFlow} userDB={userDB} onSaveUserDB={saveUserDB} toast={toast} zones={zones} isWide={isWide} />}
           {tab === "seeds" && <SeedLibraryTab seeds={seeds} onSaveSeeds={saveSeeds} onAddToGarden={handleAddSeedToGarden} />}
           {tab === "calendar" && <CalendarTab plants={plants} />}

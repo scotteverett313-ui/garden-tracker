@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import gsap from "gsap";
 import { ICONS, STATUSES, STATUS_COLORS, CARE_TYPES, CARE_ICONS, PLANT_DB, ICON_LIBRARY, sel, ZONES, DEFAULT_ZONES } from "../constants.js";
 import { generateId, daysUntil, daysSince, formatDate, calcHarvestDate, getAutoIcon } from "../utils.js";
 import { Modal } from "../components/Modal.jsx";
@@ -6,10 +7,40 @@ import { CTAButton } from "../components/CTAButton.jsx";
 import { PlantGridCard, PlantListCard } from "../components/PlantCard.jsx";
 import { PlantDetailSheet } from "../components/PlantDetailSheet.jsx";
 
+function AnimatedCount({ value }) {
+  const el = useRef(null);
+  const prev = useRef(value);
+  useEffect(() => {
+    if (!el.current || prev.current === value) return;
+    const obj = { n: prev.current };
+    gsap.to(obj, {
+      n: value,
+      duration: 0.5,
+      ease: "power2.out",
+      snap: { n: 1 },
+      onUpdate: () => { if (el.current) el.current.textContent = Math.round(obj.n); }
+    });
+    prev.current = value;
+  }, [value]);
+  return <span ref={el}>{value}</span>;
+}
+
 function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, setSearch, filterZone, setFilterZone, filterStatus, setFilterStatus, onAddPlant, toast, zones = ZONES.map((name, i) => ({ id: `zone_${i}`, name })), isWide = false }) {
   const [viewMode, setViewMode] = useState("grid");
   const [selectedPlant, setSelectedPlant] = useState(null);
   const [favOnly, setFavOnly] = useState(false);
+  const gridRef = useRef(null);
+  const favBtnRef = useRef(null);
+
+  function handleFavToggle() {
+    setFavOnly(v => !v);
+    if (favBtnRef.current) {
+      gsap.timeline()
+        .to(favBtnRef.current, { scaleX: 1.35, scaleY: 0.65, duration: 0.08, ease: "power2.out" })
+        .to(favBtnRef.current, { scaleX: 0.88, scaleY: 1.2, duration: 0.08 })
+        .to(favBtnRef.current, { scaleX: 1, scaleY: 1, duration: 0.25, ease: "elastic.out(1, 0.4)" });
+    }
+  }
 
   const filtered = plants.filter(p => {
     const q = search.toLowerCase();
@@ -21,6 +52,16 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, se
   }).sort((a, b) => a.name.localeCompare(b.name));
   const hasActiveFilters = !!(search || filterZone || filterStatus || favOnly);
   const showEmptyState = hasActiveFilters && filtered.length === 0;
+
+  useEffect(() => {
+    if (!gridRef.current) return;
+    const cards = gridRef.current.querySelectorAll(".plant-card-wrap");
+    if (!cards.length) return;
+    gsap.fromTo(cards,
+      { y: 18, opacity: 0 },
+      { y: 0, opacity: 1, stagger: 0.045, duration: 0.35, ease: "back.out(1.4)", clearProps: "all" }
+    );
+  }, [filtered.length, filterZone, filterStatus, search, favOnly]);
 
   const today = new Date();
   const dateLabel = today.toLocaleDateString("en-US", { month: "long", day: "numeric" });
@@ -37,7 +78,7 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, se
   };
 
   return (
-    <div>
+    <div ref={gridRef}>
       {/* Date + Title + Add button */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
         <div>
@@ -56,7 +97,7 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, se
           style={{ flex: 1, minWidth: 0, padding: "10px 14px", border: "2px solid #000", borderRadius: 'var(--radius-btn)', fontSize: 14, fontFamily: "inherit", background: "#fff" }} />
         <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
           {/* Favorites toggle */}
-          <button onClick={() => setFavOnly(v => !v)} className="btn-icon"
+          <button ref={favBtnRef} onClick={handleFavToggle} className="btn-icon"
             style={{ width: 40, height: 40, border: `2px solid ${favOnly ? "#000" : "#ddd"}`, borderRadius: 'var(--radius-input)', background: favOnly ? "#000" : "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "transform 0.1s ease" }}>
             <img src={favOnly ? ICONS.favActive : ICONS.favorite} alt="Favorites" style={{ width: 20, height: 20, objectFit: "contain", filter: favOnly ? "invert(1)" : "none" }} />
           </button>
@@ -99,7 +140,7 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, se
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: STATUS_DOT[s.label] || "#aaa", flexShrink: 0 }} />
                 <span style={{ fontSize: 11, fontWeight: 600, color: filterStatus === s.label ? "#ccc" : "#666" }}>{s.label}</span>
               </div>
-              <div style={{ fontSize: 26, fontWeight: 900, color: filterStatus === s.label ? "#fff" : "#000", lineHeight: 1 }}>{s.count}</div>
+              <div style={{ fontSize: 26, fontWeight: 900, color: filterStatus === s.label ? "#fff" : "#000", lineHeight: 1 }}><AnimatedCount value={s.count} /></div>
             </button>
           ))}
         </div>

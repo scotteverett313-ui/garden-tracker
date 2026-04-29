@@ -1,30 +1,43 @@
+import { useRef, useEffect } from "react";
+import gsap from "gsap";
+
+function ToastItem({ t }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    gsap.fromTo(ref.current,
+      { y: 40, opacity: 0, scale: 0.9 },
+      { y: 0, opacity: 1, scale: 1, duration: 0.45, ease: "back.out(1.8)" }
+    );
+  }, []);
+  return (
+    <div ref={ref} style={{
+      background: t.type === "error" ? "#c0392b" : t.type === "warning" ? "#e67e22" : "#5c3d1e",
+      color: "#fff", borderRadius: 'var(--radius-icon)', padding: "12px 16px", fontSize: 14, fontWeight: 600,
+      display: "flex", alignItems: "center", gap: 10,
+      boxShadow: "var(--shadow-soft)",
+      pointerEvents: t.action ? "auto" : "none",
+    }}>
+      <span style={{ fontSize: 18, display: "inline-flex", alignItems: "center" }}>
+        {t.icon && t.icon.startsWith("/")
+          ? <img src={t.icon} style={{ width: 18, height: 18, objectFit: "contain", filter: "invert(1)" }} alt="" />
+          : (t.icon || "✓")}
+      </span>
+      <span style={{ flex: 1 }}>{t.message}</span>
+      {t.action && (
+        <button
+          onClick={() => { t.action.onClick(); t.action.dismiss(); }}
+          style={{ background: "rgba(255,255,255,0.25)", border: "1.5px solid rgba(255,255,255,0.6)", borderRadius: 'var(--radius-sm)', padding: "4px 12px", cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#fff", flexShrink: 0 }}>
+          {t.action.label}
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function Toast({ toasts }) {
   return (
     <div style={{ position: "fixed", bottom: 90, left: "50%", transform: "translateX(-50%)", width: "calc(100% - 32px)", maxWidth: 560, zIndex: 999, display: "flex", flexDirection: "column", gap: 8, pointerEvents: "none" }}>
-      {toasts.map(t => (
-        <div key={t.id} style={{
-          background: t.type === "error" ? "#c0392b" : t.type === "warning" ? "#e67e22" : "#5c3d1e",
-          color: "#fff", borderRadius: 'var(--radius-icon)', padding: "12px 16px", fontSize: 14, fontWeight: 600,
-          display: "flex", alignItems: "center", gap: 10,
-          boxShadow: "var(--shadow-soft)",
-          animation: "slideUp 0.25s ease",
-          pointerEvents: t.action ? "auto" : "none",
-        }}>
-          <span style={{ fontSize: 18, display: "inline-flex", alignItems: "center" }}>
-            {t.icon && t.icon.startsWith("/")
-              ? <img src={t.icon} style={{ width: 18, height: 18, objectFit: "contain", filter: "invert(1)" }} alt="" />
-              : (t.icon || "✓")}
-          </span>
-          <span style={{ flex: 1 }}>{t.message}</span>
-          {t.action && (
-            <button
-              onClick={() => { t.action.onClick(); t.action.dismiss(); }}
-              style={{ background: "rgba(255,255,255,0.25)", border: "1.5px solid rgba(255,255,255,0.6)", borderRadius: 'var(--radius-sm)', padding: "4px 12px", cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#fff", flexShrink: 0 }}>
-              {t.action.label}
-            </button>
-          )}
-        </div>
-      ))}
+      {toasts.map(t => <ToastItem key={t.id} t={t} />)}
       <style>{`
         @keyframes slideUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
         @keyframes popIn { 0% { transform:scale(0.92); opacity:0; } 60% { transform:scale(1.04); } 100% { transform:scale(1); opacity:1; } }
