@@ -1,26 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { ICONS, STATUSES, STATUS_COLORS, CARE_TYPES, CARE_ICONS, PLANT_DB, COMPANION_DB, CALENDAR_DATA, MONTHS, ICON_LIBRARY, lbl, sel, ZONES, DEFAULT_ZONES } from "../constants.js";
-import { generateId, daysUntil, daysSince, formatDate, calcHarvestDate, getAutoIcon } from "../utils.js";
+import { generateId, daysUntil, daysSince, formatDate, calcHarvestDate, getAutoIcon, compressImage } from "../utils.js";
 import { Modal } from "./Modal.jsx";
 import { CTAButton } from "./CTAButton.jsx";
 import { IconPicker } from "./IconPicker.jsx";
-
-function compressImage(file, maxSize = 900, quality = 0.75) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
-      resolve(canvas.toDataURL("image/jpeg", quality));
-    };
-    img.src = url;
-  });
-}
 
 function EditPlantModal({ plant, onSave, onClose, onDelete, zones = DEFAULT_ZONES }) {
   const [form, setForm] = useState({ ...plant });

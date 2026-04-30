@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ICONS, STATUSES, STATUS_COLORS, CARE_TYPES, CARE_ICONS, lbl, sel, ZONES } from "../constants.js";
-import { generateId, daysUntil, daysSince, formatDate, calcHarvestDate, getAutoIcon } from "../utils.js";
+import { generateId, daysUntil, daysSince, formatDate, calcHarvestDate, getAutoIcon, compressImage } from "../utils.js";
 import { Modal } from "./Modal.jsx";
 import { CTAButton } from "./CTAButton.jsx";
 import { EditPlantModal } from "./EditPlantModal.jsx";
@@ -49,9 +49,10 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
   const [careDate, setCareDate] = useState(new Date().toISOString().split("T")[0]);
   const [careNote, setCareNote] = useState("");
 
-  const scrollRef = useRef(null); // the scroll container
-  const cardRef = useRef(null);   // the white card
-  const imageRef = useRef(null);  // the plant sprite
+  const scrollRef = useRef(null);
+  const cardRef = useRef(null);
+  const imageRef = useRef(null);
+  const photoInputRef = useRef(null);
 
   // Lock body scroll
   useEffect(() => {
@@ -151,6 +152,14 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
     onUpdate({ ...plant, companions: { ...plant.companions, [type]: (plant.companions?.[type] || []).filter(c => c !== item) } });
   }
 
+  async function handlePhotoUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const dataUrl = await compressImage(file);
+    onUpdate({ ...plant, photoUrl: dataUrl });
+    e.target.value = "";
+  }
+
   function toggleFavorite() {
     onUpdate({ ...plant, favorite: !plant.favorite });
     toast?.(plant.favorite ? "Removed from favorites" : `${plant.name} favorited`, { icon: plant.favorite ? ICONS.favorite : ICONS.favActive });
@@ -163,17 +172,26 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
       <div style={{ position: "fixed", inset: 0, background: "#a8e063", zIndex: 1000 }}>
 
         {/* Plant sprite centered in green zone — optionally with user photo behind it */}
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "30vh", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "env(safe-area-inset-top, 20px)", pointerEvents: "none" }}>
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "30vh", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "env(safe-area-inset-top, 20px)" }}>
           {plant.photoUrl && (
             <>
               <img src={plant.photoUrl} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
               <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.28)" }} />
             </>
           )}
-          {imageUrl
-            ? <img ref={imageRef} src={imageUrl} alt={plant.name} style={{ position: "relative", zIndex: 1, width: 110, height: 110, objectFit: "contain", imageRendering: "pixelated" }} />
-            : <img ref={imageRef} src={statusObj.img} alt={statusObj.label} style={{ position: "relative", zIndex: 1, width: 80, height: 80, objectFit: "contain" }} />
-          }
+          <div ref={imageRef} style={{ position: "relative", zIndex: 1, pointerEvents: "none" }}>
+            {imageUrl
+              ? <img src={imageUrl} alt={plant.name} style={{ width: 110, height: 110, objectFit: "contain", imageRendering: "pixelated", display: "block" }} />
+              : <img src={statusObj.img} alt={statusObj.label} style={{ width: 80, height: 80, objectFit: "contain", display: "block" }} />
+            }
+          </div>
+          {/* Camera button */}
+          <input ref={photoInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handlePhotoUpload} />
+          <button
+            onClick={() => photoInputRef.current?.click()}
+            style={{ position: "absolute", bottom: 10, right: 14, zIndex: 2, display: "flex", alignItems: "center", gap: 5, background: "rgba(0,0,0,0.45)", border: "1.5px solid rgba(255,255,255,0.5)", borderRadius: 99, padding: "5px 11px", cursor: "pointer", color: "#fff", fontSize: 12, fontWeight: 700, backdropFilter: "blur(4px)" }}>
+            📷 {plant.photoUrl ? "Change" : "Add Photo"}
+          </button>
         </div>
 
         {/*
