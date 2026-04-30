@@ -169,7 +169,7 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
   return (
     <>
       {/* ── Green backdrop — plant sprite lives here ─────────────────────────── */}
-      <div style={{ position: "fixed", inset: 0, background: "#a8e063", zIndex: 1000 }}>
+      <div style={{ position: "fixed", inset: 0, background: plant.photoUrl ? "#111" : "#a8e063", zIndex: 1000 }}>
 
         {/* Plant sprite centered in green zone — optionally with user photo behind it */}
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "30vh", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "env(safe-area-inset-top, 20px)", pointerEvents: "none" }}>
