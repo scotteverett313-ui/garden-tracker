@@ -177,6 +177,7 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
             <>
               <img src={plant.photoUrl} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
               <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.28)" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, #a8e063 0%, rgba(168,224,99,0.7) 25%, rgba(168,224,99,0) 60%)" }} />
             </>
           )}
           <div ref={imageRef} style={{ position: "relative", zIndex: 1 }}>
@@ -212,12 +213,10 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
             ref={cardRef}
             style={{ minHeight: "100vh", background: "#fff", borderRadius: "20px 20px 0 0", position: "relative" }}
           >
-            {/* Sticky drag handle + nav — stays pinned when scrolling */}
-            <div style={{ position: "sticky", top: 0, zIndex: 10, background: "#fff", borderRadius: "20px 20px 0 0", paddingBottom: 4 }}>
+            <div style={{ background: "#fff", borderRadius: "20px 20px 0 0", paddingBottom: 4 }}>
               <div style={{ display: "flex", justifyContent: "center", paddingTop: 10 }}>
                 <div style={{ width: 36, height: 4, background: "#e0e0e0", borderRadius: 99 }} />
               </div>
-            {/* Navigation row */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 16px 4px" }}>
               <div style={{ position: "relative", paddingBottom: 3 }}>
                 <div style={{ position: "absolute", left: 0, right: 0, top: 3, bottom: 0, background: "#000", borderRadius: "50%", zIndex: 0 }} />
@@ -232,7 +231,7 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
                 </button>
               </div>
             </div>
-            </div>{/* end sticky header */}
+            </div>
 
             {/* Plant name + variety */}
             <div style={{ textAlign: "center", padding: "8px 16px 20px" }}>
