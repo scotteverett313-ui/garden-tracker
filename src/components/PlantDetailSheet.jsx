@@ -162,11 +162,17 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
       {/* ── Green backdrop — plant sprite lives here ─────────────────────────── */}
       <div style={{ position: "fixed", inset: 0, background: "#a8e063", zIndex: 1000 }}>
 
-        {/* Plant sprite centered in green zone */}
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "30vh", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "env(safe-area-inset-top, 20px)", pointerEvents: "none" }}>
+        {/* Plant sprite centered in green zone — optionally with user photo behind it */}
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "30vh", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "env(safe-area-inset-top, 20px)", pointerEvents: "none" }}>
+          {plant.photoUrl && (
+            <>
+              <img src={plant.photoUrl} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+              <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.28)" }} />
+            </>
+          )}
           {imageUrl
-            ? <img ref={imageRef} src={imageUrl} alt={plant.name} style={{ width: 110, height: 110, objectFit: "contain", imageRendering: "pixelated" }} />
-            : <img ref={imageRef} src={statusObj.img} alt={statusObj.label} style={{ width: 80, height: 80, objectFit: "contain" }} />
+            ? <img ref={imageRef} src={imageUrl} alt={plant.name} style={{ position: "relative", zIndex: 1, width: 110, height: 110, objectFit: "contain", imageRendering: "pixelated" }} />
+            : <img ref={imageRef} src={statusObj.img} alt={statusObj.label} style={{ position: "relative", zIndex: 1, width: 80, height: 80, objectFit: "contain" }} />
           }
         </div>
 
