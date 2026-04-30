@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { ICONS, STATUSES, STATUS_COLORS, CARE_TYPES, CARE_ICONS, PLANT_DB, COMPANION_DB, CALENDAR_DATA, MONTHS, ICON_LIBRARY, lbl, sel, ZONES, DEFAULT_ZONES } from "../constants.js";
-import { generateId, daysUntil, daysSince, formatDate, calcHarvestDate, getAutoIcon } from "../utils.js";
+import { generateId, daysUntil, daysSince, formatDate, calcHarvestDate, getAutoIcon, compressImage } from "../utils.js";
 import { Modal } from "./Modal.jsx";
 import { CTAButton } from "./CTAButton.jsx";
 import { IconPicker } from "./IconPicker.jsx";
@@ -15,6 +15,13 @@ function EditPlantModal({ plant, onSave, onClose, onDelete, zones = DEFAULT_ZONE
   function handleIconSelect(icon) {
     setSelectedIcon(icon);
     setForm(f => ({ ...f, imageUrl: icon ? icon.url : "" }));
+  }
+
+  async function handlePhotoUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const dataUrl = await compressImage(file);
+    setForm(f => ({ ...f, photoUrl: dataUrl }));
   }
 
   function handleSubmit() {
@@ -62,6 +69,26 @@ function EditPlantModal({ plant, onSave, onClose, onDelete, zones = DEFAULT_ZONE
         <div style={{ gridColumn: "span 2" }}><label style={lbl}>Notes</label><textarea value={form.notes || ""} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #e0e0e0", borderRadius: 'var(--radius-input)', fontSize: 14, boxSizing: "border-box", fontFamily: "inherit", minHeight: 70, resize: "vertical" }} /></div>
         <div style={{ gridColumn: "span 2" }}>
           <IconPicker selected={selectedIcon} onSelect={handleIconSelect} plantName={form.name} />
+        </div>
+        <div style={{ gridColumn: "span 2" }}>
+          <label style={lbl}>Plant Photo</label>
+          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+            {form.photoUrl && (
+              <img src={form.photoUrl} alt="Plant" style={{ width: 72, height: 72, objectFit: "cover", borderRadius: 10, border: "1.5px solid #e0e0e0", flexShrink: 0 }} />
+            )}
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <label style={{ display: "inline-block", padding: "8px 16px", background: "#f5f5f3", border: "1.5px solid #e0e0e0", borderRadius: "var(--radius-input)", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+                {form.photoUrl ? "Change Photo" : "Add Photo"}
+                <input type="file" accept="image/*" style={{ display: "none" }} onChange={handlePhotoUpload} />
+              </label>
+              {form.photoUrl && (
+                <button type="button" onClick={() => setForm(f => ({ ...f, photoUrl: "" }))}
+                  style={{ padding: "6px 16px", background: "none", border: "1.5px solid #e0e0e0", borderRadius: "var(--radius-input)", cursor: "pointer", fontSize: 13, color: "#c0392b" }}>
+                  Remove Photo
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 24 }}>
