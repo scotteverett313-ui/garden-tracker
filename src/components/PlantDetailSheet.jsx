@@ -172,26 +172,19 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
       <div style={{ position: "fixed", inset: 0, background: "#a8e063", zIndex: 1000 }}>
 
         {/* Plant sprite centered in green zone — optionally with user photo behind it */}
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "30vh", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "env(safe-area-inset-top, 20px)" }}>
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "30vh", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "env(safe-area-inset-top, 20px)", pointerEvents: "none" }}>
           {plant.photoUrl && (
             <>
               <img src={plant.photoUrl} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
               <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.28)" }} />
             </>
           )}
-          <div ref={imageRef} style={{ position: "relative", zIndex: 1, pointerEvents: "none" }}>
+          <div ref={imageRef} style={{ position: "relative", zIndex: 1 }}>
             {imageUrl
               ? <img src={imageUrl} alt={plant.name} style={{ width: 110, height: 110, objectFit: "contain", imageRendering: "pixelated", display: "block" }} />
               : <img src={statusObj.img} alt={statusObj.label} style={{ width: 80, height: 80, objectFit: "contain", display: "block" }} />
             }
           </div>
-          {/* Camera button */}
-          <input ref={photoInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handlePhotoUpload} />
-          <button
-            onClick={() => photoInputRef.current?.click()}
-            style={{ position: "absolute", bottom: 10, right: 14, zIndex: 2, display: "flex", alignItems: "center", gap: 5, background: "rgba(0,0,0,0.45)", border: "1.5px solid rgba(255,255,255,0.5)", borderRadius: 99, padding: "5px 11px", cursor: "pointer", color: "#fff", fontSize: 12, fontWeight: 700, backdropFilter: "blur(4px)" }}>
-            📷 {plant.photoUrl ? "Change" : "Add Photo"}
-          </button>
         </div>
 
         {/*
@@ -205,7 +198,14 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
           style={{ position: "absolute", inset: 0, overflowY: "auto", overflowX: "hidden" }}
         >
           {/* Transparent phantom gap — reveals green backdrop above card */}
-          <div style={{ height: "30vh", flexShrink: 0 }} />
+          <div style={{ height: "30vh", flexShrink: 0, position: "relative" }}>
+            <input ref={photoInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handlePhotoUpload} />
+            <button
+              onClick={() => photoInputRef.current?.click()}
+              style={{ position: "absolute", bottom: 10, right: 14, display: "flex", alignItems: "center", gap: 5, background: "rgba(0,0,0,0.45)", border: "1.5px solid rgba(255,255,255,0.5)", borderRadius: 99, padding: "5px 11px", cursor: "pointer", color: "#fff", fontSize: 12, fontWeight: 700, backdropFilter: "blur(4px)" }}>
+              📷 {plant.photoUrl ? "Change" : "Add Photo"}
+            </button>
+          </div>
 
           {/* White card — slides up on entrance, scrolls to cover green */}
           <div
