@@ -169,7 +169,7 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
   return (
     <>
       {/* ── Green backdrop — plant sprite lives here ─────────────────────────── */}
-      <div style={{ position: "fixed", inset: 0, background: plant.photoUrl ? "#111" : "#a8e063", zIndex: 1000 }}>
+      <div style={{ position: "fixed", inset: 0, background: "#a8e063", zIndex: 1000 }}>
 
         {/* Plant sprite centered in green zone — optionally with user photo behind it */}
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "30vh", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "env(safe-area-inset-top, 20px)", pointerEvents: "none" }}>
@@ -177,6 +177,7 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
             <>
               <img src={plant.photoUrl} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
               <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.28)" }} />
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "55%", background: "linear-gradient(to bottom, transparent, #a8e063)" }} />
             </>
           )}
           <div ref={imageRef} style={{ position: "relative", zIndex: 1 }}>
@@ -212,8 +213,7 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
             ref={cardRef}
             style={{ minHeight: "100vh", background: "#fff", borderRadius: "20px 20px 0 0", position: "relative" }}
           >
-            {/* Sticky drag handle + nav — stays pinned when scrolling */}
-            <div style={{ position: "sticky", top: 0, zIndex: 10, background: "#fff", borderRadius: "20px 20px 0 0", paddingBottom: 4 }}>
+            <div style={{ borderRadius: "20px 20px 0 0", paddingBottom: 4 }}>
               <div style={{ display: "flex", justifyContent: "center", paddingTop: 10 }}>
                 <div style={{ width: 36, height: 4, background: "#e0e0e0", borderRadius: 99 }} />
               </div>
