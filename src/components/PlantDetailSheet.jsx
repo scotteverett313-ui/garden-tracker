@@ -48,6 +48,8 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
   const [careType, setCareType] = useState("Watering");
   const [careDate, setCareDate] = useState(new Date().toISOString().split("T")[0]);
   const [careNote, setCareNote] = useState("");
+  const [listening, setListening] = useState(false);
+  const recognitionRef = useRef(null);
 
   const scrollRef = useRef(null);
   const cardRef = useRef(null);
@@ -158,6 +160,23 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
     const dataUrl = await compressImage(file);
     onUpdate({ ...plant, photoUrl: dataUrl });
     e.target.value = "";
+  }
+
+  function startListening() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { toast?.("Voice not supported in this browser", { type: "warning" }); return; }
+    const r = new SR();
+    r.lang = "en-US";
+    r.interimResults = false;
+    r.onresult = e => {
+      const transcript = e.results[0][0].transcript;
+      setCareNote(prev => prev ? `${prev} ${transcript}` : transcript);
+    };
+    r.onend = () => setListening(false);
+    r.onerror = () => setListening(false);
+    recognitionRef.current = r;
+    r.start();
+    setListening(true);
   }
 
   function toggleFavorite() {
@@ -399,8 +418,14 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
                         style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #e0e0e0", borderRadius: "var(--radius-input)", fontSize: 14, boxSizing: "border-box", fontFamily: "inherit" }} />
                     </div>
                   </div>
-                  <textarea placeholder="Notes (optional)..." value={careNote} onChange={e => setCareNote(e.target.value)}
-                    style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #e0e0e0", borderRadius: "var(--radius-input)", fontSize: 14, boxSizing: "border-box", fontFamily: "inherit", minHeight: 72, resize: "vertical", marginBottom: 10 }} />
+                  <div style={{ position: "relative", marginBottom: 10 }}>
+                    <textarea placeholder="Notes (optional)..." value={careNote} onChange={e => setCareNote(e.target.value)}
+                      style={{ width: "100%", padding: "10px 12px", paddingRight: 44, border: `1.5px solid ${listening ? "#a8e063" : "#e0e0e0"}`, borderRadius: "var(--radius-input)", fontSize: 14, boxSizing: "border-box", fontFamily: "inherit", minHeight: 72, resize: "vertical", transition: "border-color 0.2s" }} />
+                    <button onClick={startListening} disabled={listening}
+                      style={{ position: "absolute", right: 8, top: 8, width: 32, height: 32, border: "none", borderRadius: "var(--radius-input)", background: listening ? "#a8e063" : "#f0f0f0", cursor: listening ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, transition: "background 0.2s" }}>
+                      {listening ? "🔴" : "🎙️"}
+                    </button>
+                  </div>
                   <CTAButton onClick={addCareEntry} style={{ padding: 13, fontSize: 15 }}>+ Log Care</CTAButton>
                 </div>
                 {(!plant.careLog || plant.careLog.length === 0) ? (
