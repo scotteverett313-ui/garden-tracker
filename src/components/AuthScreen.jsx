@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ICONS, ICON_LIBRARY } from "../constants.js";
 import { authSignIn } from "../supabase.js";
 
-export function AuthScreen({ onCreateAccount, onSignIn, onReplayOnboarding }) {
+export function AuthScreen({ onCreateAccount, onSignIn, onReplayOnboarding, onSkip }) {
   const [mode, setMode] = useState("landing");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -96,6 +96,17 @@ export function AuthScreen({ onCreateAccount, onSignIn, onReplayOnboarding }) {
             <div style={{ textAlign: "center", fontSize: 13, color: "#bbb", fontWeight: 500, paddingTop: 4 }}>
               Invited to beta? Check your email for the access link.
             </div>
+
+            {/* Skip */}
+            {onSkip && (
+              <button onClick={onSkip} style={{
+                background: "none", border: "none", cursor: "pointer",
+                fontSize: 13, color: "#ccc", fontWeight: 500,
+                fontFamily: "inherit", padding: "4px 0", textAlign: "center",
+              }}>
+                Skip for now
+              </button>
+            )}
           </div>
 
           {/* Hidden replay button */}

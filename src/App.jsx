@@ -191,7 +191,7 @@ export default function App() {
 
   if (showOnboarding) return <OnboardingScreen onDone={finishOnboarding} onReplayOnboarding={replayOnboarding} />;
   if (stillShowingWelcome) return <WelcomeScreen onDone={() => setWelcomeDone(true)} onReplayOnboarding={replayOnboarding} />;
-  if (showAuth) return <AuthScreen onCreateAccount={() => { setShowAuth(false); setShowSignup(true); }} onSignIn={(u) => { handleSetUser(u); setShowAuth(false); }} onReplayOnboarding={replayOnboarding} />;
+  if (showAuth) return <AuthScreen onCreateAccount={() => { setShowAuth(false); setShowSignup(true); }} onSignIn={(u) => { handleSetUser(u); setShowAuth(false); }} onReplayOnboarding={replayOnboarding} onSkip={() => setShowAuth(false)} />;
   if (showSignup) return <SignupFlow onDone={handleSignupDone} onSetUser={handleSetUser} onSaveFrostDates={saveFrost} onSelectZones={selectedIds => { const active = zones.filter(z => selectedIds.includes(z.id)); if (active.length) saveZones(active); }} />;
 
   const NAV_TABS = [
