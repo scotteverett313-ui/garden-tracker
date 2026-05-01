@@ -89,7 +89,7 @@ function useSpriteAnim(status, onTap) {
   return { imgRef, handleTap };
 }
 
-function PlantGridCard({ plant, onTap, showZone }) {
+function PlantGridCard({ plant, onTap, onWater, showZone }) {
   const harvestDate = calcHarvestDate(plant.dateStarted, plant.dtm);
   const daysLeft = harvestDate ? daysUntil(harvestDate) : null;
   const isDone = plant.status === "Harvested" || plant.status === "Dead";
@@ -170,13 +170,20 @@ function PlantGridCard({ plant, onTap, showZone }) {
           </div>
         )}
       </button>
+      {/* One-tap water button — sibling to card button to avoid nested <button> */}
+      {!isDone && onWater && (
+        <button onClick={e => { e.stopPropagation(); onWater(plant); }}
+          style={{ position: "absolute", bottom: 10, right: 8, zIndex: 2, width: 30, height: 30, borderRadius: "var(--radius-input)", background: "#e8f4ff", border: "1.5px solid #000", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <img src={ICONS.water} alt="Log watering" style={{ width: 16, height: 16, objectFit: "contain" }} />
+        </button>
+      )}
     </div>
   );
 }
 
 // ─── Plant List Card (compact list view) ──────────────────────────────────────
 
-function PlantListCard({ plant, onTap, showZone }) {
+function PlantListCard({ plant, onTap, onWater, showZone }) {
   const harvestDate = calcHarvestDate(plant.dateStarted, plant.dtm);
   const daysLeft = harvestDate ? daysUntil(harvestDate) : null;
   const statusObj = STATUSES.find(s => s.label === plant.status) || STATUSES[0];
@@ -219,7 +226,14 @@ function PlantListCard({ plant, onTap, showZone }) {
       <span style={{ background: STATUS_COLORS[plant.status] || "#eee", borderRadius: 'var(--radius-icon)', padding: "2px 8px", fontSize: 11, fontWeight: 600, color: "#555", flexShrink: 0, whiteSpace: "nowrap" }}>
         {plant.status}
       </span>
-      <span style={{ fontSize: 12, color: "#888" }}>›</span>
+      {!isDone && onWater ? (
+        <button onClick={e => { e.stopPropagation(); onWater(plant); }}
+          style={{ width: 34, height: 34, borderRadius: "var(--radius-input)", background: "#e8f4ff", border: "1.5px solid #000", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <img src={ICONS.water} alt="Log watering" style={{ width: 16, height: 16, objectFit: "contain" }} />
+        </button>
+      ) : (
+        <span style={{ fontSize: 12, color: "#888" }}>›</span>
+      )}
     </button>
     </div>
   );

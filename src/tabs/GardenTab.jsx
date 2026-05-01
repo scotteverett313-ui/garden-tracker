@@ -34,6 +34,12 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, se
   const gridRef = useRef(null);
   const favBtnRef = useRef(null);
 
+  function handleWater(plant) {
+    const entry = { id: generateId(), type: "Watering", date: new Date().toISOString().split("T")[0], notes: "" };
+    onUpdate({ ...plant, careLog: [...(plant.careLog || []), entry] });
+    toast?.(`${plant.name} watered`, { icon: ICONS.water });
+  }
+
   function handleFavToggle() {
     setFavOnly(v => !v);
     if (favBtnRef.current) {
@@ -187,11 +193,11 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, se
           <div style={{ fontSize: 12, color: "#888", marginBottom: 16 }}>{filtered.length} plant{filtered.length !== 1 ? "s" : ""}</div>
           {viewMode === "grid" ? (
             <div style={{ display: "grid", gridTemplateColumns: isWide ? "repeat(3, 1fr)" : "1fr 1fr", gap: 10 }}>
-              {filtered.map(p => <PlantGridCard key={p.id} plant={p} onTap={() => setSelectedPlant(p)} showZone />)}
+              {filtered.map(p => <PlantGridCard key={p.id} plant={p} onTap={() => setSelectedPlant(p)} onWater={handleWater} showZone />)}
             </div>
           ) : (
             <div>
-              {filtered.map(p => <PlantListCard key={p.id} plant={p} onTap={() => setSelectedPlant(p)} showZone />)}
+              {filtered.map(p => <PlantListCard key={p.id} plant={p} onTap={() => setSelectedPlant(p)} onWater={handleWater} showZone />)}
             </div>
           )}
         </div>
@@ -222,11 +228,11 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, se
               </button>
             ) : viewMode === "grid" ? (
               <div style={{ display: "grid", gridTemplateColumns: isWide ? "repeat(3, 1fr)" : "1fr 1fr", gap: 10 }}>
-                {zonePlants.map(p => <PlantGridCard key={p.id} plant={p} onTap={() => setSelectedPlant(p)} />)}
+                {zonePlants.map(p => <PlantGridCard key={p.id} plant={p} onTap={() => setSelectedPlant(p)} onWater={handleWater} />)}
               </div>
             ) : (
               <div>
-                {zonePlants.map(p => <PlantListCard key={p.id} plant={p} onTap={() => setSelectedPlant(p)} />)}
+                {zonePlants.map(p => <PlantListCard key={p.id} plant={p} onTap={() => setSelectedPlant(p)} onWater={handleWater} />)}
               </div>
             )}
           </div>
