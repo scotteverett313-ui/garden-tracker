@@ -43,6 +43,11 @@ export function getAutoIcon(plantName) {
   ) || null;
 }
 
+export function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 export function compressImage(file, maxSize = 900, quality = 0.75) {
   return new Promise((resolve) => {
     const img = new Image();

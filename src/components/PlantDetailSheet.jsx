@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ICONS, STATUSES, STATUS_COLORS, CARE_TYPES, CARE_ICONS, lbl, sel, ZONES } from "../constants.js";
-import { generateId, daysUntil, daysSince, formatDate, calcHarvestDate, getAutoIcon, compressImage } from "../utils.js";
+import { generateId, daysUntil, daysSince, formatDate, calcHarvestDate, getAutoIcon, compressImage, todayStr } from "../utils.js";
 import { Modal } from "./Modal.jsx";
 import { CTAButton } from "./CTAButton.jsx";
 import { EditPlantModal } from "./EditPlantModal.jsx";
@@ -46,7 +46,7 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
   const [newGood, setNewGood] = useState("");
   const [newBad, setNewBad] = useState("");
   const [careType, setCareType] = useState("Watering");
-  const [careDate, setCareDate] = useState(new Date().toISOString().split("T")[0]);
+  const [careDate, setCareDate] = useState(todayStr());
   const [careNote, setCareNote] = useState("");
 
   const scrollRef = useRef(null);
