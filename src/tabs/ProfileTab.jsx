@@ -282,13 +282,15 @@ function ProfileTab({ plants, frostDates, user, onOpenSettings }) {
       {/* ── Discord nudge ────────────────────────────────── */}
       <div style={{ position: "relative", paddingBottom: 4, marginBottom: 8 }}>
         <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: "var(--radius-card-sm)", zIndex: 0 }} />
-        <div style={{ position: "relative", zIndex: 1, background: "#f5f0ff", border: "2px solid #000", borderRadius: "var(--radius-card-sm)", padding: "14px 16px", display: "flex", alignItems: "center", gap: 14 }}>
-          <img src={ICONS.settings} alt="" style={{ width: 26, height: 26, objectFit: "contain", flexShrink: 0 }} />
-          <div>
-            <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 3 }}>Join the community</div>
-            <div style={{ fontSize: 13, color: "#666", lineHeight: 1.4 }}>Share harvests, swap seeds — on Discord while we build.</div>
+        <a href="https://discord.gg/cQCNsW6M" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", display: "block" }}>
+          <div style={{ position: "relative", zIndex: 1, background: "#f5f0ff", border: "2px solid #000", borderRadius: "var(--radius-card-sm)", padding: "14px 16px", display: "flex", alignItems: "center", gap: 14 }}>
+            <img src={ICONS.settings} alt="" style={{ width: 26, height: 26, objectFit: "contain", flexShrink: 0 }} />
+            <div>
+              <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 3, color: "#000" }}>Join the community</div>
+              <div style={{ fontSize: 13, color: "#666", lineHeight: 1.4 }}>Share harvests, swap seeds — on Discord while we build.</div>
+            </div>
           </div>
-        </div>
+        </a>
       </div>
 
     </div>
