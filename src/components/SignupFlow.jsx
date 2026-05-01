@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { DEFAULT_ZONES, ICONS, ICON_LIBRARY } from "../constants.js";
 import { CTAButton } from "./CTAButton.jsx";
+import { authSignUp } from "../supabase.js";
 
 const TOTAL = 4;
 
@@ -33,7 +34,7 @@ function BackButton({ onBack, visible }) {
 
 // ─── Step 1: Create Account ───────────────────────────────────────────────────
 
-function StepAccount({ form, setForm, onNext }) {
+function StepAccount({ form, setForm, onNext, error, submitting }) {
   const valid = form.name.trim() && form.email.includes("@") && form.password.length >= 6;
   const inp = (extra = {}) => ({
     width: "100%", padding: "13px 14px",
@@ -67,11 +68,12 @@ function StepAccount({ form, setForm, onNext }) {
             onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
             style={inp()} />
         </div>
+        {error && <div style={{ background: "#fdecea", color: "#c0392b", borderRadius: "var(--radius-input)", padding: "10px 14px", fontSize: 13, fontWeight: 600 }}>{error}</div>}
       </div>
 
       <div style={{ marginTop: 28 }}>
-        <CTAButton onClick={onNext} disabled={!valid} style={{ padding: "14px", fontSize: 16 }}>
-          Continue →
+        <CTAButton onClick={onNext} disabled={!valid || submitting} style={{ padding: "14px", fontSize: 16 }}>
+          {submitting ? "Creating account..." : "Continue →"}
         </CTAButton>
         <div style={{ textAlign: "center", marginTop: 14, fontSize: 12, color: "#bbb" }}>
           By continuing you agree to our{" "}
@@ -225,19 +227,30 @@ function StepAllSet({ onAddPlant, onExplore }) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function SignupFlow({ onDone, onSaveFrostDates, onSelectZones }) {
+export function SignupFlow({ onDone, onSetUser, onSaveFrostDates, onSelectZones }) {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [selectedZones, setSelectedZones] = useState([]);
   const [spring, setSpring] = useState("");
   const [fall, setFall] = useState("");
+  const [authError, setAuthError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   function goBack() { if (step > 0) setStep(s => s - 1); }
+
+  async function handleCreateAccount() {
+    setSubmitting(true); setAuthError("");
+    const { data, error } = await authSignUp(form.email, form.password, form.name);
+    setSubmitting(false);
+    if (error) { setAuthError(error.message); return; }
+    onSetUser({ id: data.user?.id, name: form.name, email: form.email });
+    setStep(1);
+  }
 
   function finish(openAdd = false) {
     if (spring || fall) onSaveFrostDates({ lastSpring: spring, firstFall: fall });
     if (selectedZones.length > 0) onSelectZones(selectedZones);
-    onDone({ user: { name: form.name, email: form.email }, openAdd });
+    onDone({ openAdd });
   }
 
   return (
@@ -258,7 +271,7 @@ export function SignupFlow({ onDone, onSaveFrostDates, onSelectZones }) {
           : "0 28px calc(env(safe-area-inset-bottom) + 32px)",
         display: "flex", flexDirection: "column",
       }}>
-        {step === 0 && <StepAccount form={form} setForm={setForm} onNext={() => setStep(1)} />}
+        {step === 0 && <StepAccount form={form} setForm={setForm} onNext={handleCreateAccount} error={authError} submitting={submitting} />}
         {step === 1 && <StepZones selected={selectedZones} setSelected={setSelectedZones} onNext={() => setStep(2)} />}
         {step === 2 && <StepFrost spring={spring} setSpring={setSpring} fall={fall} setFall={setFall} onNext={() => setStep(3)} onSkip={() => setStep(3)} />}
         {step === 3 && <StepAllSet onAddPlant={() => finish(true)} onExplore={() => finish(false)} />}

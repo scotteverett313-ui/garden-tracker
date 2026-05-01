@@ -1,10 +1,21 @@
 import { useState } from "react";
 import { ICONS, ICON_LIBRARY } from "../constants.js";
+import { authSignIn } from "../supabase.js";
 
 export function AuthScreen({ onCreateAccount, onSignIn, onReplayOnboarding }) {
   const [mode, setMode] = useState("landing");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [authError, setAuthError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSignIn() {
+    setSubmitting(true); setAuthError("");
+    const { data, error } = await authSignIn(email, password);
+    setSubmitting(false);
+    if (error) { setAuthError(error.message); return; }
+    onSignIn({ id: data.user?.id, email: data.user?.email, name: data.user?.user_metadata?.name || "" });
+  }
 
   const inp = (extra = {}) => ({
     width: "100%", padding: "13px 14px",
@@ -138,15 +149,16 @@ export function AuthScreen({ onCreateAccount, onSignIn, onReplayOnboarding }) {
           <div style={{ marginTop: 28 }}>
             <div style={{ position: "relative", paddingBottom: 4 }}>
               <div style={{ position: "absolute", left: 0, right: 0, top: 4, bottom: 0, background: "#000", borderRadius: 'var(--radius-pill)', zIndex: 0 }} />
-              <button onClick={onSignIn} style={{
+              <button onClick={handleSignIn} disabled={submitting} style={{
                 position: "relative", zIndex: 1, width: "100%",
                 background: "#a8e063", color: "#000", border: "2.5px solid #000",
                 borderRadius: 'var(--radius-pill)', padding: "15px 28px",
                 cursor: "pointer", fontWeight: 800, fontSize: 16, fontFamily: "inherit",
               }}>
-                Sign in →
+                {submitting ? "Signing in..." : "Sign in →"}
               </button>
             </div>
+            {authError && <div style={{ marginTop: 12, background: "#fdecea", color: "#c0392b", borderRadius: "var(--radius-input)", padding: "10px 14px", fontSize: 13, fontWeight: 600 }}>{authError}</div>}
             <div style={{ textAlign: "center", marginTop: 14 }}>
               <button style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "#bbb", fontWeight: 500, fontFamily: "inherit", padding: "6px 0" }}>
                 Forgot password?

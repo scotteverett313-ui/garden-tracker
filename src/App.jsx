@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import gsap from "gsap";
-import { dbSave, dbLoadPlants, dbSavePlants, dbLoadSeeds, dbSaveSeeds } from "./supabase.js";
+import { supabase, dbSave, dbLoadPlants, dbSavePlants, dbLoadSeeds, dbSaveSeeds, setUserId, authSignOut } from "./supabase.js";
 import { ICONS, PLANT_DB, DEFAULT_ZONES } from "./constants.js";
 import { generateId, daysSince, formatDate, loadData } from "./utils.js";
 import { useToast } from "./hooks/useToast.js";
@@ -54,7 +54,7 @@ export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem("onboarding_complete"));
   const [showAuth, setShowAuth] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
-  const [user, setUser] = useState(() => { try { return JSON.parse(localStorage.getItem("mock_user") || "null"); } catch { return null; } });
+  const [user, setUser] = useState(null);
 
   // Show splash until BOTH animation is done AND data is loaded
   const stillShowingWelcome = !welcomeDone || !loaded;
@@ -62,6 +62,15 @@ export default function App() {
   useEffect(() => {
     async function loadAll() {
       setSyncing(true);
+      if (supabase) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          setUserId(session.user.id);
+          setUser({ id: session.user.id, email: session.user.email, name: session.user.user_metadata?.name || "" });
+        } else {
+          setShowAuth(true);
+        }
+      }
       try {
         const [dbPlants, dbSeeds, f, db, savedZones] = await Promise.all([
           dbLoadPlants(), dbLoadSeeds(), loadData("frost_dates"), loadData("user_plant_db"), loadData("garden_zones"),
@@ -85,6 +94,20 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (!supabase) return;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        setUserId(session.user.id);
+        setUser({ id: session.user.id, email: session.user.email, name: session.user.user_metadata?.name || "" });
+      } else {
+        setUserId(null);
+        setUser(null);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
     if (!tabContentRef.current) return;
     gsap.fromTo(tabContentRef.current,
       { y: 10 },
@@ -105,6 +128,11 @@ export default function App() {
     setZones(nextZones);
     await saveData("garden_zones", nextZones);
     if (migrated.some((p, i) => p !== plants[i])) await savePlants(migrated);
+  }
+
+  function handleSetUser(u) {
+    setUser(u);
+    if (u?.id) setUserId(u.id);
   }
 
   function handleAdd(plant) { savePlants([...plants, plant]); toast(`${plant.name} added`, { icon: ICONS.seedlingGreen }); }
@@ -153,18 +181,17 @@ export default function App() {
     reader.readAsText(file); e.target.value = "";
   }
 
-  function replayOnboarding() { localStorage.removeItem("onboarding_complete"); localStorage.removeItem("mock_user"); setUser(null); setShowOnboarding(true); setShowAuth(false); setShowSignup(false); }
+  function replayOnboarding() { localStorage.removeItem("onboarding_complete"); authSignOut(); setUserId(null); setUser(null); setShowOnboarding(true); setShowAuth(false); setShowSignup(false); }
   function finishOnboarding() { localStorage.setItem("onboarding_complete", "1"); setShowOnboarding(false); if (!user) setShowAuth(true); }
-  function handleSignupDone({ user: u, openAdd }) {
-    setUser(u); localStorage.setItem("mock_user", JSON.stringify(u));
+  function handleSignupDone({ openAdd }) {
     setShowSignup(false); setShowAuth(false);
     if (openAdd) { setTimeout(() => openAddFlow(), 300); }
   }
 
   if (showOnboarding) return <OnboardingScreen onDone={finishOnboarding} onReplayOnboarding={replayOnboarding} />;
-  if (showAuth) return <AuthScreen onCreateAccount={() => { setShowAuth(false); setShowSignup(true); }} onSignIn={() => setShowAuth(false)} onReplayOnboarding={replayOnboarding} />;
-  if (showSignup) return <SignupFlow onDone={handleSignupDone} onSaveFrostDates={saveFrost} onSelectZones={selectedIds => { const active = zones.filter(z => selectedIds.includes(z.id)); if (active.length) saveZones(active); }} />;
   if (stillShowingWelcome) return <WelcomeScreen onDone={() => setWelcomeDone(true)} onReplayOnboarding={replayOnboarding} />;
+  if (showAuth) return <AuthScreen onCreateAccount={() => { setShowAuth(false); setShowSignup(true); }} onSignIn={(u) => { handleSetUser(u); setShowAuth(false); }} onReplayOnboarding={replayOnboarding} />;
+  if (showSignup) return <SignupFlow onDone={handleSignupDone} onSetUser={handleSetUser} onSaveFrostDates={saveFrost} onSelectZones={selectedIds => { const active = zones.filter(z => selectedIds.includes(z.id)); if (active.length) saveZones(active); }} />;
 
   const NAV_TABS = [
     { id: "garden", label: "My Garden", icon: ICONS.garden },
@@ -405,7 +432,7 @@ export default function App() {
           onExport={handleExport} onImport={handleImport} importError={importError} importSuccess={importSuccess}
           user={user}
           onShowAuth={() => { setShowSettings(false); setShowAuth(true); }}
-          onSignOut={() => { setUser(null); localStorage.removeItem("mock_user"); toast("Signed out", { icon: ICONS.exit }); }} />
+          onSignOut={async () => { await authSignOut(); setUserId(null); setUser(null); setShowAuth(true); toast("Signed out", { icon: ICONS.exit }); }} />
       )}
 
       {showBackup && (
