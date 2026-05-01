@@ -1,40 +1,64 @@
-import { useState, useEffect, useRef } from "react";
-import { ICONS, STATUSES, STATUS_COLORS, CARE_TYPES, CARE_ICONS, PLANT_DB, COMPANION_DB, CALENDAR_DATA, MONTHS, ICON_LIBRARY, lbl, sel, ZONES, DEFAULT_ZONES } from "../constants.js";
-import { generateId, daysUntil, daysSince, formatDate, calcHarvestDate, getAutoIcon } from "../utils.js";
-import { Modal } from "../components/Modal.jsx";
-import { CTAButton } from "../components/CTAButton.jsx";
+import { CALENDAR_DATA, MONTHS } from "../constants.js";
+import { getAutoIcon } from "../utils.js";
 
-function CalendarTab({ plants }) {
-  const currentMonth = new Date().getMonth();
+const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
-  // Get unique plant names from user's garden and match to CALENDAR_DATA
-  const myPlantNames = [...new Set(plants.map(p => p.name))];
+const ACTION_TYPES = [
+  { key: "indoors",    label: "Start Indoors", bg: "#e8e4f8", color: "#5a4aaa" },
+  { key: "transplant", label: "Transplant",    bg: "#f5ece0", color: "#5c3d1e" },
+  { key: "direct",    label: "Direct Sow",     bg: "#fef3c7", color: "#92400e" },
+];
 
-  // Build calendar rows: use CALENDAR_DATA if match exists, otherwise build basic row from plant data
-  const calendarRows = myPlantNames.map(name => {
-    const calEntry = CALENDAR_DATA.find(c => c.name.toLowerCase() === name.toLowerCase());
-    if (calEntry) return { ...calEntry, variety: plants.find(p => p.name === name)?.variety };
-    // For plants not in CALENDAR_DATA, derive basic timing from dateStarted
-    const plant = plants.find(p => p.name === name);
-    const startedMonth = plant?.dateStarted ? new Date(plant.dateStarted).getMonth() + 1 : null;
-    return {
-      name,
-      variety: plant?.variety,
-      type: "My Plant",
-      indoors: startedMonth ? [startedMonth] : [],
-      transplant: [],
-      direct: [],
-      custom: true,
-      dateStarted: plant?.dateStarted,
-    };
+function CalendarTab({ plants, frostDates }) {
+  const today = new Date();
+  const monthIdx = today.getMonth();     // 0-based, for array indexing
+  const monthNum = monthIdx + 1;         // 1-based, for CALENDAR_DATA arrays
+  const monthName = MONTH_NAMES[monthIdx];
+
+  // ── This Month ────────────────────────────────────────────────────────────
+  const seen = { indoors: new Set(), transplant: new Set(), direct: new Set() };
+  const thisMonth = { indoors: [], transplant: [], direct: [] };
+
+  plants.forEach(plant => {
+    const cal = CALENDAR_DATA.find(c => c.name.toLowerCase() === plant.name.toLowerCase());
+    if (!cal) return;
+    ACTION_TYPES.forEach(({ key }) => {
+      if (cal[key].includes(monthNum) && !seen[key].has(plant.name)) {
+        seen[key].add(plant.name);
+        thisMonth[key].push(plant);
+      }
+    });
   });
 
-  if (calendarRows.length === 0) {
+  const hasThisMonth = ACTION_TYPES.some(a => thisMonth[a.key].length > 0);
+
+  // ── Coming Up ─────────────────────────────────────────────────────────────
+  const comingUp = plants
+    .filter(p => p.dateStarted && p.dtm && !["Harvested", "Dead"].includes(p.status))
+    .map(p => {
+      const start = new Date(p.dateStarted + "T12:00:00");
+      const harvestDate = new Date(start.getTime() + Number(p.dtm) * 86400000);
+      const daysLeft = Math.ceil((harvestDate - today) / 86400000);
+      return { ...p, daysLeft };
+    })
+    .filter(p => p.daysLeft <= 60 && p.daysLeft > -14)
+    .sort((a, b) => a.daysLeft - b.daysLeft);
+
+  // ── Reference table rows ──────────────────────────────────────────────────
+  const myPlantNames = [...new Set(plants.map(p => p.name))];
+  const calendarRows = myPlantNames.map(name => {
+    const cal = CALENDAR_DATA.find(c => c.name.toLowerCase() === name.toLowerCase());
+    if (cal) return { ...cal, variety: plants.find(p => p.name === name)?.variety };
+    const plant = plants.find(p => p.name === name);
+    const startedMonth = plant?.dateStarted ? new Date(plant.dateStarted).getMonth() + 1 : null;
+    return { name, variety: plant?.variety, indoors: startedMonth ? [startedMonth] : [], transplant: [], direct: [], custom: true, dateStarted: plant?.dateStarted };
+  });
+
+  if (plants.length === 0) {
     return (
       <div>
-        <h2 style={{ margin: "0 0 4px", fontSize: 22, fontWeight: 800 }}>Seasonal Planting Calendar</h2>
-        <p style={{ color: "#888", marginBottom: 20, fontSize: 14 }}>Shows timing for plants you've started.</p>
-        <div style={{ border: "1.5px dashed #ddd", borderRadius: 'var(--radius-card-sm)', padding: 48, textAlign: "center" }}>
+        <h2 style={{ margin: "0 0 4px", fontSize: 22, fontWeight: 800 }}>Calendar</h2>
+        <div style={{ border: "1.5px dashed #ddd", borderRadius: "var(--radius-card-sm)", padding: 48, textAlign: "center", marginTop: 20 }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>📅</div>
           <div style={{ color: "#888", fontSize: 15 }}>No plants added yet.</div>
           <div style={{ color: "#bbb", fontSize: 14, marginTop: 4 }}>Add plants in My Garden and they'll appear here.</div>
@@ -45,16 +69,77 @@ function CalendarTab({ plants }) {
 
   return (
     <div>
-      <h2 style={{ margin: "0 0 4px", fontSize: 22, fontWeight: 800 }}>Seasonal Planting Calendar</h2>
-      <p style={{ color: "#888", marginBottom: 16, fontSize: 14 }}>Based on your {calendarRows.length} plant{calendarRows.length !== 1 ? "s" : ""}. I = Start Indoors · T = Transplant · D = Direct Sow · ★ = Your start date</p>
-      <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+      <h2 style={{ margin: "0 0 20px", fontSize: 22, fontWeight: 800 }}>Calendar</h2>
+
+      {/* ── This Month ──────────────────────────────────────── */}
+      {hasThisMonth && (
+        <div style={{ position: "relative", paddingBottom: 5, marginBottom: 20 }}>
+          <div style={{ position: "absolute", left: 0, right: 0, top: 5, bottom: 0, background: "#000", borderRadius: "var(--radius-card)", zIndex: 0 }} />
+          <div style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: "var(--radius-card)", padding: "18px 18px 14px" }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: "#aaa", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 4 }}>{monthName}</div>
+            <div style={{ fontSize: 20, fontWeight: 900, letterSpacing: -0.5, marginBottom: 16 }}>What to do this month</div>
+            {ACTION_TYPES.filter(a => thisMonth[a.key].length > 0).map(action => (
+              <div key={action.key} style={{ marginBottom: 14 }}>
+                <span style={{ background: action.bg, color: action.color, fontSize: 12, fontWeight: 700, padding: "3px 10px", borderRadius: "var(--radius-pill)", display: "inline-block", marginBottom: 8 }}>
+                  {action.label}
+                </span>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  {thisMonth[action.key].map(plant => {
+                    const icon = getAutoIcon(plant.name);
+                    return (
+                      <div key={plant.id} style={{ display: "flex", alignItems: "center", gap: 6, background: "#f5f5f3", border: "1.5px solid #e8e8e8", borderRadius: "var(--radius-card-sm)", padding: "6px 10px" }}>
+                        {icon && <img src={icon.url} alt="" style={{ width: 20, height: 20, objectFit: "contain", imageRendering: "pixelated" }} />}
+                        <span style={{ fontSize: 13, fontWeight: 700 }}>{plant.name}</span>
+                        {plant.variety && <span style={{ fontSize: 12, color: "#999" }}>{plant.variety}</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Coming Up ───────────────────────────────────────── */}
+      {comingUp.length > 0 && (
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ fontSize: 11, fontWeight: 800, color: "#aaa", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 12 }}>Harvest Countdown</div>
+          <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 8, scrollbarWidth: "none", msOverflowStyle: "none" }}>
+            {comingUp.map(plant => {
+              const icon = getAutoIcon(plant.name);
+              const isReady = plant.daysLeft <= 0 && plant.daysLeft > -14;
+              const isOverdue = plant.daysLeft < 0;
+              const bg = isReady ? "#f0fbe0" : "#fff";
+              const borderColor = isReady ? "#a8e063" : "#e8e8e8";
+              const label = isOverdue ? `${Math.abs(plant.daysLeft)}d late` : isReady ? "Ready!" : `${plant.daysLeft}d`;
+              const labelColor = isOverdue ? "#c0392b" : isReady ? "#5a9e2a" : "#555";
+              return (
+                <div key={plant.id} style={{ flexShrink: 0, width: 86, background: bg, border: `2px solid ${borderColor}`, borderRadius: "var(--radius-card-sm)", padding: "12px 8px", textAlign: "center" }}>
+                  {icon
+                    ? <img src={icon.url} alt="" style={{ width: 36, height: 36, objectFit: "contain", imageRendering: "pixelated", marginBottom: 6, display: "block", margin: "0 auto 6px" }} />
+                    : <div style={{ height: 42, marginBottom: 6 }} />
+                  }
+                  <div style={{ fontSize: 12, fontWeight: 800, marginBottom: 2, lineHeight: 1.2 }}>{plant.name}</div>
+                  {plant.variety && <div style={{ fontSize: 10, color: "#aaa", marginBottom: 4 }}>{plant.variety}</div>}
+                  <div style={{ fontSize: 13, fontWeight: 900, color: labelColor }}>{label}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Full Season Reference Table ──────────────────────── */}
+      <div style={{ fontSize: 11, fontWeight: 800, color: "#aaa", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 10 }}>Full Season Calendar</div>
+      <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
         {[
-          { label: "Start Indoors", color: "#e8e4f8", text: "#5a4aaa" },
-          { label: "Transplant", color: "#f5ece0", text: "#5c3d1e" },
-          { label: "Direct Sow", color: "#fef3c7", text: "#92400e" },
-          { label: "Your start", color: "#fff3cd", text: "#856404" },
+          { label: "Start Indoors", bg: "#e8e4f8", color: "#5a4aaa" },
+          { label: "Transplant",    bg: "#f5ece0", color: "#5c3d1e" },
+          { label: "Direct Sow",   bg: "#fef3c7", color: "#92400e" },
+          { label: "Your start",   bg: "#fff3cd", color: "#856404" },
         ].map(b => (
-          <span key={b.label} style={{ background: b.color, color: b.text, fontSize: 12, fontWeight: 600, padding: "4px 12px", borderRadius: 'var(--radius-card-lg)' }}>{b.label}</span>
+          <span key={b.label} style={{ background: b.bg, color: b.color, fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: "var(--radius-card-lg)" }}>{b.label}</span>
         ))}
       </div>
       <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
@@ -63,7 +148,7 @@ function CalendarTab({ plants }) {
             <tr style={{ background: "#f8f8f8" }}>
               <th style={{ textAlign: "left", padding: "10px 14px", fontWeight: 600, width: 150, borderBottom: "1px solid #eee", position: "sticky", left: 0, background: "#f8f8f8", zIndex: 2 }}>Plant</th>
               {MONTHS.map((m, i) => (
-                <th key={m} style={{ textAlign: "center", padding: "10px 4px", fontWeight: 600, width: 44, borderBottom: "1px solid #eee", color: i === currentMonth ? "#5c3d1e" : "#555", background: i === currentMonth ? "#fdf6ee" : "#f8f8f8", fontSize: 12 }}>{m}</th>
+                <th key={m} style={{ textAlign: "center", padding: "10px 4px", fontWeight: 600, width: 44, borderBottom: "1px solid #eee", color: i === monthIdx ? "#5c3d1e" : "#555", background: i === monthIdx ? "#fdf6ee" : "#f8f8f8", fontSize: 12 }}>{m}</th>
               ))}
             </tr>
           </thead>
@@ -82,14 +167,13 @@ function CalendarTab({ plants }) {
                     const isI = !plant.custom && plant.indoors.includes(mo);
                     const isT = !plant.custom && plant.transplant.includes(mo);
                     const isD = !plant.custom && plant.direct.includes(mo);
-                    const isCurrent = mi === currentMonth;
                     let bg = "transparent", color = "transparent", label = "";
-                    if (isStarted) { bg = "#fff3cd"; color = "#856404"; label = "★"; }
-                    else if (isI) { bg = "#e8e4f8"; color = "#5a4aaa"; label = "I"; }
-                    else if (isT) { bg = "#f5ece0"; color = "#5c3d1e"; label = "T"; }
-                    else if (isD) { bg = "#fef3c7"; color = "#92400e"; label = "D"; }
+                    if (isStarted)     { bg = "#fff3cd"; color = "#856404"; label = "★"; }
+                    else if (isI)      { bg = "#e8e4f8"; color = "#5a4aaa"; label = "I"; }
+                    else if (isT)      { bg = "#f5ece0"; color = "#5c3d1e"; label = "T"; }
+                    else if (isD)      { bg = "#fef3c7"; color = "#92400e"; label = "D"; }
                     return (
-                      <td key={m} style={{ textAlign: "center", padding: "4px 2px", background: isCurrent ? "#f8fff8" : "transparent" }}>
+                      <td key={m} style={{ textAlign: "center", padding: "4px 2px", background: mi === monthIdx ? "#f8fff8" : "transparent" }}>
                         {label && <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: bg, color, fontWeight: 700, fontSize: 12, width: 26, height: 26, borderRadius: 6 }}>{label}</span>}
                       </td>
                     );
