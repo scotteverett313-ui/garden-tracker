@@ -82,6 +82,14 @@ The `addFlow` state in App drives a multi-step picker:
 
 `src/claude.js` exports `callClaude(messages, options)` — it POSTs to the Supabase Edge Function at `/functions/v1/scan-seed`, which proxies to `api.anthropic.com/v1/messages`. The browser never holds the Anthropic API key. Currently used only for seed packet image scanning (`SeedScanPicker`).
 
+### Care log voice input
+
+`PlantDetailSheet` uses the browser Web Speech API (`window.SpeechRecognition || window.webkitSpeechRecognition`) for voice-to-text on the care log notes field. The mic button is overlaid inside the textarea (absolutely positioned, top-right). Transcript appends to existing note text. Requires HTTPS and a real user gesture — works on Vercel/iPhone Safari, not on `http://localhost` from mobile.
+
+### One-tap watering
+
+`PlantGridCard` and `PlantListCard` both accept an `onWater(plant)` prop. When provided, a water icon button renders as a **sibling element** to the card `<button>` (not nested inside it — invalid HTML) to log a watering care entry instantly. `handleWater` lives in `GardenTab` and calls `onUpdate` + `toast`. Hidden on Harvested/Dead plants. Always use `e.stopPropagation()` on any action button added to a card to prevent simultaneously opening the detail sheet.
+
 ### Routing / screens
 
 The app has no router. Screen flow is controlled by boolean state in App.jsx:
