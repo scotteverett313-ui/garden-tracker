@@ -118,8 +118,12 @@ function PlantGridCard({ plant, onTap, onWater, showZone }) {
                 : (plant.dateStarted ? formatDate(plant.dateStarted) : plant.status)}
             </div>
           </div>
-          <div style={{ width: 32, height: 32, border: "1.5px solid #e0e0e0", borderRadius: 'var(--radius-sm)', display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <img src={ICONS.menu} alt="Menu" style={{ width: 16, height: 16, objectFit: "contain" }} />
+          <div onClick={!isDone && onWater ? e => { e.stopPropagation(); onWater(plant); } : undefined}
+            style={{ width: 32, height: 32, border: "1.5px solid #e0e0e0", borderRadius: 'var(--radius-sm)', display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, cursor: !isDone && onWater ? "pointer" : "default" }}>
+            {!isDone && onWater
+              ? <img src={ICONS.water} alt="Water" style={{ width: 16, height: 16, objectFit: "contain" }} />
+              : <img src={ICONS.menu} alt="Menu" style={{ width: 16, height: 16, objectFit: "contain" }} />
+            }
           </div>
         </div>
         {/* Harvest progress bar */}
@@ -170,13 +174,6 @@ function PlantGridCard({ plant, onTap, onWater, showZone }) {
           </div>
         )}
       </button>
-      {/* One-tap water button — sibling to card button to avoid nested <button> */}
-      {!isDone && onWater && (
-        <button onClick={e => { e.stopPropagation(); onWater(plant); }}
-          style={{ position: "absolute", bottom: 10, right: 8, zIndex: 2, width: 30, height: 30, borderRadius: "var(--radius-input)", background: "#e8f4ff", border: "1.5px solid #000", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <img src={ICONS.water} alt="Log watering" style={{ width: 16, height: 16, objectFit: "contain" }} />
-        </button>
-      )}
     </div>
   );
 }
