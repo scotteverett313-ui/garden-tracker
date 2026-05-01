@@ -91,6 +91,11 @@ export function AuthScreen({ onCreateAccount, onSignIn, onReplayOnboarding }) {
             }}>
               Sign in
             </button>
+
+            {/* Beta invite hint */}
+            <div style={{ textAlign: "center", fontSize: 13, color: "#bbb", fontWeight: 500, paddingTop: 4 }}>
+              Invited to beta? Check your email for the access link.
+            </div>
           </div>
 
           {/* Hidden replay button */}
