@@ -11,7 +11,7 @@ function ToastItem({ t }) {
   }, []);
   return (
     <div ref={ref} style={{
-      background: t.type === "error" ? "#c0392b" : t.type === "warning" ? "#e67e22" : "#5c3d1e",
+      background: t.type === "error" ? "#c0392b" : t.type === "warning" ? "#e67e22" : "#2e6db4",
       color: "#fff", borderRadius: 'var(--radius-icon)', padding: "12px 16px", fontSize: 14, fontWeight: 600,
       display: "flex", alignItems: "center", gap: 10,
       boxShadow: "var(--shadow-soft)",
