@@ -4,29 +4,34 @@ export function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2);
 }
 
+function localNoon(dateStr) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return new Date(y, m - 1, d, 12, 0, 0);
+}
+
 export function daysUntil(dateStr) {
   if (!dateStr) return null;
-  const diff = new Date(dateStr) - new Date();
-  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  const today = new Date(); today.setHours(12, 0, 0, 0);
+  return Math.round((localNoon(dateStr) - today) / 86400000);
 }
 
 export function daysSince(dateStr) {
   if (!dateStr) return null;
-  const diff = new Date() - new Date(dateStr);
-  return Math.floor(diff / (1000 * 60 * 60 * 24));
+  const today = new Date(); today.setHours(12, 0, 0, 0);
+  return Math.round((today - localNoon(dateStr)) / 86400000);
 }
 
 export function formatDate(dateStr) {
   if (!dateStr) return null;
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return localNoon(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 export function calcHarvestDate(dateStarted, dtm) {
   if (!dateStarted || !dtm) return null;
-  const d = new Date(dateStarted);
+  const d = localNoon(dateStarted);
   d.setDate(d.getDate() + parseInt(dtm));
-  return d.toISOString().split("T")[0];
+  const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, "0"), day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 export function getAutoIcon(plantName) {
