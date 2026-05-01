@@ -110,11 +110,11 @@ function PlantGridCard({ plant, onTap, onWater, showZone }) {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
           <div>
             <div style={{ fontWeight: 700, fontSize: 12, color: "#000" }}>
-              {daysLeft !== null ? (daysLeft <= 0 ? <><img src={ICONS.harvest} alt="" style={{ width: 14, height: 14, objectFit: "contain", marginRight: 3, verticalAlign: "middle" }} />Ready!</> : "Harvest in:") : "Started:"}
+              {daysLeft !== null ? (daysLeft <= 0 ? <><img src={ICONS.harvest} alt="" style={{ width: 14, height: 14, objectFit: "contain", marginRight: 3, verticalAlign: "middle" }} />{plant.type === "perennial" ? "Blooming!" : "Ready!"}</> : (plant.type === "perennial" ? "Blooms in:" : "Harvest in:")) : "Started:"}
             </div>
             <div style={{ fontSize: 12, color: daysLeft !== null && daysLeft <= 14 ? "#c0392b" : "#888", fontWeight: 500 }}>
               {daysLeft !== null
-                ? (daysLeft <= 0 ? "Harvest now" : `${daysLeft} days - ${formatDate(harvestDate)}`)
+                ? (daysLeft <= 0 ? (plant.type === "perennial" ? "In bloom" : "Harvest now") : `${daysLeft} days - ${formatDate(harvestDate)}`)
                 : (plant.dateStarted ? formatDate(plant.dateStarted) : plant.status)}
             </div>
             {plant.quantity > 1 && (

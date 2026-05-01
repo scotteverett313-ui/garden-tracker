@@ -116,10 +116,10 @@ function HarvestTab({ plants, frostDates, onUpdate }) {
                     <span style={{ fontSize: 13, fontWeight: 700, color: daysLeft <= 7 ? "#c0392b" : "#888" }}>{daysLeft}d · {formatDate(harvestDate)}</span>
                   )}
                   {(daysLeft === null || daysLeft <= 0) && plant.status === "Harvesting" && (
-                    <span style={{ fontSize: 13, fontWeight: 700, color: "#2d8a3f", display: "inline-flex", alignItems: "center", gap: 4 }}><img src={ICONS.harvest} alt="" style={{ width: 14, height: 14, objectFit: "contain" }} />In harvest</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "#2d8a3f", display: "inline-flex", alignItems: "center", gap: 4 }}><img src={ICONS.harvest} alt="" style={{ width: 14, height: 14, objectFit: "contain" }} />{plant.type === "perennial" ? "In bloom" : "In harvest"}</span>
                   )}
                   {daysLeft !== null && daysLeft <= 0 && plant.status !== "Harvesting" && (
-                    <span style={{ fontSize: 13, fontWeight: 700, color: "#c0392b", display: "inline-flex", alignItems: "center", gap: 4 }}><img src={ICONS.harvest} alt="" style={{ width: 14, height: 14, objectFit: "contain" }} />Ready now!</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "#c0392b", display: "inline-flex", alignItems: "center", gap: 4 }}><img src={ICONS.harvest} alt="" style={{ width: 14, height: 14, objectFit: "contain" }} />{plant.type === "perennial" ? "Blooming!" : "Ready now!"}</span>
                   )}
                   {plant.harvestedAt && <span style={{ fontSize: 12, color: "#888", marginLeft: 4 }}>· {formatDate(plant.harvestedAt)}</span>}
                 </div>

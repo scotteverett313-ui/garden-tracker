@@ -159,7 +159,11 @@ export const PLANT_DB = [
   { name: "Cabbage",     dtm: 70,  water: "Regular",  sun: "Full Sun",      about: "Cool-season crop. Start indoors 6-8 weeks before transplant. Tolerates frost." },
   { name: "Cauliflower", dtm: 75,  water: "Regular",  sun: "Full Sun",      about: "Finicky cool-season crop. Blanch heads by tying leaves over forming heads." },
   { name: "Onion",       dtm: 100, water: "Regular",  sun: "Full Sun",      about: "Start from sets, transplants, or seed. Long season. Stop watering when tops fall over." },
-  { name: "Garlic",      dtm: 240, water: "Moderate", sun: "Full Sun",      about: "Plant cloves in fall for summer harvest. One of the easiest crops to grow." },
+  { name: "Garlic",          dtm: 240, water: "Moderate", sun: "Full Sun",      about: "Plant cloves in fall for summer harvest. One of the easiest crops to grow." },
+  { name: "Peony",           dtm: 60,  water: "Moderate", sun: "Full Sun",      about: "Herbaceous perennial. Blooms late spring. Plant in fall, needs cold stratification. Divide every 10 years.", type: "perennial" },
+  { name: "Butterfly Weed",  dtm: 75,  water: "Low",      sun: "Full Sun",      about: "Native perennial milkweed. Monarch host plant. Drought-tolerant once established. Do not disturb roots.", type: "perennial" },
+  { name: "Columbine",       dtm: 45,  water: "Moderate", sun: "Partial Shade", about: "Short-lived perennial. Self-seeds freely. Blooms spring to early summer. Attracts hummingbirds.", type: "perennial" },
+  { name: "Lavender",        dtm: 90,  water: "Low",      sun: "Full Sun",      about: "Woody perennial. Harvest stems just before blooms open. Cut back by 1/3 after bloom. Excellent for drying.", type: "perennial" },
 ];
 
 export const COMPANION_DB = {

@@ -51,7 +51,7 @@ function AddPlantModal({ onAdd, onClose, userDB, onSaveUserDB, prefill, zones = 
   }
 
   function selectSuggestion(plant) {
-    setForm(f => ({ ...f, name: plant.name, about: plant.about || "", water: plant.water || "", sun: plant.sun || "", dtm: plant.dtm || "" }));
+    setForm(f => ({ ...f, name: plant.name, about: plant.about || "", water: plant.water || "", sun: plant.sun || "", dtm: plant.dtm || "", type: plant.type || "" }));
     if (!selectedIcon) {
       const auto = getAutoIcon(plant.name);
       if (auto) setForm(f => ({ ...f, imageUrl: auto.url }));
