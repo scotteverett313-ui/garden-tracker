@@ -50,7 +50,7 @@ function getSeedCategory(seed) {
   return "Other";
 }
 
-function SeedLibraryTab({ seeds, onSaveSeeds, onAddToGarden }) {
+function SeedLibraryTab({ seeds, onSaveSeeds, onAddToGarden, userDB, onSaveUserDB }) {
   const [view, setView] = useState("library"); // library | scan | edit
   const [selectedSeed, setSelectedSeed] = useState(null);
   const [editingSeed, setEditingSeed] = useState(null);
@@ -169,6 +169,20 @@ Return ONLY the JSON, no other text.` });
 
   function handleBookmark(seed) {
     onSaveSeeds(seeds.map(s => s.id === seed.id ? { ...s, bookmarked: !s.bookmarked } : s));
+  }
+
+  function handleAddToUserDB(seed) {
+    const already = (userDB || []).some(p => p.name?.toLowerCase() === seed.name?.toLowerCase());
+    if (already) return;
+    const entry = {
+      name: seed.name,
+      dtm: seed.dtm ? Number(seed.dtm) : null,
+      water: seed.water || null,
+      sun: seed.sun || null,
+      about: seed.about || "",
+      addedAt: new Date().toISOString(),
+    };
+    onSaveUserDB([...(userDB || []), entry]);
   }
 
   // ── Scan view ──
@@ -424,6 +438,8 @@ Return ONLY the JSON, no other text.` });
           onDelete={id => { onSaveSeeds(seeds.filter(s => s.id !== id)); setSelectedSeed(null); }}
           onAddToGarden={onAddToGarden}
           onEdit={seed => { setSelectedSeed(null); setEditingSeed(seed); setEditForm(seed); setView("edit"); }}
+          onAddToUserDB={handleAddToUserDB}
+          userDB={userDB}
         />
       )}
     </div>

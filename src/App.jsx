@@ -347,7 +347,7 @@ export default function App() {
         {/* Tab content */}
         <div ref={tabContentRef} style={{ padding: isWide ? "20px 24px" : "16px 14px", flex: 1 }}>
           {tab === "garden" && <GardenTab plants={plants} frostDates={frostDates} onUpdate={handleUpdate} onDelete={handleDelete} onSplit={handleSplit} search={search} setSearch={setSearch} filterZone={filterZone} setFilterZone={setFilterZone} filterStatus={filterStatus} setFilterStatus={setFilterStatus} onAddPlant={openAddFlow} userDB={userDB} onSaveUserDB={saveUserDB} toast={toast} zones={zones} isWide={isWide} />}
-          {tab === "seeds" && <SeedLibraryTab seeds={seeds} onSaveSeeds={saveSeeds} onAddToGarden={handleAddSeedToGarden} />}
+          {tab === "seeds" && <SeedLibraryTab seeds={seeds} onSaveSeeds={saveSeeds} onAddToGarden={handleAddSeedToGarden} userDB={userDB} onSaveUserDB={saveUserDB} />}
           {tab === "calendar" && <CalendarTab plants={plants} />}
           {tab === "harvest" && <HarvestTab plants={plants} frostDates={frostDates} onUpdate={handleUpdate} />}
           {tab === "profile" && <ProfileTab plants={plants} frostDates={frostDates} user={user} onOpenSettings={() => setShowSettings(true)} onSignOut={handleSignOut} />}

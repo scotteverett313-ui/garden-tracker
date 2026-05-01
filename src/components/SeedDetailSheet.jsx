@@ -4,7 +4,7 @@ import { formatDate, getAutoIcon } from "../utils.js";
 import { Modal } from "./Modal.jsx";
 import { CTAButton } from "./CTAButton.jsx";
 
-function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onEdit }) {
+function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onEdit, onAddToUserDB, userDB }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const calData = CALENDAR_DATA.find(c => c.name.toLowerCase() === seed.name?.toLowerCase());
@@ -172,6 +172,26 @@ function SeedDetailSheet({ seed, onClose, onUpdate, onDelete, onAddToGarden, onE
           <img src={ICONS.seedlingGreen} style={{width:14,height:14,objectFit:"contain",marginRight:6,verticalAlign:"middle"}} alt="" />Add to Garden
         </CTAButton>
       </div>
+      {onAddToUserDB && (() => {
+        const inDB = (userDB || []).some(p => p.name?.toLowerCase() === seed.name?.toLowerCase());
+        return (
+          <div style={{ marginBottom: 12 }}>
+            <button
+              onClick={() => { onAddToUserDB(seed); }}
+              disabled={inDB}
+              style={{
+                width: "100%", padding: "13px", fontSize: 15, fontFamily: "inherit",
+                background: inDB ? "#f5f5f3" : "#fff",
+                color: inDB ? "#aaa" : "#000",
+                border: `2px solid ${inDB ? "#e0e0e0" : "#000"}`,
+                borderRadius: "var(--radius-pill)", cursor: inDB ? "default" : "pointer",
+                fontWeight: 700,
+              }}>
+              {inDB ? "✓ In Plant DB" : "Add to Plant DB"}
+            </button>
+          </div>
+        );
+      })()}
       <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
         <button onClick={() => onUpdate({ ...seed, started: !seed.started })}
           style={{ flex: 1, padding: "10px", background: seed.started ? "#000" : "#fff", color: seed.started ? "#fff" : "#555", border: "2px solid #000", borderRadius: 'var(--radius-icon)', cursor: "pointer", fontSize: 14, fontWeight: 700 }}>
