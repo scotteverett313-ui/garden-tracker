@@ -187,6 +187,7 @@ export default function App() {
     setShowSignup(false); setShowAuth(false);
     if (openAdd) { setTimeout(() => openAddFlow(), 300); }
   }
+  async function handleSignOut() { await authSignOut(); setUserId(null); setUser(null); setShowAuth(true); toast("Signed out", { icon: ICONS.exit }); }
 
   if (showOnboarding) return <OnboardingScreen onDone={finishOnboarding} onReplayOnboarding={replayOnboarding} />;
   if (stillShowingWelcome) return <WelcomeScreen onDone={() => setWelcomeDone(true)} onReplayOnboarding={replayOnboarding} />;
@@ -349,7 +350,7 @@ export default function App() {
           {tab === "seeds" && <SeedLibraryTab seeds={seeds} onSaveSeeds={saveSeeds} onAddToGarden={handleAddSeedToGarden} />}
           {tab === "calendar" && <CalendarTab plants={plants} />}
           {tab === "harvest" && <HarvestTab plants={plants} frostDates={frostDates} onUpdate={handleUpdate} />}
-          {tab === "profile" && <ProfileTab plants={plants} frostDates={frostDates} user={user} onOpenSettings={() => setShowSettings(true)} />}
+          {tab === "profile" && <ProfileTab plants={plants} frostDates={frostDates} user={user} onOpenSettings={() => setShowSettings(true)} onSignOut={handleSignOut} />}
         </div>
       </div>
 
@@ -432,7 +433,7 @@ export default function App() {
           onExport={handleExport} onImport={handleImport} importError={importError} importSuccess={importSuccess}
           user={user}
           onShowAuth={() => { setShowSettings(false); setShowAuth(true); }}
-          onSignOut={async () => { await authSignOut(); setUserId(null); setUser(null); setShowAuth(true); toast("Signed out", { icon: ICONS.exit }); }} />
+          onSignOut={handleSignOut} />
       )}
 
       {showBackup && (

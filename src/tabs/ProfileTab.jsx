@@ -71,7 +71,7 @@ function HoldingRow({ status, count, total, isLast }) {
 }
 
 // ── Main ─────────────────────────────────────────────────────────────────────
-function ProfileTab({ plants, frostDates, user, onOpenSettings }) {
+function ProfileTab({ plants, frostDates, user, onOpenSettings, onSignOut }) {
   const currentYear = new Date().getFullYear();
   const today = new Date();
 
@@ -146,17 +146,16 @@ function ProfileTab({ plants, frostDates, user, onOpenSettings }) {
 
           {/* Header row */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>Garden Portfolio</div>
-              <div style={{ fontSize: 52, fontWeight: 900, color: "#000", letterSpacing: -2, lineHeight: 1 }}>
-                {activePlants.length}
-                <span style={{ fontSize: 18, fontWeight: 600, color: "#888", letterSpacing: 0, marginLeft: 8 }}>growing</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+              <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#000", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <span style={{ fontSize: 18, fontWeight: 900, color: "#a8e063" }}>{initial}</span>
               </div>
-              <div style={{ fontSize: 13, color: "#888", marginTop: 6, fontWeight: 500 }}>
-                {harvestedThisYear.length} harvested · {totalCareActions} care actions
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: "#000", lineHeight: 1.2 }}>{displayName}</div>
+                {user?.email && <div style={{ fontSize: 12, color: "#aaa", fontWeight: 500 }}>{user.email}</div>}
               </div>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               {frostDates.zone && (
                 <div style={{ background: "#f0f0f0", border: "1px solid #ddd", borderRadius: 99, padding: "4px 12px" }}>
                   <span style={{ fontSize: 11, fontWeight: 800, color: "#444", letterSpacing: 0.5 }}>Zone {frostDates.zone}</span>
@@ -165,6 +164,16 @@ function ProfileTab({ plants, frostDates, user, onOpenSettings }) {
               <button onClick={onOpenSettings} style={{ width: 36, height: 36, borderRadius: "50%", background: "#fff", border: "2px solid #000", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <img src={ICONS.settings} alt="Settings" style={{ width: 16, height: 16, objectFit: "contain" }} />
               </button>
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>Garden Portfolio</div>
+            <div style={{ fontSize: 52, fontWeight: 900, color: "#000", letterSpacing: -2, lineHeight: 1 }}>
+              {activePlants.length}
+              <span style={{ fontSize: 18, fontWeight: 600, color: "#888", letterSpacing: 0, marginLeft: 8 }}>growing</span>
+            </div>
+            <div style={{ fontSize: 13, color: "#888", marginTop: 6, fontWeight: 500 }}>
+              {harvestedThisYear.length} harvested · {totalCareActions} care actions
             </div>
           </div>
 
@@ -290,6 +299,20 @@ function ProfileTab({ plants, frostDates, user, onOpenSettings }) {
           </div>
         </div>
       </div>
+
+      {/* ── Sign out ─────────────────────────────────────── */}
+      {user && onSignOut && (
+        <div style={{ marginTop: 8, marginBottom: 16 }}>
+          <button onClick={onSignOut} style={{
+            width: "100%", padding: "13px", background: "#fff",
+            border: "2px solid #e0e0e0", borderRadius: "var(--radius-pill)",
+            cursor: "pointer", fontSize: 15, fontWeight: 700,
+            color: "#888", fontFamily: "inherit",
+          }}>
+            Sign out
+          </button>
+        </div>
+      )}
 
     </div>
   );
