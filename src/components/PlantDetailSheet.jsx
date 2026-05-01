@@ -230,7 +230,7 @@ function PlantDetailSheet({ plant, frostDates, zones, onUpdate, onDelete, onClos
           {/* White card — slides up on entrance, scrolls to cover green */}
           <div
             ref={cardRef}
-            style={{ minHeight: "100vh", background: "#fff", borderRadius: "20px 20px 0 0", position: "relative" }}
+            style={{ minHeight: "100vh", background: "#fff", borderRadius: "20px 20px 0 0", position: "relative", paddingBottom: "env(safe-area-inset-bottom, 32px)" }}
           >
             <div style={{ background: "#fff", borderRadius: "20px 20px 0 0", paddingBottom: 4 }}>
               <div style={{ display: "flex", justifyContent: "center", paddingTop: 10 }}>
