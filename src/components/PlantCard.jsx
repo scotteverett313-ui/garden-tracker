@@ -117,6 +117,9 @@ function PlantGridCard({ plant, onTap, onWater, showZone }) {
                 ? (daysLeft <= 0 ? "Harvest now" : `${daysLeft} days - ${formatDate(harvestDate)}`)
                 : (plant.dateStarted ? formatDate(plant.dateStarted) : plant.status)}
             </div>
+            {plant.quantity > 1 && (
+              <span style={{ fontSize: 10, fontWeight: 700, color: "#aaa" }}>×{plant.quantity}</span>
+            )}
           </div>
           <div onClick={!isDone && onWater ? e => { e.stopPropagation(); onWater(plant); } : undefined}
             style={{ width: 32, height: 32, border: "1.5px solid #e0e0e0", borderRadius: 'var(--radius-sm)', display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, cursor: !isDone && onWater ? "pointer" : "default" }}>
@@ -151,13 +154,10 @@ function PlantGridCard({ plant, onTap, onWater, showZone }) {
           }
         </div>
 
-        {/* Row 3 — Status icon + plant name + quantity */}
+        {/* Row 3 — Status icon + plant name */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
           <img src={statusObj.img} alt={statusObj.label} style={{ width: 16, height: 16, objectFit: "contain" }} />
           <span style={{ fontWeight: 800, fontSize: 15, color: "#000", lineHeight: 1.2 }}>{plant.name}</span>
-          {plant.quantity > 1 && (
-            <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 700, background: "#f0f0f0", border: "1px solid #ddd", borderRadius: 6, padding: "1px 6px", color: "#666", flexShrink: 0 }}>×{plant.quantity}</span>
-          )}
         </div>
 
         {/* Row 4 — Variety + last watered */}
