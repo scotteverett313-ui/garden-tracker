@@ -106,6 +106,10 @@ The main layout is a 5-tab shell (My Garden, Seeds, Calendar, Harvest, Profile) 
 
 Tab content is rendered by files in `src/tabs/`. The tab transition animation (slide up) is a GSAP tween on `tabContentRef` in App.jsx.
 
+### Plant detail sheet
+
+`PlantDetailSheet` renders as a full-screen overlay — green backdrop with a white card that slides up from the bottom. The white card uses `minHeight: "100vh"` plus `paddingBottom: env(safe-area-inset-bottom, 32px)` to prevent the green background bleeding through at the bottom on iPhone. Any content added to the bottom of the sheet must account for this padding.
+
 ### Design system
 
 `src/design-tokens.css` is the single source of truth for all colors, typography, spacing, radius, and shadow values. Always use CSS variables (`var(--color-green)`, `var(--radius-card)`, etc.) rather than hardcoded values. Inline styles are used throughout (no CSS modules or Tailwind).
