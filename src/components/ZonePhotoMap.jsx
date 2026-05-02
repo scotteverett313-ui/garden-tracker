@@ -72,7 +72,7 @@ export function ZonePhotoMap({ zone, plants, onSaveZone, onClose }) {
           </button>
           <button onClick={onClose} style={{ background: "#333", border: "none", borderRadius: "50%", width: 38, height: 38, cursor: "pointer", color: "#fff", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
         </div>
-        <input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handlePhotoChange} style={{ display: "none" }} />
+        <input ref={fileRef} type="file" accept="image/*" onChange={handlePhotoChange} style={{ display: "none" }} />
       </div>
 
       {/* Photo area */}
