@@ -8,6 +8,7 @@ import { Modal } from "../components/Modal.jsx";
 import { CTAButton } from "../components/CTAButton.jsx";
 import { PlantGridCard, PlantListCard } from "../components/PlantCard.jsx";
 import { PlantDetailSheet } from "../components/PlantDetailSheet.jsx";
+import { ZonePhotoMap } from "../components/ZonePhotoMap.jsx";
 
 function AnimatedCount({ value }) {
   const el = useRef(null);
@@ -27,9 +28,10 @@ function AnimatedCount({ value }) {
   return <span ref={el}>{value}</span>;
 }
 
-function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, setSearch, filterZone, setFilterZone, filterStatus, setFilterStatus, onAddPlant, toast, zones = ZONES.map((name, i) => ({ id: `zone_${i}`, name })), isWide = false }) {
+function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, setSearch, filterZone, setFilterZone, filterStatus, setFilterStatus, onAddPlant, toast, zones = ZONES.map((name, i) => ({ id: `zone_${i}`, name })), onSaveZones, isWide = false }) {
   const [viewMode, setViewMode] = useState("grid");
   const [selectedPlant, setSelectedPlant] = useState(null);
+  const [photoZone, setPhotoZone] = useState(null);
   const [favOnly, setFavOnly] = useState(false);
   const gridRef = useRef(null);
   const favBtnRef = useRef(null);
@@ -216,7 +218,14 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, se
                 <div style={{ fontWeight: 900, fontSize: 22, letterSpacing: -0.5, lineHeight: 1 }}>{displayName}</div>
                 <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>{zonePlants.length} plant{zonePlants.length !== 1 ? "s" : ""}</div>
               </div>
-              <CTAButton onClick={onAddPlant} style={{ padding: "8px 16px", fontSize: 13, width: "auto" }}>+ Add Plant</CTAButton>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                {onSaveZones && (
+                  <button onClick={() => setPhotoZone(zone)} style={{ width: 36, height: 36, background: zone.photoUrl ? "#000" : "#f5f5f3", border: `2px solid ${zone.photoUrl ? "#000" : "#ddd"}`, borderRadius: "var(--radius-input)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>
+                    📷
+                  </button>
+                )}
+                <CTAButton onClick={onAddPlant} style={{ padding: "8px 16px", fontSize: 13, width: "auto" }}>+ Add Plant</CTAButton>
+              </div>
             </div>
 
             {/* Plants */}
@@ -238,6 +247,16 @@ function GardenTab({ plants, frostDates, onUpdate, onDelete, onSplit, search, se
           </div>
         );
       })}
+
+      {/* Zone photo map */}
+      {photoZone && (
+        <ZonePhotoMap
+          zone={zones.find(z => z.id === photoZone.id) || photoZone}
+          plants={plants}
+          onSaveZone={updatedZone => onSaveZones(zones.map(z => z.id === updatedZone.id ? updatedZone : z))}
+          onClose={() => setPhotoZone(null)}
+        />
+      )}
 
       {/* Plant detail sheet */}
       {selectedPlant && (

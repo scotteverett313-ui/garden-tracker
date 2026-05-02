@@ -206,6 +206,10 @@ function SettingsPanel({ onClose, zones, onSaveZones, onRenameZone, frostDates, 
                   <button onClick={addZone} style={{ background: "#a8e063", border: "2px solid #000", borderRadius: 'var(--radius-input)', padding: "10px 14px", cursor: "pointer", fontSize: 14, fontWeight: 800 }}>+ Add</button>
                   <button onClick={() => setShowAddZone(false)} style={{ background: "#f0f0f0", border: "none", borderRadius: 'var(--radius-input)', padding: "10px 12px", cursor: "pointer", fontSize: 14 }}>✕</button>
                 </div>
+              ) : zones.length >= 8 ? (
+                <div style={{ marginTop: 12, padding: "11px 14px", background: "#f5f5f3", border: "1.5px solid #e0e0e0", borderRadius: "var(--radius-input)", fontSize: 13, color: "#aaa", fontWeight: 600, textAlign: "center" }}>
+                  Max 8 zones reached
+                </div>
               ) : (
                 <div style={{ marginTop: 12 }}>
                   <CTAButton onClick={() => setShowAddZone(true)} style={{ padding: "11px", fontSize: 14 }}>+ Add Zone</CTAButton>
