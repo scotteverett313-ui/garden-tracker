@@ -93,12 +93,16 @@ export function ZonePhotoMap({ zone, plants, onSaveZone, onClose }) {
               const icon = getAutoIcon(plant.name);
               return (
                 <button key={pin.id} onClick={e => { e.stopPropagation(); removePin(pin.id); }}
-                  title={`${plant.name} — tap to remove`}
-                  style={{ position: "absolute", left: `${pin.x * 100}%`, top: `${pin.y * 100}%`, transform: "translate(-50%, -50%)", background: "#fff", border: "2.5px solid #000", borderRadius: "50%", width: 36, height: 36, padding: 0, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>
-                  {icon
-                    ? <img src={icon.url} alt={plant.name} style={{ width: 22, height: 22, objectFit: "contain", imageRendering: "pixelated" }} />
-                    : <span style={{ fontSize: 11, fontWeight: 800 }}>{plant.name[0]}</span>
-                  }
+                  style={{ position: "absolute", left: `${pin.x * 100}%`, top: `${pin.y * 100}%`, transform: "translate(-50%, -100%)", background: "none", border: "none", padding: 0, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+                  <div style={{ background: "#fff", border: "2.5px solid #000", borderRadius: "50%", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>
+                    {icon
+                      ? <img src={icon.url} alt={plant.name} style={{ width: 22, height: 22, objectFit: "contain", imageRendering: "pixelated" }} />
+                      : <span style={{ fontSize: 11, fontWeight: 800 }}>{plant.name[0]}</span>
+                    }
+                  </div>
+                  <div style={{ background: "rgba(0,0,0,0.72)", color: "#fff", fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 4, whiteSpace: "nowrap", maxWidth: 72, overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {plant.name}
+                  </div>
                 </button>
               );
             })}
