@@ -9,7 +9,7 @@ const ACTION_TYPES = [
   { key: "direct",    label: "Direct Sow",     bg: "#fef3c7", color: "#92400e" },
 ];
 
-function CalendarTab({ plants, frostDates }) {
+function CalendarTab({ plants, frostDates, seeds = [] }) {
   const today = new Date();
   const monthIdx = today.getMonth();     // 0-based, for array indexing
   const monthNum = monthIdx + 1;         // 1-based, for CALENDAR_DATA arrays
@@ -31,6 +31,28 @@ function CalendarTab({ plants, frostDates }) {
   });
 
   const hasThisMonth = ACTION_TYPES.some(a => thisMonth[a.key].length > 0);
+
+  // ── Seeds you have that are good to plant this month ──────────────────────
+  const activePlantNames = new Set(
+    plants.filter(p => !["Harvested", "Dead"].includes(p.status)).map(p => p.name.toLowerCase())
+  );
+  const fromSeeds = { indoors: [], transplant: [], direct: [] };
+  const seenSeeds = { indoors: new Set(), transplant: new Set(), direct: new Set() };
+
+  seeds.forEach(seed => {
+    if (!seed.name) return;
+    const cal = CALENDAR_DATA.find(c => c.name.toLowerCase() === seed.name.toLowerCase());
+    if (!cal) return;
+    if (activePlantNames.has(seed.name.toLowerCase())) return; // already growing
+    ACTION_TYPES.forEach(({ key }) => {
+      if (cal[key].includes(monthNum) && !seenSeeds[key].has(seed.name.toLowerCase())) {
+        seenSeeds[key].add(seed.name.toLowerCase());
+        fromSeeds[key].push(seed);
+      }
+    });
+  });
+
+  const hasFromSeeds = ACTION_TYPES.some(a => fromSeeds[a.key].length > 0);
 
   // ── Coming Up ─────────────────────────────────────────────────────────────
   const comingUp = plants
@@ -72,13 +94,15 @@ function CalendarTab({ plants, frostDates }) {
       <h2 style={{ margin: "0 0 20px", fontSize: 22, fontWeight: 800 }}>Calendar</h2>
 
       {/* ── This Month ──────────────────────────────────────── */}
-      {hasThisMonth && (
+      {(hasThisMonth || hasFromSeeds) && (
         <div style={{ position: "relative", paddingBottom: 5, marginBottom: 20 }}>
           <div style={{ position: "absolute", left: 0, right: 0, top: 5, bottom: 0, background: "#000", borderRadius: "var(--radius-card)", zIndex: 0 }} />
           <div style={{ position: "relative", zIndex: 1, background: "#fff", border: "2px solid #000", borderRadius: "var(--radius-card)", padding: "18px 18px 14px" }}>
             <div style={{ fontSize: 11, fontWeight: 800, color: "#aaa", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 4 }}>{monthName}</div>
             <div style={{ fontSize: 20, fontWeight: 900, letterSpacing: -0.5, marginBottom: 16 }}>What to do this month</div>
-            {ACTION_TYPES.filter(a => thisMonth[a.key].length > 0).map(action => (
+
+            {/* Garden plants */}
+            {hasThisMonth && ACTION_TYPES.filter(a => thisMonth[a.key].length > 0).map(action => (
               <div key={action.key} style={{ marginBottom: 14 }}>
                 <span style={{ background: action.bg, color: action.color, fontSize: 12, fontWeight: 700, padding: "3px 10px", borderRadius: "var(--radius-pill)", display: "inline-block", marginBottom: 8 }}>
                   {action.label}
@@ -97,6 +121,33 @@ function CalendarTab({ plants, frostDates }) {
                 </div>
               </div>
             ))}
+
+            {/* Seeds in library */}
+            {hasFromSeeds && (
+              <>
+                {hasThisMonth && <div style={{ borderTop: "1px solid #f0f0f0", margin: "4px 0 14px" }} />}
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#aaa", textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>From your seeds</div>
+                {ACTION_TYPES.filter(a => fromSeeds[a.key].length > 0).map(action => (
+                  <div key={action.key} style={{ marginBottom: 14 }}>
+                    <span style={{ background: action.bg, color: action.color, fontSize: 12, fontWeight: 700, padding: "3px 10px", borderRadius: "var(--radius-pill)", display: "inline-block", marginBottom: 8 }}>
+                      {action.label}
+                    </span>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {fromSeeds[action.key].map(seed => {
+                        const icon = getAutoIcon(seed.name);
+                        return (
+                          <div key={seed.id} style={{ display: "flex", alignItems: "center", gap: 6, background: "#fffdf5", border: "1.5px dashed #d4a96a", borderRadius: "var(--radius-card-sm)", padding: "6px 10px" }}>
+                            {icon && <img src={icon.url} alt="" style={{ width: 20, height: 20, objectFit: "contain", imageRendering: "pixelated" }} />}
+                            <span style={{ fontSize: 13, fontWeight: 700 }}>{seed.name}</span>
+                            {seed.variety && <span style={{ fontSize: 12, color: "#999" }}>{seed.variety}</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
           </div>
         </div>
       )}
