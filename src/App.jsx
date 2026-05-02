@@ -62,16 +62,20 @@ export default function App() {
   useEffect(() => {
     async function loadAll() {
       setSyncing(true);
-      if (supabase) {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          setUserId(session.user.id);
-          setUser({ id: session.user.id, email: session.user.email, name: session.user.user_metadata?.name || "" });
-        } else {
-          setShowAuth(true);
-        }
-      }
       try {
+        if (supabase) {
+          try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+              setUserId(session.user.id);
+              setUser({ id: session.user.id, email: session.user.email, name: session.user.user_metadata?.name || "" });
+            } else {
+              setShowAuth(true);
+            }
+          } catch {
+            setShowAuth(true);
+          }
+        }
         const [dbPlants, dbSeeds, f, db, savedZones] = await Promise.all([
           dbLoadPlants(), dbLoadSeeds(), loadData("frost_dates"), loadData("user_plant_db"), loadData("garden_zones"),
         ]);
@@ -85,26 +89,31 @@ export default function App() {
         else { const seeded = PLANT_DB.map(p => ({ ...p, addedAt: new Date().toISOString(), seeded: true })); setUserDB(seeded); saveData("user_plant_db", seeded); }
       } catch (e) {
         console.error("Load error:", e);
-        const [p, f, db, sl] = await Promise.all([loadData("garden_plants"), loadData("frost_dates"), loadData("user_plant_db"), loadData("seed_library")]);
-        if (p) setPlants(p); if (f) setFrostDates(f); if (sl) setSeeds(sl); if (db) setUserDB(db);
+        try {
+          const [p, f, db, sl] = await Promise.all([loadData("garden_plants"), loadData("frost_dates"), loadData("user_plant_db"), loadData("seed_library")]);
+          if (p) setPlants(p); if (f) setFrostDates(f); if (sl) setSeeds(sl); if (db) setUserDB(db);
+        } catch {}
+      } finally {
+        setSyncing(false); setLoaded(true);
       }
-      setSyncing(false); setLoaded(true);
     }
     loadAll();
   }, []);
 
   useEffect(() => {
     if (!supabase) return;
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        setUserId(session.user.id);
-        setUser({ id: session.user.id, email: session.user.email, name: session.user.user_metadata?.name || "" });
-      } else {
-        setUserId(null);
-        setUser(null);
-      }
-    });
-    return () => subscription.unsubscribe();
+    try {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (session) {
+          setUserId(session.user.id);
+          setUser({ id: session.user.id, email: session.user.email, name: session.user.user_metadata?.name || "" });
+        } else {
+          setUserId(null);
+          setUser(null);
+        }
+      });
+      return () => subscription.unsubscribe();
+    } catch {}
   }, []);
 
   useEffect(() => {
