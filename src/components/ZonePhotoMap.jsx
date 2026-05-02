@@ -129,16 +129,16 @@ export function ZonePhotoMap({ zone, plants, onSaveZone, onClose }) {
             : <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {zonePlants.map(plant => {
                   const icon = getAutoIcon(plant.name);
-                  const alreadyPinned = pins.some(p => p.plantId === plant.id);
+                  const pinCount = pins.filter(p => p.plantId === plant.id).length;
                   return (
-                    <button key={plant.id} onClick={() => placePin(plant)} disabled={alreadyPinned}
-                      style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: alreadyPinned ? "#f5f5f3" : "#fff", border: "2px solid #e0e0e0", borderRadius: "var(--radius-card-sm)", cursor: alreadyPinned ? "default" : "pointer", textAlign: "left", fontFamily: "inherit", opacity: alreadyPinned ? 0.5 : 1 }}>
+                    <button key={plant.id} onClick={() => placePin(plant)}
+                      style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: "#fff", border: "2px solid #e0e0e0", borderRadius: "var(--radius-card-sm)", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}>
                       {icon && <img src={icon.url} alt="" style={{ width: 30, height: 30, objectFit: "contain", imageRendering: "pixelated" }} />}
                       <div style={{ flex: 1 }}>
                         <div style={{ fontWeight: 700, fontSize: 14 }}>{plant.name}</div>
                         {plant.variety && <div style={{ fontSize: 12, color: "#888" }}>{plant.variety}</div>}
                       </div>
-                      {alreadyPinned && <span style={{ fontSize: 12, color: "#aaa" }}>Pinned</span>}
+                      {pinCount > 0 && <span style={{ fontSize: 12, fontWeight: 700, color: "#a8e063", background: "#000", borderRadius: 99, padding: "2px 8px" }}>×{pinCount}</span>}
                     </button>
                   );
                 })}
