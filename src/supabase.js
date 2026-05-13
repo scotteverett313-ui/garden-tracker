@@ -50,7 +50,7 @@ export async function dbSave(key, value) {
   try {
     await supabase
       .from('app_data')
-      .upsert({ key, user_id: _userId, data: value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+      .upsert({ key, user_id: _userId, data: value, updated_at: new Date().toISOString() }, { onConflict: 'key,user_id' });
   } catch (e) {
     console.error('dbSave error:', e);
   }
