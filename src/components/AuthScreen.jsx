@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ICONS, ICON_LIBRARY } from "../constants.js";
-import { authSignIn } from "../supabase.js";
+import { authSignIn, authResetPassword } from "../supabase.js";
 
 export function AuthScreen({ onCreateAccount, onSignIn, onReplayOnboarding, onSkip }) {
   const [mode, setMode] = useState("landing");
@@ -8,13 +8,24 @@ export function AuthScreen({ onCreateAccount, onSignIn, onReplayOnboarding, onSk
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
   async function handleSignIn() {
+    if (!email || !password) { setAuthError("Please enter your email and password."); return; }
     setSubmitting(true); setAuthError("");
     const { data, error } = await authSignIn(email, password);
     setSubmitting(false);
     if (error) { setAuthError(error.message); return; }
     onSignIn({ id: data.user?.id, email: data.user?.email, name: data.user?.user_metadata?.name || "" });
+  }
+
+  async function handleForgotPassword() {
+    if (!email) { setAuthError("Enter your email above, then tap Forgot password."); return; }
+    setSubmitting(true); setAuthError("");
+    const { error } = await authResetPassword(email);
+    setSubmitting(false);
+    if (error) { setAuthError(error.message); return; }
+    setResetSent(true);
   }
 
   const inp = (extra = {}) => ({
@@ -146,16 +157,19 @@ export function AuthScreen({ onCreateAccount, onSignIn, onReplayOnboarding, onSk
                 placeholder="alex@example.com"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && document.getElementById("auth-password-input")?.focus()}
                 style={inp({ borderColor: email.includes("@") && email.length > 3 ? "#a8e063" : "#e0e0e0" })}
               />
             </div>
             <div>
               <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#444" }}>Password</label>
               <input
+                id="auth-password-input"
                 type="password"
                 placeholder="········"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleSignIn()}
                 style={inp()}
               />
             </div>
@@ -175,8 +189,9 @@ export function AuthScreen({ onCreateAccount, onSignIn, onReplayOnboarding, onSk
               </button>
             </div>
             {authError && <div style={{ marginTop: 12, background: "#fdecea", color: "#c0392b", borderRadius: "var(--radius-input)", padding: "10px 14px", fontSize: 13, fontWeight: 600 }}>{authError}</div>}
+            {resetSent && <div style={{ marginTop: 12, background: "#f0fbe8", color: "#2d7a1f", borderRadius: "var(--radius-input)", padding: "10px 14px", fontSize: 13, fontWeight: 600 }}>Reset link sent — check your email.</div>}
             <div style={{ textAlign: "center", marginTop: 14 }}>
-              <button style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "#bbb", fontWeight: 500, fontFamily: "inherit", padding: "6px 0" }}>
+              <button onClick={handleForgotPassword} disabled={submitting} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "#bbb", fontWeight: 500, fontFamily: "inherit", padding: "6px 0" }}>
                 Forgot password?
               </button>
             </div>

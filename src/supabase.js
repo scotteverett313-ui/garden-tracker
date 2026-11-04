@@ -27,6 +27,13 @@ export async function authSignOut() {
   return supabase.auth.signOut();
 }
 
+export async function authResetPassword(email) {
+  if (!supabase) return { error: { message: "Supabase not configured" } };
+  return supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin,
+  });
+}
+
 // ─── Data helpers ─────────────────────────────────────────────────────────────
 
 export async function dbLoad(key) {
